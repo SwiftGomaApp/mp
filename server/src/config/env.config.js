@@ -21,6 +21,9 @@ const schema = z.object({
   SENTRY_ENVIRONMENT: optional,
   SENTRY_RELEASE: optional,
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+
+  DATABASE_URL: z.string().min(1),
+  DB_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 let config = null;
@@ -94,6 +97,8 @@ async function loadConfig() {
       release: env.SENTRY_RELEASE,
       tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
     },
+    databaseUrl: env.DATABASE_URL,
+    dbPoolMax: env.DB_POOL_MAX,
   });
 
   return config;

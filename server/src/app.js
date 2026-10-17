@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const { isShuttingDown } = require("./core/shutdown");
 const { requestId } = require("./core/middlewares/requestId.middleware");
 const { notFoundHandler, errorHandler } = require("./core/middlewares/error.middleware");
+const { getPrisma } = require("./core/db/prisma");
 
 function createApp(config) {
   const app = express();
@@ -29,9 +30,14 @@ function createApp(config) {
   app.use(morgan(config.isProd ? "combined" : "dev"));
   app.use(express.json({ limit: "1mb" }));
 
-  app.get("/api/v1/health", (req, res) => {
+  app.get("/api/v1/health", async (req, res, next) => {
     if (isShuttingDown()) return res.status(503).json({ status: "shutting_down" });
-    res.json({ status: "ok" });
+    try {
+      await getPrisma().$queryRaw`SELECT 1`;
+      res.json({ status: "ok", database: "up" });
+    } catch (err) {
+      next(err);
+    }
   });
 
   if (!config.isProd) {

@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "@infisical/sdk": "^5.0.2",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "@sentry/node": "^11.8.0",
     "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
@@ -44,6 +46,7 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.12.1",
+    "pg": "^8.23.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
@@ -52,6 +55,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
     "nodemon": "^3.1.14",
-    "prettier": "^3.9.10"
+    "prettier": "^3.9.10",
+    "prisma": "^7.10.1"
   }
 }

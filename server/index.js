@@ -4,9 +4,11 @@ const Sentry = require("@sentry/node");
 const { loadConfig } = require("./src/config/env.config");
 const { createApp } = require("./src/app");
 const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
+const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
 
 async function main() {
   const config = await loadConfig();
+  await connectPrisma();
   const app = createApp(config);
 
   const server = app.listen(config.port, () => {
@@ -18,6 +20,7 @@ async function main() {
     onError: (err) => Sentry.captureException(err),
   });
 
+  onShutdown("prisma", () => disconnectPrisma());
   onShutdown("sentry", () => Sentry.close(2000));
 }
 

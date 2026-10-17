@@ -11,6 +11,7 @@ async function main() {
   const config = await loadConfig();
   await connectPrisma();
   await connectRedis();
+  const app = createApp(config);
 
   const server = app.listen(config.port, () => {
     console.log(`Server running on port ${config.port} (${config.env})`);

@@ -5,12 +5,15 @@ const cors = require("cors");
 const compression = require("compression");
 const morgan = require("morgan");
 const { isShuttingDown } = require("./core/shutdown");
+const { requestId } = require("./core/middlewares/requestId.middleware");
+const { notFoundHandler, errorHandler } = require("./core/middlewares/error.middleware");
 
 function createApp(config) {
   const app = express();
 
   if (config.isProd) app.set("trust proxy", 1);
   app.disable("x-powered-by");
+  app.use(requestId);
 
   app.use(helmet());
   app.use(
@@ -37,21 +40,11 @@ function createApp(config) {
     });
   }
 
-  app.use((req, res) => {
-    res.status(404).json({ error: { code: "NOT_FOUND", message: "Route not found" } });
-  });
+  app.use(notFoundHandler);
 
   Sentry.setupExpressErrorHandler(app);
 
-  app.use((err, req, res, next) => {
-    const status = err.status || 500;
-    res.status(status).json({
-      error: {
-        code: status === 500 ? "INTERNAL_ERROR" : "REQUEST_ERROR",
-        message: status === 500 ? "Something went wrong" : err.message,
-      },
-    });
-  });
+  app.use(errorHandler);
 
   return app;
 }

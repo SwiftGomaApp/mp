@@ -29,6 +29,21 @@ const schema = z.object({
 
   REDIS_URL: z.string().min(1),
   REDIS_KEY_PREFIX: z.string().default("swg:"),
+
+  SMTP_HOST: z.string().min(1),
+  SMTP_PORT: z.coerce.number().int().positive().default(465),
+  SMTP_SECURE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  SMTP_USER: z.string().min(1),
+  SMTP_PASS: z.string().min(1),
+  MAIL_FROM: z.string().min(1),
+  MAIL_LOGO_URL: z.string().url(),
+  MAIL_SUPPORT_EMAIL: z.string().email().default("support@swiftgoma.com"),
+  MAIL_PRIVACY_URL: z.string().url(),
+  MAIL_LOGO_WIDTH: z.coerce.number().int().positive().default(140),
+  MAIL_LOGO_HEIGHT: z.coerce.number().int().positive().default(40),
 });
 
 let config = null;
@@ -107,6 +122,21 @@ async function loadConfig() {
     redis: {
       url: env.REDIS_URL,
       keyPrefix: env.REDIS_KEY_PREFIX,
+    },
+    smtp: {
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT,
+      secure: env.SMTP_SECURE,
+      user: env.SMTP_USER,
+      pass: env.SMTP_PASS,
+      from: env.MAIL_FROM,
+    },
+    mail: {
+      logoUrl: env.MAIL_LOGO_URL,
+      supportEmail: env.MAIL_SUPPORT_EMAIL,
+      privacyUrl: env.MAIL_PRIVACY_URL,
+      logoWidth: env.MAIL_LOGO_WIDTH,
+      logoHeight: env.MAIL_LOGO_HEIGHT,
     },
   });
 

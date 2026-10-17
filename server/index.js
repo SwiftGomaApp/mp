@@ -7,11 +7,13 @@ const { createApp } = require("./src/app");
 const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
 const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
 const { connectRedis, disconnectRedis } = require("./src/core/cache/redis");
+const { verifyMailer, closeMailer } = require("./src/core/mail/mailer");
 
 async function main() {
   const config = await loadConfig();
   await connectPrisma();
   await connectRedis();
+  await verifyMailer().catch((err) => logger.warn({ err }, "SMTP not reachable"));
   const app = createApp(config);
 
   const server = app.listen(config.port, () => {
@@ -25,6 +27,7 @@ async function main() {
 
   onShutdown("redis", () => disconnectRedis());
   onShutdown("prisma", () => disconnectPrisma());
+  onShutdown("mailer", () => closeMailer());
   onShutdown("sentry", () => Sentry.close(2000));
 }
 

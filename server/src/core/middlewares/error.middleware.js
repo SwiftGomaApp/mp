@@ -1,5 +1,6 @@
 const { z } = require("zod");
 const { AppError } = require("../errors/AppError");
+const { logger } = require("../logger/logger");
 
 z.config(z.locales.fr());
 
@@ -55,7 +56,7 @@ function errorHandler(err, req, res, next) {
   const status = known ? known.status : 500;
 
   if (status >= 500) {
-    console.error(`[${req.id}] ${req.method} ${req.originalUrl}`, err);
+    (req.log || logger).error({ err, requestId: req.id }, "Unhandled server error");
   }
 
   res.status(status).json({

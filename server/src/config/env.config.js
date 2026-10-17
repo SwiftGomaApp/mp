@@ -17,6 +17,8 @@ const schema = z.object({
         .filter(Boolean),
     ),
 
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
+
   SENTRY_DSN: optional,
   SENTRY_ENVIRONMENT: optional,
   SENTRY_RELEASE: optional,

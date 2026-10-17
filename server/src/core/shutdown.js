@@ -1,3 +1,5 @@
+const { logger } = require("./logger/logger");
+
 const hooks = [];
 let shuttingDown = false;
 
@@ -13,10 +15,10 @@ function setupGracefulShutdown(server, { timeoutMs = 10000, onError } = {}) {
   async function shutdown(reason, exitCode = 0) {
     if (shuttingDown) return;
     shuttingDown = true;
-    console.log(`Shutting down (${reason})...`);
+    logger.info({ reason }, "Shutting down");
 
     const timer = setTimeout(() => {
-      console.error("Shutdown timed out, forcing exit");
+      logger.error("Shutdown timed out, forcing exit");
       process.exit(1);
     }, timeoutMs);
     timer.unref();
@@ -25,9 +27,9 @@ function setupGracefulShutdown(server, { timeoutMs = 10000, onError } = {}) {
       for (const { name, fn } of [...hooks].reverse()) {
         try {
           await fn();
-          console.log(`Closed: ${name}`);
+          logger.info({ resource: name }, "Closed");
         } catch (err) {
-          console.error(`Error closing ${name}:`, err.message);
+          logger.error({ err, resource: name }, "Error while closing");
         }
       }
       clearTimeout(timer);
@@ -41,13 +43,13 @@ function setupGracefulShutdown(server, { timeoutMs = 10000, onError } = {}) {
   process.on("SIGINT", () => shutdown("SIGINT"));
 
   process.on("unhandledRejection", (reason) => {
-    console.error("Unhandled rejection:", reason);
+    logger.fatal({ err: reason }, "Unhandled rejection");
     onError?.(reason);
     shutdown("unhandledRejection", 1);
   });
 
   process.on("uncaughtException", (err) => {
-    console.error("Uncaught exception:", err);
+    logger.fatal({ err }, "Uncaught exception");
     onError?.(err);
     shutdown("uncaughtException", 1);
   });

@@ -3,8 +3,8 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const compression = require("compression");
-const morgan = require("morgan");
 const { requestId } = require("./core/middlewares/requestId.middleware");
+const { httpLogger } = require("./core/middlewares/httpLogger.middleware");
 const { notFoundHandler, errorHandler } = require("./core/middlewares/error.middleware");
 const { globalLimiter } = require("./core/middlewares/rateLimit.middleware");
 const routes = require("./routes");
@@ -15,6 +15,7 @@ function createApp(config) {
   if (config.isProd) app.set("trust proxy", 1);
   app.disable("x-powered-by");
   app.use(requestId);
+  app.use(httpLogger);
 
   app.use(helmet());
   app.use(
@@ -27,7 +28,6 @@ function createApp(config) {
     }),
   );
   app.use(compression());
-  app.use(morgan(config.isProd ? "combined" : "dev"));
   app.use(express.json({ limit: "1mb" }));
 
   app.use("/api/v1", globalLimiter);

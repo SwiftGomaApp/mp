@@ -2,6 +2,7 @@ require("./instrument");
 
 const Sentry = require("@sentry/node");
 const { loadConfig } = require("./src/config/env.config");
+const { logger } = require("./src/core/logger/logger");
 const { createApp } = require("./src/app");
 const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
 const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
@@ -14,7 +15,7 @@ async function main() {
   const app = createApp(config);
 
   const server = app.listen(config.port, () => {
-    console.log(`Server running on port ${config.port} (${config.env})`);
+    logger.info({ port: config.port, env: config.env }, "Server started");
   });
 
   setupGracefulShutdown(server, {
@@ -29,6 +30,6 @@ async function main() {
 
 main().catch((err) => {
   Sentry.captureException(err);
-  console.error(err.message);
+  logger.fatal({ err }, "Startup failed");
   Sentry.close(2000).finally(() => process.exit(1));
 });

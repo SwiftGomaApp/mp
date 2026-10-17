@@ -1,5 +1,6 @@
 const Redis = require("ioredis");
 const { getConfig } = require("../../config/env.config");
+const { logger } = require("../logger/logger");
 
 let client = null;
 
@@ -16,7 +17,7 @@ function getRedis() {
   });
 
   client.on("error", (err) => {
-    console.error("Redis error:", err.message);
+    logger.error({ err }, "Redis error");
   });
 
   return client;

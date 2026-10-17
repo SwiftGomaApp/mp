@@ -1,18 +1,21 @@
 const express = require("express");
 
-const app = express();
-const PORT = process.env.PORT || 4000;
+const { loadConfig } = require("./src/config/env.config");
 
-app.use(express.json());
+async function main() {
+  const config = await loadConfig();
 
-app.get("/", (req, res) => {
-  res.json({ message: "SwiftGoma MarketPlace API is running" });
-});
+  const app = express();
+  app.use(express.json());
 
-app.get("/api/v1/health", (req, res) => {
-  res.json({ status: "ok" });
-});
+  app.get("/api/v1/health", (req, res) => res.json({ status: "ok" }));
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  app.listen(config.port, () => {
+    console.log(`Server running on port ${config.port} (${config.env})`);
+  });
+}
+
+main().catch((err) => {
+  console.error(err.message);
+  process.exit(1);
 });

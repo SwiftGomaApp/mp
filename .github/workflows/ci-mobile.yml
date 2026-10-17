@@ -3,11 +3,6 @@ name: CI - Mobile apps
 on:
   pull_request:
     branches: [dev, main]
-    paths:
-      - "apps/mobile-buyer/**"
-      - "apps/mobile-seller/**"
-      - "apps/mobile-rider/**"
-      - ".github/workflows/ci-mobile.yml"
   push:
     branches: [dev, main]
     paths:
@@ -33,15 +28,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Skip notice
+        if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) == ''
+        run: echo "apps/${{ matrix.app }}/package-lock.json not found yet, skipping."
+        working-directory: .
+
       - uses: actions/setup-node@v4
+        if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
 
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test --if-present
+      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
+        run: npm ci
+      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
+        run: npm run lint
+      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
+        run: npm test --if-present
       - name: Check Expo config and dependencies
+        if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
         run: npx expo-doctor
         continue-on-error: true

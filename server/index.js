@@ -5,11 +5,12 @@ const { loadConfig } = require("./src/config/env.config");
 const { createApp } = require("./src/app");
 const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
 const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
+const { connectRedis, disconnectRedis } = require("./src/core/cache/redis");
 
 async function main() {
   const config = await loadConfig();
   await connectPrisma();
-  const app = createApp(config);
+  await connectRedis();
 
   const server = app.listen(config.port, () => {
     console.log(`Server running on port ${config.port} (${config.env})`);
@@ -20,6 +21,7 @@ async function main() {
     onError: (err) => Sentry.captureException(err),
   });
 
+  onShutdown("redis", () => disconnectRedis());
   onShutdown("prisma", () => disconnectPrisma());
   onShutdown("sentry", () => Sentry.close(2000));
 }

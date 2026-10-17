@@ -8,6 +8,7 @@ const { isShuttingDown } = require("./core/shutdown");
 const { requestId } = require("./core/middlewares/requestId.middleware");
 const { notFoundHandler, errorHandler } = require("./core/middlewares/error.middleware");
 const { getPrisma } = require("./core/db/prisma");
+const { getRedis } = require("./core/cache/redis");
 
 function createApp(config) {
   const app = express();
@@ -33,8 +34,8 @@ function createApp(config) {
   app.get("/api/v1/health", async (req, res, next) => {
     if (isShuttingDown()) return res.status(503).json({ status: "shutting_down" });
     try {
-      await getPrisma().$queryRaw`SELECT 1`;
-      res.json({ status: "ok", database: "up" });
+      await Promise.all([getPrisma().$queryRaw`SELECT 1`, getRedis().ping()]);
+      res.json({ status: "ok", database: "up", redis: "up" });
     } catch (err) {
       next(err);
     }

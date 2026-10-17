@@ -24,6 +24,9 @@ const schema = z.object({
 
   DATABASE_URL: z.string().min(1),
   DB_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
+
+  REDIS_URL: z.string().min(1),
+  REDIS_KEY_PREFIX: z.string().default("swg:"),
 });
 
 let config = null;
@@ -99,6 +102,10 @@ async function loadConfig() {
     },
     databaseUrl: env.DATABASE_URL,
     dbPoolMax: env.DB_POOL_MAX,
+    redis: {
+      url: env.REDIS_URL,
+      keyPrefix: env.REDIS_KEY_PREFIX,
+    },
   });
 
   return config;

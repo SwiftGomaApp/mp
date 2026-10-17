@@ -49,6 +49,8 @@ jobs:
       JWT_REFRESH_SECRET: ci-refresh-secret
       QR_HMAC_SECRET: ci-qr-secret
       SECRETS_PROVIDER: dotenv
+      API_BASE_URL: http://localhost:4000
+      CORS_ORIGINS: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4

@@ -1,6 +1,7 @@
 {
-  "name": "mp-api",
-  "version": "1.0.0",
+  "name": "swiftgoma-mp-server",
+  "version": "0.1.0",
+  "private": true,
   "description": "SwiftGoma MarketPlace API: Node.js/Express backend for auth, shops, orders, escrow payments, wallets and delivery, with QR-confirmed handover.",
   "keywords": [
     "marketplace",
@@ -18,12 +19,19 @@
     "goma",
     "drc"
   ],
-  "license": "ISC",
+  "license": "UNLICENSED",
   "author": "SwiftGoma-BalekageGael",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "@infisical/sdk": "^5.0.2",
@@ -39,6 +47,11 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.10"
   }
 }

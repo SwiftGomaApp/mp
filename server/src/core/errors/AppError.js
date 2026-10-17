@@ -8,25 +8,28 @@ class AppError extends Error {
     Error.captureStackTrace?.(this, this.constructor);
   }
 
-  static badRequest(message = "Bad request", details, code = "BAD_REQUEST") {
+  static badRequest(message = "Requête invalide", details, code = "BAD_REQUEST") {
     return new AppError(400, code, message, details);
   }
-  static unauthorized(message = "Authentication required", code = "UNAUTHORIZED") {
+  static unauthorized(message = "Authentification requise", code = "UNAUTHORIZED") {
     return new AppError(401, code, message);
   }
-  static forbidden(message = "Access denied", code = "FORBIDDEN") {
+  static forbidden(message = "Accès refusé", code = "FORBIDDEN") {
     return new AppError(403, code, message);
   }
-  static notFound(message = "Resource not found", code = "NOT_FOUND") {
+  static notFound(message = "Ressource introuvable", code = "NOT_FOUND") {
     return new AppError(404, code, message);
   }
-  static conflict(message = "Conflict", code = "CONFLICT") {
+  static conflict(message = "Conflit avec l'état actuel de la ressource", code = "CONFLICT") {
     return new AppError(409, code, message);
   }
-  static tooManyRequests(message = "Too many requests", code = "TOO_MANY_REQUESTS") {
+  static tooManyRequests(
+    message = "Trop de requêtes, veuillez réessayer plus tard",
+    code = "TOO_MANY_REQUESTS",
+  ) {
     return new AppError(429, code, message);
   }
-  static internal(message = "Something went wrong", code = "INTERNAL_ERROR") {
+  static internal(message = "Une erreur est survenue", code = "INTERNAL_ERROR") {
     return new AppError(500, code, message);
   }
 }

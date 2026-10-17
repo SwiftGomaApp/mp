@@ -1,0 +1,42 @@
+name: Deploy - Server
+
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - "server/**"
+
+concurrency:
+  group: deploy-server-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # dev -> staging, main -> production
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - run: npm ci
+      - run: npx prisma generate
+
+      - name: Deploy
+        run: |
+          echo "Deploying ${{ github.ref_name }} to ${{ github.ref_name == 'main' && 'production' || 'staging' }}"
+          # TODO: add your deploy step (SSH to VPS, Docker push, etc.)
+          # Secrets come from the GitHub Environment (or Infisical), never from the repo.
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}

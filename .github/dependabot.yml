@@ -1,0 +1,50 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /server
+    target-branch: dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /apps/web-buyer
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /apps/admin
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /apps/docs
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /apps/mobile-buyer
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /apps/mobile-seller
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /apps/mobile-rider
+    target-branch: dev
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly

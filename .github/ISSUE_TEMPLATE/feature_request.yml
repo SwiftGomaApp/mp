@@ -1,0 +1,33 @@
+name: Feature request
+description: Propose a new feature or improvement
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - server
+        - web-buyer
+        - admin
+        - docs
+        - mobile-buyer
+        - mobile-seller
+        - mobile-rider
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or need
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+  - type: input
+    id: spec
+    attributes:
+      label: Spec section
+      placeholder: "e.g. 1.4.5 Faire un retrait"

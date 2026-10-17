@@ -1,0 +1,19 @@
+# Default owner
+
+-                       @your-github-username
+
+# Server, with extra care on money and auth
+
+/server/ @your-github-username
+/server/src/features/wallet/ @your-github-username
+/server/src/features/payment/ @your-github-username
+/server/src/features/auth/ @your-github-username
+/server/prisma/ @your-github-username
+
+# Frontends
+
+/apps/ @your-github-username
+
+# CI and repo config
+
+/.github/ @your-github-username

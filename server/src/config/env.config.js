@@ -1,43 +1,27 @@
 const path = require("path");
 const { z } = require("zod");
 
-const bool = z.enum(["true", "false"]).transform((v) => v === "true");
 const optional = z.string().trim().optional().default("");
 
-const schema = z
-  .object({
-    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
-    PORT: z.coerce.number().int().positive().default(4000),
-    API_BASE_URL: z.string().url(),
-    CORS_ORIGINS: z
-      .string()
-      .min(1)
-      .transform((v) =>
-        v
-          .split(",")
-          .map((o) => o.trim())
-          .filter(Boolean),
-      ),
-  })
-  .superRefine((env, ctx) => {
-    const need = (keys) =>
-      keys.forEach((k) => {
-        if (!env[k]) {
-          ctx.addIssue({
-            code: "custom",
-            path: [k],
-            message: `required when MESSAGING_PROVIDER=${env.MESSAGING_PROVIDER}`,
-          });
-        }
-      });
+const schema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  PORT: z.coerce.number().int().positive().default(4000),
+  API_BASE_URL: z.string().url(),
+  CORS_ORIGINS: z
+    .string()
+    .min(1)
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
 
-    if (env.MESSAGING_PROVIDER === "twilio") {
-      need(["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]);
-    }
-    if (env.MESSAGING_PROVIDER === "infobip") {
-      need(["INFOBIP_BASE_URL", "INFOBIP_API_KEY"]);
-    }
-  });
+  SENTRY_DSN: optional,
+  SENTRY_ENVIRONMENT: optional,
+  SENTRY_RELEASE: optional,
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
+});
 
 let config = null;
 
@@ -104,6 +88,12 @@ async function loadConfig() {
     port: env.PORT,
     apiBaseUrl: env.API_BASE_URL,
     corsOrigins: env.CORS_ORIGINS,
+    sentry: {
+      dsn: env.SENTRY_DSN,
+      environment: env.SENTRY_ENVIRONMENT || env.NODE_ENV,
+      release: env.SENTRY_RELEASE,
+      tracesSampleRate: env.SENTRY_TRACES_SAMPLE_RATE,
+    },
   });
 
   return config;

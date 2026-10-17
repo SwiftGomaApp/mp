@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@infisical/sdk": "^5.0.2",
+    "@sentry/node": "^11.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",

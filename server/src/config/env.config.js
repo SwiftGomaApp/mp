@@ -29,6 +29,7 @@ const schema = z.object({
 
   REDIS_URL: z.string().min(1),
   REDIS_KEY_PREFIX: z.string().default("swg:"),
+  WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(50).default(5),
 
   SMTP_HOST: z.string().min(1),
   SMTP_PORT: z.coerce.number().int().positive().default(465),
@@ -132,6 +133,7 @@ async function loadConfig() {
       url: env.REDIS_URL,
       keyPrefix: env.REDIS_KEY_PREFIX,
     },
+    workerConcurrency: env.WORKER_CONCURRENCY,
     smtp: {
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,

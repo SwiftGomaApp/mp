@@ -2,8 +2,8 @@ const AfricasTalking = require("africastalking");
 const { getConfig } = require("../../config/env.config");
 const { logger } = require("../logger/logger");
 const { AppError } = require("../errors/AppError");
+const { isValidDrcPhone } = require("../validation/phone");
 
-const DRC_PHONE = /^\+243[0-9]{9}$/;
 const ACCEPTED_CODES = new Set([100, 101, 102]);
 
 let client = null;
@@ -15,13 +15,9 @@ function getSmsClient() {
   return client;
 }
 
-function isValidDrcPhone(phone) {
-  return DRC_PHONE.test(String(phone || ""));
-}
-
 function maskPhone(phone) {
   const value = String(phone || "");
-  return value.length > 6 ? `${value.slice(0, 6)}•••${value.slice(-2)}` : "•••";
+  return value.length > 6 ? `${value.slice(0, 6)}***${value.slice(-2)}` : "***";
 }
 
 function withTimeout(promise, ms) {

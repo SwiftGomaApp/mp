@@ -8,6 +8,7 @@ const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
 const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
 const { connectRedis, disconnectRedis } = require("./src/core/cache/redis");
 const { verifyMailer, closeMailer } = require("./src/core/mail/mailer");
+const { closeQueues } = require("./src/core/queue/queues");
 
 async function main() {
   const config = await loadConfig();
@@ -26,6 +27,7 @@ async function main() {
   });
 
   onShutdown("redis", () => disconnectRedis());
+  onShutdown("queues", () => closeQueues());
   onShutdown("prisma", () => disconnectPrisma());
   onShutdown("mailer", () => closeMailer());
   onShutdown("sentry", () => Sentry.close(2000));

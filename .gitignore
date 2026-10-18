@@ -35,3 +35,6 @@ ios/
 
 # Prisma local DB files and uploads
 server/uploads/
+
+# Local manual test scripts (they can send real emails and SMS)
+server/scripts/test-*.js

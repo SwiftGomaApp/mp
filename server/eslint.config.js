@@ -16,5 +16,11 @@ module.exports = [
       "no-console": "off",
     },
   },
+  {
+    files: ["**/*.mjs"],
+    languageOptions: {
+      sourceType: "module",
+    },
+  },
   prettier,
 ];

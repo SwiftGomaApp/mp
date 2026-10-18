@@ -51,6 +51,19 @@ jobs:
       SECRETS_PROVIDER: dotenv
       API_BASE_URL: http://localhost:4000
       CORS_ORIGINS: http://localhost:3000
+      LOG_LEVEL: silent
+      SMTP_HOST: smtp.example.com
+      SMTP_PORT: 465
+      SMTP_SECURE: "true"
+      SMTP_USER: ci@example.com
+      SMTP_PASS: ci-password
+      MAIL_FROM: "SwiftGoma <ci@example.com>"
+      MAIL_LOGO_URL: https://example.com/logo.png
+      MAIL_SUPPORT_EMAIL: support@example.com
+      MAIL_PRIVACY_URL: https://example.com/privacy
+      AT_USERNAME: sandbox
+      AT_API_KEY: ci-key
+      SMS_DRY_RUN: "true"
 
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +76,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: hashFiles('server/package-lock.json') != ''
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
           cache-dependency-path: server/package-lock.json
 

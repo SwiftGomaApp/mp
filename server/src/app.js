@@ -12,7 +12,7 @@ const routes = require("./routes");
 function createApp(config) {
   const app = express();
 
-  if (config.isProd) app.set("trust proxy", 1);
+  if (config.trustProxy) app.set("trust proxy", config.trustProxy);
   app.disable("x-powered-by");
   app.use(requestId);
   app.use(httpLogger);

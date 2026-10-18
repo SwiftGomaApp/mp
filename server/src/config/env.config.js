@@ -3,6 +3,15 @@ const { z } = require("zod");
 
 const optional = z.string().trim().optional().default("");
 
+function parseTrustProxy(value) {
+  const v = String(value ?? "")
+    .trim()
+    .toLowerCase();
+  if (v === "" || v === "false" || v === "0") return false;
+  if (/^[0-9]+$/.test(v)) return Number(v);
+  return null;
+}
+
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
@@ -16,6 +25,21 @@ const schema = z.object({
         .map((o) => o.trim())
         .filter(Boolean),
     ),
+
+  TRUST_PROXY: z
+    .string()
+    .default("false")
+    .transform((value, ctx) => {
+      const parsed = parseTrustProxy(value);
+      if (parsed === null) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Use false or the number of trusted proxies (for example 1)",
+        });
+        return z.NEVER;
+      }
+      return parsed;
+    }),
 
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
 
@@ -121,6 +145,7 @@ async function loadConfig() {
     port: env.PORT,
     apiBaseUrl: env.API_BASE_URL,
     corsOrigins: env.CORS_ORIGINS,
+    trustProxy: env.TRUST_PROXY,
     sentry: {
       dsn: env.SENTRY_DSN,
       environment: env.SENTRY_ENVIRONMENT || env.NODE_ENV,
@@ -166,4 +191,4 @@ function getConfig() {
   return config;
 }
 
-module.exports = { loadConfig, getConfig };
+module.exports = { loadConfig, getConfig, parseTrustProxy };

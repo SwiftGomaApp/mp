@@ -3,7 +3,7 @@ const { RedisStore } = require("rate-limit-redis");
 const { getRedis } = require("../cache/redis");
 const { AppError } = require("../errors/AppError");
 
-function createLimiter({ name, windowMs, limit, keyGenerator, message }) {
+function createLimiter({ name, windowMs, limit, keyGenerator, message, createStore }) {
   let limiter = null;
 
   return (req, res, next) => {
@@ -16,15 +16,49 @@ function createLimiter({ name, windowMs, limit, keyGenerator, message }) {
         passOnStoreError: true,
         validate: { creationStack: false },
         keyGenerator: keyGenerator || ((r) => ipKeyGenerator(r.ip)),
-        store: new RedisStore({
-          prefix: `rl:${name}:`,
-          sendCommand: (...args) => getRedis().call(...args),
-        }),
+        ...(createStore
+          ? { store: createStore() }
+          : {
+              store: new RedisStore({
+                prefix: `rl:${name}:`,
+                sendCommand: (...args) => getRedis().call(...args),
+              }),
+            }),
         handler: (r, s, n) => n(AppError.tooManyRequests(message)),
       });
     }
     return limiter(req, res, next);
   };
+}
+
+function normalizeTarget(req) {
+  const raw = req.body?.phone || req.body?.email;
+  const value = String(raw ?? "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+  return value || ipKeyGenerator(req.ip);
+}
+
+function createOtpLimiters({ createStore } = {}) {
+  const message = "Trop de codes demandés, veuillez réessayer plus tard";
+
+  return [
+    createLimiter({
+      name: "otp-ip",
+      windowMs: 60 * 60 * 1000,
+      limit: 10,
+      message,
+      createStore,
+    }),
+    createLimiter({
+      name: "otp-target",
+      windowMs: 60 * 60 * 1000,
+      limit: 5,
+      message,
+      keyGenerator: normalizeTarget,
+      createStore,
+    }),
+  ];
 }
 
 const globalLimiter = createLimiter({
@@ -40,12 +74,13 @@ const authLimiter = createLimiter({
   message: "Trop de tentatives, veuillez réessayer dans quelques minutes",
 });
 
-const otpLimiter = createLimiter({
-  name: "otp",
-  windowMs: 60 * 60 * 1000,
-  limit: 5,
-  message: "Trop de codes demandés, veuillez réessayer plus tard",
-  keyGenerator: (req) => `${ipKeyGenerator(req.ip)}:${req.body?.phone || req.body?.email || ""}`,
-});
+const otpLimiter = createOtpLimiters();
 
-module.exports = { createLimiter, globalLimiter, authLimiter, otpLimiter };
+module.exports = {
+  createLimiter,
+  createOtpLimiters,
+  normalizeTarget,
+  globalLimiter,
+  authLimiter,
+  otpLimiter,
+};

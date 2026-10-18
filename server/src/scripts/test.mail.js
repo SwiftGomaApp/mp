@@ -1,5 +1,5 @@
-const { loadConfig } = require("./src/config/env.config");
-const { sendOtpEmail, sendLoginAlertEmail } = require("./src/core/mail/mail.service");
+const { loadConfig } = require("../config/env.config");
+const { sendOtpEmail, sendLoginAlertEmail } = require("../core/mail/mail.service");
 
 (async () => {
   await loadConfig();

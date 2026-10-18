@@ -44,6 +44,15 @@ const schema = z.object({
   MAIL_PRIVACY_URL: z.string().url(),
   MAIL_LOGO_WIDTH: z.coerce.number().int().positive().default(140),
   MAIL_LOGO_HEIGHT: z.coerce.number().int().positive().default(40),
+
+  AT_USERNAME: z.string().min(1),
+  AT_API_KEY: z.string().min(1),
+  AT_SENDER_ID: optional,
+  SMS_DRY_RUN: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
+  SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
 });
 
 let config = null;
@@ -137,6 +146,13 @@ async function loadConfig() {
       privacyUrl: env.MAIL_PRIVACY_URL,
       logoWidth: env.MAIL_LOGO_WIDTH,
       logoHeight: env.MAIL_LOGO_HEIGHT,
+    },
+    sms: {
+      username: env.AT_USERNAME,
+      apiKey: env.AT_API_KEY,
+      senderId: env.AT_SENDER_ID,
+      dryRun: env.SMS_DRY_RUN,
+      timeoutMs: env.SMS_TIMEOUT_MS,
     },
   });
 

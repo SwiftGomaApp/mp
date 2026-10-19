@@ -6,6 +6,8 @@ datasource db {
   provider = "postgresql"
 }
 
+// ======================================================= ENUMS ===========================================
+
 enum Role {
   BUYER
   SELLER
@@ -15,24 +17,200 @@ enum Role {
 }
 
 enum UserStatus {
+  PENDING
+  PENDING_APPROVAL
   ACTIVE
   SUSPENDED
   BANNED
   DELETED
 }
 
+enum AuthMethod {
+  EMAIL_OTP
+  PHONE_OTP
+  PASSWORD
+  GOOGLE
+  APPLE
+  PASSKEY
+}
+
+enum DevicePlatform {
+  ANDROID
+  IOS
+  WEB
+}
+
+enum ActivityEvent {
+  SIGNUP_STARTED
+  SIGNUP_COMPLETED
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  ACCOUNT_LOCKED
+  LOGOUT
+  LOGOUT_ALL
+  SESSION_REVOKED
+  SESSION_EVICTED
+  TOKEN_REUSE_DETECTED
+  NEW_DEVICE
+  OTP_REQUESTED
+  OTP_FAILED
+  STEP_UP_VERIFIED
+  PASSWORD_SET
+  PASSWORD_CHANGED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  EMAIL_CHANGED
+  PHONE_CHANGED
+  TOTP_ENABLED
+  TOTP_DISABLED
+  TOTP_FAILED
+  BACKUP_CODES_GENERATED
+  BACKUP_CODE_USED
+  PASSKEY_ADDED
+  PASSKEY_RENAMED
+  PASSKEY_REMOVED
+  ACCOUNT_SUSPENDED
+  ACCOUNT_BANNED
+  ACCOUNT_REACTIVATED
+  SUSPICIOUS_ACTIVITY_REPORTED
+}
+
+// ======================================================= MODELS ===========================================
+
+// ---------------------- user model -------------------------
+
 model User {
   id              String     @id @default(uuid())
   name            String?
   email           String?    @unique
   phone           String?    @unique
-  passwordHash    String?
-  role            Role
-  status          UserStatus @default(ACTIVE)
   emailVerifiedAt DateTime?
   phoneVerifiedAt DateTime?
+  passwordHash    String?
+  role            Role
+  status          UserStatus @default(PENDING)
+  termsVersion    String?
+  privacyVersion  String?
+  termsAcceptedAt DateTime?
+  ageConfirmedAt  DateTime?
+  lastLoginAt     DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
+  sessions     Session[]
+  passkeys     Passkey[]
+  totp         TotpCredential?
+  backupCodes  BackupCode[]
+  activityLogs ActivityLog[]
+
+  @@index([status, createdAt])
   @@map("users")
+}
+
+// ---------------------- session model -------------------------
+
+model Session {
+  id                       String         @id @default(uuid())
+  userId                   String
+  user                     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash         String         @unique
+  previousRefreshTokenHash String?        @unique
+  rotatedAt                DateTime?
+  deviceId                 String
+  deviceName               String?
+  platform                 DevicePlatform
+  authMethod               AuthMethod
+  userAgent                String?
+  ipAddress                String?
+  city                     String?
+  country                  String?
+  pushToken                String?
+  lastSeenAt               DateTime       @default(now())
+  expiresAt                DateTime
+  createdAt                DateTime       @default(now())
+  revokedAt                DateTime?
+  revokedReason            String?
+
+  @@index([userId, revokedAt])
+  @@index([userId, deviceId])
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+// ---------------------- passkey model -------------------------
+
+model Passkey {
+  id           String    @id @default(uuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  credentialId String    @unique
+  publicKey    String
+  algorithm    String    @default("ES256")
+  signCount    Int       @default(0)
+  deviceId     String?
+  lastUsedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+
+  @@index([userId, revokedAt])
+  @@map("passkeys")
+}
+
+// ---------------------- totp model -------------------------
+
+model TotpCredential {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secretEncrypted  String
+  confirmedAt      DateTime?
+  lastUsedStep     Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("totp_credentials")
+}
+
+// ---------------------- backup model -------------------------
+
+model BackupCode {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, codeHash])
+  @@index([userId, usedAt])
+  @@map("backup_codes")
+}
+
+// ---------------------- activity model -------------------------
+
+model ActivityLog {
+  id         String         @id @default(uuid())
+  userId     String?
+  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event      ActivityEvent
+  success    Boolean        @default(true)
+  method     AuthMethod?
+  sessionId  String?
+  deviceId   String?
+  deviceName String?
+  platform   DevicePlatform?
+  ipAddress  String?
+  city       String?
+  country    String?
+  userAgent  String?
+  target     String?
+  metadata   Json?
+  createdAt  DateTime       @default(now())
+
+  @@index([userId, createdAt])
+  @@index([event, createdAt])
+  @@index([createdAt])
+  @@map("activity_logs")
 }

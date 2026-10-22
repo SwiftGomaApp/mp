@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const controller = require("../controllers/auth.controller");
 const { validate } = require("../../../core/middlewares/validate.middleware");
+const { authenticate } = require("../../../core/middlewares/auth.middleware");
 const { otpLimiter, authLimiter } = require("../../../core/middlewares/rateLimit.middleware");
 const {
   signupEmailBody,
@@ -10,10 +11,11 @@ const {
 } = require("../validators/signup.validator");
 const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
 const { refreshBody } = require("../validators/session.validator");
-const { authenticate } = require("../../../core/middlewares/auth.middleware");
+const { confirmBody, factorBody, loginChallengeBody } = require("../validators/totp.validator");
 
 const router = Router();
 
+// ===================================== SIGNUP =====================================
 router.post(
   "/signup/email",
   validate({ body: signupEmailBody }),
@@ -34,13 +36,13 @@ router.post(
   controller.resend,
 );
 
+// ===================================== LOGIN =====================================
 router.post(
   "/login/otp/request",
   validate({ body: loginOtpRequestBody }),
   ...otpLimiter,
   controller.requestOtp,
 );
-
 router.post(
   "/login/otp/verify",
   validate({ body: loginOtpVerifyBody }),
@@ -48,7 +50,40 @@ router.post(
   controller.verifyOtp,
 );
 
+router.post(
+  "/2fa/verify",
+  validate({ body: loginChallengeBody }),
+  authLimiter,
+  controller.verifyLogin,
+);
+
+// ===================================== SESSIONS =====================================
 router.post("/refresh", validate({ body: refreshBody }), authLimiter, controller.refresh);
 router.get("/me", authenticate, controller.me);
+
+// ===================================== 2FA =====================================
+router.get("/2fa", authenticate, controller.status);
+router.post("/2fa/setup", authenticate, authLimiter, controller.setup);
+router.post(
+  "/2fa/confirm",
+  authenticate,
+  validate({ body: confirmBody }),
+  authLimiter,
+  controller.confirm,
+);
+router.post(
+  "/2fa/disable",
+  authenticate,
+  validate({ body: factorBody }),
+  authLimiter,
+  controller.disable,
+);
+router.post(
+  "/2fa/backup-codes",
+  authenticate,
+  validate({ body: factorBody }),
+  authLimiter,
+  controller.regenerateBackupCodes,
+);
 
 module.exports = router;

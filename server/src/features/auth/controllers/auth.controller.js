@@ -59,10 +59,10 @@ async function requestOtp(req, res, next) {
 
 async function verifyOtp(req, res, next) {
   try {
-    const { user, accessToken, refreshToken, isNewDevice } = await service.verifyLoginOtp(
-      req.body,
-      clientMeta(req),
-    );
+    const result = await service.verifyLoginOtp(req.body, clientMeta(req));
+    if (result.twoFactorRequired) return res.status(202).json(result);
+
+    const { user, accessToken, refreshToken, isNewDevice } = result;
 
     if (req.body.device.platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
@@ -111,4 +111,92 @@ async function me(req, res, next) {
   }
 }
 
-module.exports = { signupEmail, signupPhone, verify, resend, requestOtp, verifyOtp, refresh, me };
+function noStore(res) {
+  res.set("Cache-Control", "no-store");
+}
+
+async function status(req, res, next) {
+  try {
+    res.json(await totpService.getStatus(req.auth.userId));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function setup(req, res, next) {
+  try {
+    noStore(res);
+    res.json(await totpService.beginSetup(req.auth));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function confirm(req, res, next) {
+  try {
+    noStore(res);
+    res.json(
+      await totpService.confirmSetup(
+        { userId: req.auth.userId, code: req.body.code },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function disable(req, res, next) {
+  try {
+    await totpService.disable({ ...req.auth, ...req.body }, clientMeta(req));
+    res.json({ enabled: false });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function regenerateBackupCodes(req, res, next) {
+  try {
+    noStore(res);
+    res.json(
+      await totpService.regenerateBackupCodes(
+        { userId: req.auth.userId, ...req.body },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function verifyLogin(req, res, next) {
+  try {
+    const { user, accessToken, refreshToken, isNewDevice, platform } =
+      await service.verifyTwoFactorLogin(req.body, clientMeta(req));
+
+    if (platform === "WEB") {
+      setAuthCookies(res, { accessToken, refreshToken });
+      return res.json({ user, isNewDevice });
+    }
+    res.json({ user, accessToken, refreshToken, isNewDevice });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  signupEmail,
+  signupPhone,
+  verify,
+  resend,
+  requestOtp,
+  verifyOtp,
+  refresh,
+  me,
+  status,
+  setup,
+  confirm,
+  disable,
+  regenerateBackupCodes,
+  verifyLogin,
+};

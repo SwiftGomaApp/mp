@@ -1,6 +1,16 @@
 const { getPrisma } = require("../../../core/db/prisma");
+const { getRedis } = require("../../../core/cache/redis");
+const { randomToken, sha256 } = require("../../../core/crypto/crypto");
 const { AppError } = require("../../../core/errors/AppError");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
+const {
+  generateTotpSecret,
+  verifyTotp,
+  buildOtpauthUri,
+  encryptSecret,
+  decryptSecret,
+} = require("../../../core/auth/totp");
+const { generateBackupCodes, hashBackupCode } = require("../../../core/auth/backupCodes");
 const {
   queueOtpEmail,
   queueOtpSms,
@@ -18,6 +28,46 @@ const { lookupIp } = require("../../../core/geo/geo");
 
 const OTP_RESEND_MESSAGE = "Si un compte en attente existe, un nouveau code a été envoyé";
 const UNKNOWN = "Inconnu";
+const MAX_FAILURES = 5;
+const FAILURE_WINDOW_SECONDS = 15 * 60;
+const CHALLENGE_TTL_SECONDS = 5 * 60;
+
+const failKey = (userId) => `2fa-fail:${userId}`;
+const challengeKey = (token) => `2fa-challenge:${sha256(token)}`;
+
+async function assertAttemptsLeft(userId) {
+  const count = Number(await getRedis().get(failKey(userId))) || 0;
+  if (count >= MAX_FAILURES) {
+    throw AppError.tooManyRequests(
+      "Trop de codes incorrects, veuillez réessayer dans quelques minutes",
+      "TWO_FACTOR_LOCKED",
+    );
+  }
+}
+
+async function recordFailure(userId) {
+  const redis = getRedis();
+  const count = await redis.incr(failKey(userId));
+  if (count === 1) await redis.expire(failKey(userId), FAILURE_WINDOW_SECONDS);
+}
+
+async function clearFailures(userId) {
+  await getRedis().del(failKey(userId));
+}
+
+async function getStatus(userId) {
+  const prisma = getPrisma();
+  const credential = await prisma.totpCredential.findUnique({ where: { userId } });
+  const enabled = Boolean(credential?.confirmedAt);
+
+  return {
+    enabled,
+    mandatory: false,
+    backupCodesRemaining: enabled
+      ? await prisma.backupCode.count({ where: { userId, usedAt: null } })
+      : 0,
+  };
+}
 
 const PLATFORM_LABELS = {
   ANDROID: "Appareil Android",
@@ -57,14 +107,10 @@ function assertCanLogin(user, { email }) {
   }
 }
 
-function assertNoTwoFactorPending(user) {
-  const required = authConfig.twoFactorRequiredRoles.includes(user.role);
-  if (required || user.totp?.confirmedAt) {
-    throw AppError.forbidden(
-      "La double vérification est requise pour ce compte",
-      "TWO_FACTOR_REQUIRED",
-    );
-  }
+function twoFactorState(user) {
+  if (user.totp?.confirmedAt) return "CHALLENGE";
+  if (authConfig.twoFactorRequiredRoles.includes(user.role)) return "ENROLL";
+  return "NONE";
 }
 
 function publicUser(user) {
@@ -229,8 +275,7 @@ async function requestLoginOtp({ email, phone }, meta) {
 
 async function notifyNewDevice({ user, device, now, geo }) {
   const deviceName = device.deviceName || PLATFORM_LABELS[device.platform];
-  const location = geo.city || UNKNOWN;
-  const country = geo.country || UNKNOWN;
+  const location = geo.city || geo.country || UNKNOWN;
 
   if (user.email && user.emailVerifiedAt) {
     await queueLoginAlertEmail({
@@ -243,7 +288,7 @@ async function notifyNewDevice({ user, device, now, geo }) {
       activityUrl: getConfig().mail.activityUrl,
     });
   } else if (user.phone && user.phoneVerifiedAt) {
-    await queueLoginAlertSms({ to: user.phone, deviceName, location: UNKNOWN });
+    await queueLoginAlertSms({ to: user.phone, deviceName, location });
   }
 }
 
@@ -251,8 +296,6 @@ async function verifyLoginOtp({ email, phone, code, device }, meta) {
   const isEmail = Boolean(email);
   const method = isEmail ? "EMAIL_OTP" : "PHONE_OTP";
   const user = await findLoginUser({ email, phone });
-  const prisma = getPrisma();
-  const geo = await lookupIp(meta.ipAddress);
 
   try {
     await verifyOtp({
@@ -279,55 +322,24 @@ async function verifyLoginOtp({ email, phone, code, device }, meta) {
   }
 
   assertCanLogin(user, { email });
-  assertNoTwoFactorPending(user);
 
-  const knownDevice = await prisma.session.findFirst({
-    where: { userId: user.id, deviceId: device.deviceId },
-    select: { id: true },
-  });
-  const isNewDevice = !knownDevice;
+  const state = twoFactorState(user);
 
-  const now = new Date();
-  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
-
-  const tokens = await createSession({
-    user,
-    method,
-    device,
-    ipAddress: meta.ipAddress,
-    userAgent: meta.userAgent,
-  });
-
-  const activity = {
-    userId: user.id,
-    method,
-    sessionId: tokens.session.id,
-    deviceId: device.deviceId,
-    deviceName: device.deviceName,
-    platform: device.platform,
-    ipAddress: meta.ipAddress,
-    city: geo.city,
-    country: geo.country,
-    userAgent: meta.userAgent,
-  };
-
-  await logActivity({ ...activity, event: "LOGIN_SUCCESS" });
-
-  if (isNewDevice) {
-    await logActivity({ ...activity, event: "NEW_DEVICE" });
-    try {
-      await notifyNewDevice({ user, device, now, geo });
-    } catch (err) {
-      logger.warn({ err, userId: user.id }, "Failed to queue new device alert");
-    }
+  if (state === "ENROLL") {
+    throw AppError.forbidden(
+      "La double vérification doit être activée pour ce compte",
+      "TWO_FACTOR_ENROLLMENT_REQUIRED",
+    );
   }
 
-  return {
-    user: publicUser(user),
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
-    isNewDevice,
-  };
+  if (state === "CHALLENGE") {
+    return {
+      twoFactorRequired: true,
+      ...(await createLoginChallenge({ userId: user.id, method, device })),
+    };
+  }
+
+  return completeLogin({ user, method, device, meta });
 }
 
 async function getMe({ userId, sessionId }) {
@@ -363,6 +375,305 @@ async function getMe({ userId, sessionId }) {
   };
 }
 
+async function beginSetup({ userId }) {
+  const prisma = getPrisma();
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      totp: {
+        select: { confirmedAt: true },
+      },
+    },
+  });
+
+  if (!user) throw AppError.unauthorized("Session expirée", "SESSION_REVOKED");
+  if (user.totp?.confirmedAt) {
+    throw AppError.conflict(
+      "La double vérification est déjà activée",
+      "TWO_FACTOR_ALREADY_ENABLED",
+    );
+  }
+
+  const secret = generateTotpSecret();
+  const data = { secretEncrypted: encryptSecret(secret), confirmedAt: null, lastUsedStep: null };
+
+  await prisma.totpCredential.upsert({
+    where: { userId },
+    create: { userId, ...data },
+    update: data,
+  });
+
+  const accountName = user.email ?? user.phone ?? user.id;
+  return { secret, otpauthUri: buildOtpauthUri({ secret, accountName }) };
+}
+
+async function replaceBackupCodes(tx, userId) {
+  const codes = generateBackupCodes(authConfig.backupCodesCount);
+  await tx.backupCode.deleteMany({ where: { userId } });
+  await tx.backupCode.createMany({
+    data: codes.map(({ hash }) => ({ userId, codeHash: hash })),
+  });
+  return codes.map(({ code }) => code);
+}
+
+async function confirmSetup({ userId, code }, meta) {
+  const prisma = getPrisma();
+  await assertAttemptsLeft(userId);
+
+  const credential = await prisma.totpCredential.findUnique({
+    where: { userId },
+  });
+  if (!credential) {
+    throw AppError.badRequest(
+      "Commencez par configurer la double vérification",
+      undefined,
+      "TWO_FACTOR_SETUP_REQUIRED",
+    );
+  }
+  if (credential.confirmedAt) {
+    throw AppError.conflict(
+      "La double vérification est déjà activée",
+      "TWO_FACTOR_ALREADY_ENABLED",
+    );
+  }
+
+  const step = verifyTotp({
+    secret: decryptSecret(credential.secretEncrypted),
+    code,
+  });
+
+  if (step === null) {
+    await recordFailure(userId);
+    await logActivity({
+      userId,
+      event: "TOTP_FAILED",
+      success: false,
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+      metadata: { stage: "setup" },
+    });
+    throw AppError.badRequest("Code invalide", undefined, "TWO_FACTOR_INVALID");
+  }
+
+  const backupCodes = await prisma.$transaction(async (tx) => {
+    await tx.totpCredential.update({
+      where: { userId },
+      data: { confirmedAt: new Date(), lastUsedStep: step },
+    });
+    return replaceBackupCodes(tx, userId);
+  });
+
+  await clearFailures(userId);
+  const base = { userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent };
+  await logActivity({ ...base, event: "TOTP_ENABLED" });
+  await logActivity({ ...base, event: "BACKUP_CODES_GENERATED" });
+
+  return { backupCodes };
+}
+
+async function verifySecondFactor(userId, { code, backupCode }, meta) {
+  const prisma = getPrisma();
+  await assertAttemptsLeft(userId);
+
+  const credential = await prisma.totpCredential.findUnique({
+    where: { userId },
+  });
+  if (!credential?.confirmedAt) {
+    throw AppError.badRequest(
+      "La double vérification n'est pas activée",
+      undefined,
+      "TWO_FACTOR_NOT_ENABLED",
+    );
+  }
+
+  const base = {
+    userId,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    ...(meta.device && {
+      deviceId: meta.device.deviceId,
+      deviceName: meta.device.deviceName,
+      platform: meta.device.platform,
+    }),
+  };
+
+  if (code) {
+    const step = verifyTotp({
+      secret: decryptSecret(credential.secretEncrypted),
+      code,
+      lastUsedStep: credential.lastUsedStep,
+    });
+
+    if (step !== null) {
+      const { count } = await prisma.totpCredential.updateMany({
+        where: { id: credential.id, OR: [{ lastUsedStep: null }, { lastUsedStep: { lt: step } }] },
+        data: { lastUsedStep: step },
+      });
+      if (count === 1) {
+        await clearFailures(userId);
+        return { factor: "TOTP" };
+      }
+    }
+  } else if (backupCode) {
+    const { count } = await prisma.backupCode.updateMany({
+      where: { userId, codeHash: hashBackupCode(backupCode), usedAt: null },
+      data: { usedAt: new Date() },
+    });
+    if (count === 1) {
+      await clearFailures(userId);
+      await logActivity({ ...base, event: "BACKUP_CODE_USED" });
+      return { factor: "BACKUP_CODE" };
+    }
+  }
+
+  await recordFailure(userId);
+  await logActivity({ ...base, event: "TOTP_FAILED", success: false });
+  throw AppError.badRequest("Code invalide", undefined, "TWO_FACTOR_INVALID");
+}
+
+async function disable({ userId, role, code, backupCode }, meta) {
+  if (authConfig.twoFactorRequiredRoles.includes(role)) {
+    throw AppError.forbidden(
+      "La double vérification est obligatoire pour ce compte",
+      "TWO_FACTOR_MANDATORY",
+    );
+  }
+
+  await verifySecondFactor(userId, { code, backupCode }, meta);
+
+  const prisma = getPrisma();
+  await prisma.$transaction([
+    prisma.totpCredential.delete({ where: { userId } }),
+    prisma.backupCode.deleteMany({ where: { userId } }),
+  ]);
+
+  await logActivity({
+    userId,
+    event: "TOTP_DISABLED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+}
+
+async function regenerateBackupCodes({ userId, code, backupCode }, meta) {
+  await verifySecondFactor(userId, { code, backupCode }, meta);
+
+  const backupCodes = await getPrisma().$transaction((tx) => replaceBackupCodes(tx, userId));
+
+  await logActivity({
+    userId,
+    event: "BACKUP_CODES_GENERATED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+
+  return { backupCodes };
+}
+
+async function createLoginChallenge({ userId, method, device }) {
+  const token = randomToken(32);
+  await getRedis().set(
+    challengeKey(token),
+    JSON.stringify({ userId, method, device }),
+    "EX",
+    CHALLENGE_TTL_SECONDS,
+  );
+  return { challengeToken: token, expiresIn: CHALLENGE_TTL_SECONDS };
+}
+
+async function peekLoginChallenge(token) {
+  const raw = await getRedis().get(challengeKey(token));
+  if (!raw) {
+    throw AppError.unauthorized(
+      "La vérification a expiré, veuillez vous reconnecter",
+      "TWO_FACTOR_CHALLENGE_EXPIRED",
+    );
+  }
+  return JSON.parse(raw);
+}
+
+async function consumeLoginChallenge(token) {
+  const removed = await getRedis().del(challengeKey(token));
+  if (removed !== 1) {
+    throw AppError.unauthorized(
+      "La vérification a expiré, veuillez vous reconnecter",
+      "TWO_FACTOR_CHALLENGE_EXPIRED",
+    );
+  }
+}
+
+async function completeLogin({ user, method, device, meta }) {
+  const prisma = getPrisma();
+
+  const knownDevice = await prisma.session.findFirst({
+    where: { userId: user.id, deviceId: device.deviceId },
+    select: { id: true },
+  });
+  const isNewDevice = !knownDevice;
+
+  const now = new Date();
+  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
+
+  const tokens = await createSession({
+    user,
+    method,
+    device,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+
+  const geo = await lookupIp(meta.ipAddress);
+  const activity = {
+    userId: user.id,
+    method,
+    sessionId: tokens.session.id,
+    deviceId: device.deviceId,
+    deviceName: device.deviceName,
+    platform: device.platform,
+    ipAddress: meta.ipAddress,
+    city: geo.city,
+    country: geo.country,
+    userAgent: meta.userAgent,
+  };
+
+  await logActivity({ ...activity, event: "LOGIN_SUCCESS" });
+
+  if (isNewDevice) {
+    await logActivity({ ...activity, event: "NEW_DEVICE" });
+    try {
+      await notifyNewDevice({ user, device, now, geo });
+    } catch (err) {
+      logger.warn({ err, userId: user.id }, "Failed to queue new device alert");
+    }
+  }
+
+  return {
+    user: publicUser(user),
+    accessToken: tokens.accessToken,
+    refreshToken: tokens.refreshToken,
+    isNewDevice,
+  };
+}
+
+async function verifyTwoFactorLogin({ challengeToken, code, backupCode }, meta) {
+  const challenge = await peekLoginChallenge(challengeToken);
+
+  const user = await getPrisma().user.findUnique({ where: { id: challenge.userId } });
+  assertCanLogin(user, { email: user?.email });
+
+  await verifySecondFactor(user.id, { code, backupCode }, { ...meta, device: challenge.device });
+  await consumeLoginChallenge(challengeToken);
+
+  const result = await completeLogin({
+    user,
+    method: challenge.method,
+    device: challenge.device,
+    meta,
+  });
+  return { ...result, platform: challenge.device.platform };
+}
+
 module.exports = {
   startSignUp,
   verifySignUp,
@@ -370,4 +681,15 @@ module.exports = {
   requestLoginOtp,
   verifyLoginOtp,
   getMe,
+  getStatus,
+  beginSetup,
+  confirmSetup,
+  verifySecondFactor,
+  disable,
+  regenerateBackupCodes,
+  createLoginChallenge,
+  peekLoginChallenge,
+  completeLogin,
+  verifyTwoFactorLogin,
+  consumeLoginChallenge,
 };

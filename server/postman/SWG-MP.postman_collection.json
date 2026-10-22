@@ -197,6 +197,184 @@
               "path": ["auth", "signup", "resend"]
             }
           }
+        },
+        {
+          "name": "Login OTP request - email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('OTP sent', () => pm.expect(pm.response.json()).to.have.property('expiresMinutes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "request"]
+            }
+          }
+        },
+        {
+          "name": "Login OTP request - phone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('OTP sent', () => pm.expect(pm.response.json()).to.have.property('expiresMinutes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "request"]
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('isNewDevice is a boolean', () => pm.expect(body.isNewDevice).to.be.a('boolean'));",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - phone (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('isNewDevice is a boolean', () => pm.expect(body.isNewDevice).to.be.a('boolean'));",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (new device alert)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('New device detected', () => pm.expect(body.isNewDevice).to.be.true);",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"postman-{{$randomUUID}}\",\n    \"deviceName\": \"Postman New Device\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Auth cookies set', () => pm.expect(pm.cookies.has('swg_access')).to.be.true);",
+                  "pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}-web\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            }
+          }
         }
       ]
     }

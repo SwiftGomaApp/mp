@@ -67,6 +67,7 @@ const schema = z.object({
   MAIL_LOGO_URL: z.string().url(),
   MAIL_SUPPORT_EMAIL: z.string().email().default("support@swiftgoma.com"),
   MAIL_PRIVACY_URL: z.string().url(),
+  MAIL_ACTIVITY_URL: z.string().url().default("https://swiftgoma.com/compte/activite"),
   MAIL_LOGO_WIDTH: z.coerce.number().int().positive().default(140),
   MAIL_LOGO_HEIGHT: z.coerce.number().int().positive().default(40),
 
@@ -79,7 +80,7 @@ const schema = z.object({
     .transform((v) => v === "true"),
   SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
 
-    JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_ACCESS_SECRET: z.string().min(32),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).default(7),
 
@@ -92,7 +93,7 @@ const schema = z.object({
     .string()
     .refine((v) => Buffer.from(v, "base64").length === 32, "Must be 32 bytes encoded in base64"),
   TOTP_ISSUER: z.string().min(1).default("SwiftGoma"),
-  
+  IPINFO_TOKEN: optional,
 });
 
 let config = null;
@@ -186,6 +187,7 @@ async function loadConfig() {
       logoUrl: env.MAIL_LOGO_URL,
       supportEmail: env.MAIL_SUPPORT_EMAIL,
       privacyUrl: env.MAIL_PRIVACY_URL,
+      activityUrl: env.MAIL_ACTIVITY_URL,
       logoWidth: env.MAIL_LOGO_WIDTH,
       logoHeight: env.MAIL_LOGO_HEIGHT,
     },
@@ -196,7 +198,10 @@ async function loadConfig() {
       dryRun: env.SMS_DRY_RUN,
       timeoutMs: env.SMS_TIMEOUT_MS,
     },
-        auth: {
+    geo: {
+      ipinfoToken: env.IPINFO_TOKEN,
+    },
+    auth: {
       accessSecret: env.JWT_ACCESS_SECRET,
       accessTtlSeconds: env.ACCESS_TOKEN_TTL_SECONDS,
       refreshTtlDays: env.REFRESH_TOKEN_TTL_DAYS,

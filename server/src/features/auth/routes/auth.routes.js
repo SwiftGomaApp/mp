@@ -8,6 +8,7 @@ const {
   verifySignupBody,
   resendSignupBody,
 } = require("../validators/signup.validator");
+const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
 
 const router = Router();
 
@@ -29,6 +30,20 @@ router.post(
   validate({ body: resendSignupBody }),
   ...otpLimiter,
   controller.resend,
+);
+
+router.post(
+  "/login/otp/request",
+  validate({ body: loginOtpRequestBody }),
+  ...otpLimiter,
+  controller.requestOtp,
+);
+
+router.post(
+  "/login/otp/verify",
+  validate({ body: loginOtpVerifyBody }),
+  authLimiter,
+  controller.verifyOtp,
 );
 
 module.exports = router;

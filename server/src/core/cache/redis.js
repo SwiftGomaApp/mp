@@ -4,6 +4,7 @@ const { logger } = require("../logger/logger");
 
 let client = null;
 
+/** @type {import("ioredis").Redis | null} */
 function getRedis() {
   if (client) return client;
 

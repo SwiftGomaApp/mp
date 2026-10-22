@@ -29,6 +29,8 @@ const authConfig = Object.freeze({
   deletionGracePeriodMs: 30 * DAY,
 
   activityLogWindowMs: 90 * DAY,
+
+  legal: Object.freeze({ termsVersion: "1.0", privacyVersion: "1.0" }),
 });
 
 module.exports = { authConfig };

@@ -1,6 +1,7 @@
 const { sendMail } = require("./mailer");
 const { otpTemplate } = require("./templates/otp.template");
 const { loginAlertTemplate } = require("./templates/loginAlert.template");
+const { welcomeTemplate } = require("./templates/welcome.template");
 
 async function sendOtpEmail({ to, name, code, expiresMinutes }) {
   const { subject, html, text } = otpTemplate({ name, code, expiresMinutes });
@@ -19,4 +20,9 @@ async function sendLoginAlertEmail({ to, name, deviceName, location, country, da
   return sendMail({ to, subject, html, text });
 }
 
-module.exports = { sendOtpEmail, sendLoginAlertEmail };
+async function sendWelcomeEmail({ to, name, role }) {
+  const { subject, html, text } = welcomeTemplate({ name, role });
+  return sendMail({ to, subject, html, text });
+}
+
+module.exports = { sendOtpEmail, sendLoginAlertEmail, sendWelcomeEmail };

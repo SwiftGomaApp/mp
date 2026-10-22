@@ -15,4 +15,13 @@ async function sendLoginAlertSms({ to, deviceName, location }) {
   });
 }
 
-module.exports = { sendOtpSms, sendLoginAlertSms, otpMessage };
+async function sendWelcomeSms({ to, name, role }) {
+  const action =
+    role === "SELLER"
+      ? "Envoyez vos documents pour activer votre boutique"
+      : "Découvrez les boutiques de Goma et commandez";
+  const hello = name ? `bienvenue ${name}` : "bienvenue";
+  return sendSms({ to, message: `SwiftGoma : ${hello} ! ${action} dans l'application.` });
+}
+
+module.exports = { sendOtpSms, sendLoginAlertSms, otpMessage, sendWelcomeSms };

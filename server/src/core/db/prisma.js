@@ -2,8 +2,10 @@ const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { getConfig } = require("../../config/env.config");
 
+/** @type {import("@prisma/client").PrismaClient | null} */
 let prisma = null;
 
+/** @returns {import("@prisma/client").PrismaClient} */
 function getPrisma() {
   if (prisma) return prisma;
 

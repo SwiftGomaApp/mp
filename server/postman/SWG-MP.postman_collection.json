@@ -1,0 +1,204 @@
+{
+  "info": {
+    "name": "SWG-MP",
+    "description": "SwiftGoma MarketPlace API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup - email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"role\": \"{{role}}\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "email"]
+            }
+          }
+        },
+        {
+          "name": "Signup - phone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('201 Created', () => pm.response.to.have.status(201));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"phone\": \"{{phone}}\",\n  \"role\": \"{{role}}\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "phone"]
+            }
+          }
+        },
+        {
+          "name": "Signup verify - email (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Signup verify - phone (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Signup verify - email (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Auth cookies set', () => {",
+                  "  pm.expect(pm.cookies.has('swg_access')).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Signup resend - email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "resend"]
+            }
+          }
+        },
+        {
+          "name": "Signup resend - phone",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "resend"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

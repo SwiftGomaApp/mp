@@ -10,6 +10,8 @@ const defaultHandlers = {
     mail.sendLoginAlertEmail({ ...data, date: new Date(data.date) }),
   [NOTIFICATION_JOBS.SMS_OTP]: (data) => sms.sendOtpSms(data),
   [NOTIFICATION_JOBS.SMS_LOGIN_ALERT]: (data) => sms.sendLoginAlertSms(data),
+  [NOTIFICATION_JOBS.EMAIL_WELCOME]: (data) => mail.sendWelcomeEmail(data),
+  [NOTIFICATION_JOBS.SMS_WELCOME]: (data) => sms.sendWelcomeSms(data),
 };
 
 function isPermanentFailure(err) {

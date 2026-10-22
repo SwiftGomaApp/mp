@@ -1,5 +1,8 @@
 const service = require("../services/auth.service");
-const { setAuthCookies } = require("../../../core/auth/cookies");
+const { setAuthCookies, clearAuthCookies, REFRESH_COOKIE } = require("../../../core/auth/cookies");
+const sessionService = require("../services/session.service");
+const { assertTrustedOrigin } = require("../../../core/middlewares/auth.middleware");
+const { AppError } = require("../../../core/errors/AppError");
 
 function clientMeta(req) {
   return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
@@ -71,4 +74,41 @@ async function verifyOtp(req, res, next) {
   }
 }
 
-module.exports = { signupEmail, signupPhone, verify, resend, requestOtp, verifyOtp };
+async function refresh(req, res, next) {
+  const fromCookie = !req.body.refreshToken;
+
+  try {
+    const token = req.body.refreshToken ?? req.cookies?.[REFRESH_COOKIE];
+    if (!token) {
+      throw AppError.unauthorized(
+        "Session expirée, veuillez vous reconnecter",
+        "REFRESH_TOKEN_MISSING",
+      );
+    }
+    if (fromCookie) assertTrustedOrigin(req);
+
+    const { accessToken, refreshToken, expiresIn } = await sessionService.refreshSession(
+      token,
+      clientMeta(req),
+    );
+
+    if (fromCookie) {
+      setAuthCookies(res, { accessToken, refreshToken });
+      return res.json({ expiresIn });
+    }
+    res.json({ accessToken, refreshToken, expiresIn });
+  } catch (err) {
+    if (fromCookie && err instanceof AppError && err.status === 401) clearAuthCookies(res);
+    next(err);
+  }
+}
+
+async function me(req, res, next) {
+  try {
+    res.json({ user: await service.getMe(req.auth) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signupEmail, signupPhone, verify, resend, requestOtp, verifyOtp, refresh, me };

@@ -1,8 +1,17 @@
 const { getPrisma } = require("../../../core/db/prisma");
-const { signAccessToken, generateRefreshToken } = require("../../../core/auth/tokens");
+const {
+  signAccessToken,
+  generateRefreshToken,
+  hashRefreshToken,
+} = require("../../../core/auth/tokens");
+const { getConfig } = require("../../../config/env.config");
+const { AppError } = require("../../../core/errors/AppError");
 const { markSessionRevoked } = require("../../../core/auth/revocation");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
+const { no } = require("zod/v4/locales");
+
+const ROTATION_GRACE_MS = 10 * 1000;
 
 async function createSession({ user, method, device, ipAddress, userAgent }) {
   const prisma = getPrisma();
@@ -65,4 +74,105 @@ async function createSession({ user, method, device, ipAddress, userAgent }) {
   };
 }
 
-module.exports = { createSession };
+async function revokeSession(session, reason) {
+  await getPrisma().session.updateMany({
+    where: {
+      id: session.id,
+      revokedAt: null,
+    },
+    data: {
+      revokedAt: new Date(),
+      revokedReason: reason,
+    },
+  });
+  await markSessionRevoked(session.id);
+}
+
+async function refreshSession(refreshToken, meta) {
+  const prisma = getPrisma();
+  const now = new Date();
+  const hash = hashRefreshToken(refreshToken);
+
+  const session = await prisma.session.findUnique({
+    where: { refreshTokenHash: hash },
+    include: { user: true },
+  });
+
+  if (!session) {
+    const reused = await prisma.session.findUnique({
+      where: { previousRefreshTokenHash: hash },
+    });
+
+    if (reused && !reused.revokedAt) {
+      if (reused.rotatedAt && now - reused.rotatedAt < ROTATION_GRACE_MS) {
+        throw AppError.conflict(
+          "Renouvellement de session en cours, veuillez patienter",
+          "REFRESH_IN_PROGRESS",
+        );
+      }
+
+      await revokeSession(reused, "TOKEN_REUSE");
+      await logActivity({
+        userId: reused.userId,
+        event: "TOKEN_REUSE_DETECTED",
+        success: false,
+        sessionId: reused.id,
+        deviceId: reused.deviceId,
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+      });
+      throw AppError.unauthorized("Session invalide, veuillez vous reconnecter", "TOKEN_REUSED");
+    }
+    throw AppError.unauthorized(
+      "Session invalide, veuillez vous reconnecter",
+      "REFRESH_TOKEN_INVALID",
+    );
+  }
+
+  if (session.revokedAt) {
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+  }
+  if (session.expiresAt <= now) {
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_EXPIRED");
+  }
+
+  const { user } = session;
+  if (user.status !== "ACTIVE") {
+    await revokeSession(session, "USER_INACTIVE");
+    if (user.status === "SUSPENDED" || user.status === "BANNED") {
+      throw AppError.forbidden(
+        "Ce compte est suspendu, veuillez contacter le Support",
+        "ACCOUNT_SUSPENDED",
+      );
+    }
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+  }
+
+  const next = generateRefreshToken();
+  const { count } = await prisma.session.updateMany({
+    where: { id: session.id, refreshTokenHash: hash, revokedAt: null },
+    data: {
+      refreshTokenHash: next.hash,
+      previousRefreshTokenHash: hash,
+      rotatedAt: now,
+      lastSeenAt: now,
+      expiresAt: next.expiresAt,
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+    },
+  });
+  if (count !== 1) {
+    throw AppError.conflict(
+      "Renouvellement de session en cours, veuillex patienter",
+      "REFRESH_IN_PROGRESS",
+    );
+  }
+
+  return {
+    accessToken: signAccessToken({ userId: user.id, role: user.role, sessionId: session.id }),
+    refreshToken: next.token,
+    expiresIn: getConfig().auth.accessTtlSeconds,
+  };
+}
+
+module.exports = { createSession, refreshSession, revokeSession };

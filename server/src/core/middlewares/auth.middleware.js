@@ -8,7 +8,7 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
 function extractToken(req) {
   const [scheme, bearer] = (req.headers.authorization || "").split(" ");
-  if (scheme === "Bearer" && bearer) return { token: bearer, source: "bearer" };
+  if (scheme?.toLowerCase() === "bearer" && bearer) return { token: bearer, source: "bearer" };
 
   const cookie = req.cookies?.[ACCESS_COOKIE];
   if (cookie) return { token: cookie, source: "cookie" };
@@ -52,4 +52,4 @@ function requireRole(...roles) {
   };
 }
 
-module.exports = { authenticate, requireRole };
+module.exports = { authenticate, requireRole, assertTrustedOrigin };

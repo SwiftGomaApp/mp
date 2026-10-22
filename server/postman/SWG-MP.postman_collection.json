@@ -375,6 +375,132 @@
               "path": ["auth", "login", "otp", "verify"]
             }
           }
+        },
+        {
+          "name": "Get me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns the user', () => pm.expect(body.user).to.have.property('id'));",
+                  "pm.test('Returns the session id', () => pm.expect(body.user).to.have.property('sessionId'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('New token pair returned', () => {",
+                  "  pm.expect(body).to.have.property('accessToken');",
+                  "  pm.expect(body).to.have.property('refreshToken');",
+                  "  pm.expect(body.refreshToken).to.not.equal(pm.environment.get('refreshToken'));",
+                  "});",
+                  "pm.environment.set('oldRefreshToken', pm.environment.get('refreshToken'));",
+                  "pm.environment.set('accessToken', body.accessToken);",
+                  "pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Cookies refreshed', () => {",
+                  "  pm.expect(pm.cookies.has('swg_access')).to.be.true;",
+                  "  pm.expect(pm.cookies.has('swg_refresh')).to.be.true;",
+                  "});",
+                  "pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Origin", "value": "{{webOrigin}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token reuse (old token, expect rejection)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rejected', () => pm.expect([401, 409]).to.include(pm.response.code));",
+                  "const code = pm.response.json().error.code;",
+                  "pm.test('Reuse or race code', () => pm.expect(['TOKEN_REUSED', 'REFRESH_IN_PROGRESS', 'REFRESH_TOKEN_INVALID']).to.include(code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{oldRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
         }
       ]
     }

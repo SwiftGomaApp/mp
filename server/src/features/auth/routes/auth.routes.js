@@ -9,6 +9,8 @@ const {
   resendSignupBody,
 } = require("../validators/signup.validator");
 const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
+const { refreshBody } = require("../validators/session.validator");
+const { authenticate } = require("../../../core/middlewares/auth.middleware");
 
 const router = Router();
 
@@ -45,5 +47,8 @@ router.post(
   authLimiter,
   controller.verifyOtp,
 );
+
+router.post("/refresh", validate({ body: refreshBody }), authLimiter, controller.refresh);
+router.get("/me", authenticate, controller.me);
 
 module.exports = router;

@@ -330,4 +330,44 @@ async function verifyLoginOtp({ email, phone, code, device }, meta) {
   };
 }
 
-module.exports = { startSignUp, verifySignUp, resendSignupOtp, requestLoginOtp, verifyLoginOtp };
+async function getMe({ userId, sessionId }) {
+  const user = await getPrisma().user.findUnique({
+    where: { id: userId },
+    include: { totp: { select: { confirmedAt: true } } },
+  });
+
+  if (!user || user.status === "DELETED") {
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+  }
+
+  if (user.status === "SUSPENDED" || user.status === "BANNED") {
+    throw AppError.forbidden(
+      "Ce compte est suspendu, veuillez contacter le Support",
+      "ACCOUNT_SUSPENDED",
+    );
+  }
+
+  if (user.status !== "ACTIVE") {
+    throw AppError.forbidden("Ce compte n'est pas actif", "ACCOUNT_NOT_ACTIVE");
+  }
+
+  return {
+    ...publicUser(user),
+    emailVerified: Boolean(user.emailVerifiedAt),
+    phoneVerified: Boolean(user.phoneVerifiedAt),
+    hasPassword: Boolean(user.passwordHash),
+    twoFactorEnabled: Boolean(user.totp?.confirmedAt),
+    createdAt: user.createdAt,
+    lastLoginAt: user.lastLoginAt,
+    sessionId,
+  };
+}
+
+module.exports = {
+  startSignUp,
+  verifySignUp,
+  resendSignupOtp,
+  requestLoginOtp,
+  verifyLoginOtp,
+  getMe,
+};

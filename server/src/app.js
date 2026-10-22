@@ -3,6 +3,7 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const compression = require("compression");
+const cookieParser = require("cookie-parser");
 const { requestId } = require("./core/middlewares/requestId.middleware");
 const { httpLogger } = require("./core/middlewares/httpLogger.middleware");
 const { notFoundHandler, errorHandler } = require("./core/middlewares/error.middleware");
@@ -29,6 +30,7 @@ function createApp(config) {
   );
   app.use(compression());
   app.use(express.json({ limit: "1mb" }));
+  app.use(cookieParser());
 
   app.use("/api/v1", globalLimiter);
   app.use("/api/v1", routes);

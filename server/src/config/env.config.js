@@ -78,6 +78,21 @@ const schema = z.object({
     .default("false")
     .transform((v) => v === "true"),
   SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
+
+    JWT_ACCESS_SECRET: z.string().min(32),
+  ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).default(7),
+
+  OTP_SECRET: z.string().min(32),
+  OTP_TTL_MINUTES: z.coerce.number().int().min(1).max(30).default(10),
+  OTP_RESEND_SECONDS: z.coerce.number().int().min(0).default(60),
+  OTP_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(5),
+
+  TOTP_ENCRYPTION_KEY: z
+    .string()
+    .refine((v) => Buffer.from(v, "base64").length === 32, "Must be 32 bytes encoded in base64"),
+  TOTP_ISSUER: z.string().min(1).default("SwiftGoma"),
+  
 });
 
 let config = null;
@@ -180,6 +195,17 @@ async function loadConfig() {
       senderId: env.AT_SENDER_ID,
       dryRun: env.SMS_DRY_RUN,
       timeoutMs: env.SMS_TIMEOUT_MS,
+    },
+        auth: {
+      accessSecret: env.JWT_ACCESS_SECRET,
+      accessTtlSeconds: env.ACCESS_TOKEN_TTL_SECONDS,
+      refreshTtlDays: env.REFRESH_TOKEN_TTL_DAYS,
+      otpSecret: env.OTP_SECRET,
+      otpTtlMinutes: env.OTP_TTL_MINUTES,
+      otpResendSeconds: env.OTP_RESEND_SECONDS,
+      otpMaxAttempts: env.OTP_MAX_ATTEMPTS,
+      totpKey: Buffer.from(env.TOTP_ENCRYPTION_KEY, "base64"),
+      totpIssuer: env.TOTP_ISSUER,
     },
   });
 

@@ -57,15 +57,34 @@ async function clearFailures(userId) {
 
 async function getStatus(userId) {
   const prisma = getPrisma();
-  const credential = await prisma.totpCredential.findUnique({ where: { userId } });
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true },
+  });
+
+  if (!user) {
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+  }
+
+  const credential = await prisma.totpCredential.findUnique({
+    where: { userId },
+    select: { confirmedAt: true },
+  });
+
   const enabled = Boolean(credential?.confirmedAt);
+  const mandatory = authConfig.twoFactorRequiredRoles.includes(user.role);
+
+  const backupCodesRemaining = enabled
+    ? await prisma.backupCode.count({
+        where: { userId, usedAt: null },
+      })
+    : 0;
 
   return {
     enabled,
-    mandatory: false,
-    backupCodesRemaining: enabled
-      ? await prisma.backupCode.count({ where: { userId, usedAt: null } })
-      : 0,
+    mandatory,
+    backupCodesRemaining,
   };
 }
 
@@ -109,7 +128,11 @@ function assertCanLogin(user, { email }) {
 
 function twoFactorState(user) {
   if (user.totp?.confirmedAt) return "CHALLENGE";
-  if (authConfig.twoFactorRequiredRoles.includes(user.role)) return "ENROLL";
+
+  if (authConfig.twoFactorRequiredRoles.includes(user.role)) {
+    return "ENROLL";
+  }
+
   return "NONE";
 }
 

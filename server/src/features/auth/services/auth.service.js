@@ -292,6 +292,24 @@ async function notifyNewDevice({ user, device, now, geo }) {
   }
 }
 
+async function finishLogin({ user, method, device, meta }) {
+  const state = twoFactorState(user);
+
+  if (state === "ENROLL") {
+    throw AppError.forbidden(
+      "La double vérification doit être activée pour ce compte",
+      "TWO_FACTOR_ENROLLMENT_REQUIRED",
+    );
+  }
+  if (state === "CHALLENGE") {
+    return {
+      twoFactorRequired: true,
+      ...(await createLoginChallenge({ userId: user.id, method, device })),
+    };
+  }
+  return completeLogin({ user, method, device, meta });
+}
+
 async function verifyLoginOtp({ email, phone, code, device }, meta) {
   const isEmail = Boolean(email);
   const method = isEmail ? "EMAIL_OTP" : "PHONE_OTP";
@@ -323,23 +341,25 @@ async function verifyLoginOtp({ email, phone, code, device }, meta) {
 
   assertCanLogin(user, { email });
 
-  const state = twoFactorState(user);
+  // const state = twoFactorState(user);
 
-  if (state === "ENROLL") {
-    throw AppError.forbidden(
-      "La double vérification doit être activée pour ce compte",
-      "TWO_FACTOR_ENROLLMENT_REQUIRED",
-    );
-  }
+  // if (state === "ENROLL") {
+  //   throw AppError.forbidden(
+  //     "La double vérification doit être activée pour ce compte",
+  //     "TWO_FACTOR_ENROLLMENT_REQUIRED",
+  //   );
+  // }
 
-  if (state === "CHALLENGE") {
-    return {
-      twoFactorRequired: true,
-      ...(await createLoginChallenge({ userId: user.id, method, device })),
-    };
-  }
+  // if (state === "CHALLENGE") {
+  //   return {
+  //     twoFactorRequired: true,
+  //     ...(await createLoginChallenge({ userId: user.id, method, device })),
+  //   };
+  // }
 
-  return completeLogin({ user, method, device, meta });
+  // return completeLogin({ user, method, device, meta });
+
+  return finishLogin({ user, method, device, meta });
 }
 
 async function getMe({ userId, sessionId }) {
@@ -692,4 +712,6 @@ module.exports = {
   completeLogin,
   verifyTwoFactorLogin,
   consumeLoginChallenge,
+  finishLogin,
+  assertCanLogin,
 };

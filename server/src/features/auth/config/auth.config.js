@@ -13,6 +13,7 @@ const authConfig = Object.freeze({
 
   twoFactorRequiredRoles: Object.freeze(["SUPPORT", "ADMIN"]),
   backupCodesCount: 10,
+  maxPasskeysPerUser: 10,
 
   staffRoles: Object.freeze(["SUPPORT", "ADMIN"]),
   selfSignupRoles: Object.freeze(["BUYER", "SELLER"]),

@@ -3,6 +3,7 @@ const { setAuthCookies, clearAuthCookies, REFRESH_COOKIE } = require("../../../c
 const sessionService = require("../services/session.service");
 const { assertTrustedOrigin } = require("../../../core/middlewares/auth.middleware");
 const { AppError } = require("../../../core/errors/AppError");
+const passkeyService = require("../services/passkey.service");
 
 function clientMeta(req) {
   return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
@@ -222,6 +223,89 @@ async function disconnectDevice(req, res, next) {
   }
 }
 
+async function passkeyList(req, res, next) {
+  try {
+    res.json({ passkeys: await passkeyService.listPasskeys(req.auth.userId) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyRegisterOptions(req, res, next) {
+  try {
+    noStore(res);
+    res.json(await passkeyService.beginRegistration(req.auth));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyRegisterVerify(req, res, next) {
+  try {
+    const passkey = await passkeyService.finishRegistration(
+      { userId: req.auth.userId, ...req.body },
+      clientMeta(req),
+    );
+    res.status(201).json({ passkey });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyRename(req, res, next) {
+  try {
+    res.json(
+      await passkeyService.renamePasskey(
+        { userId: req.auth.userId, id: req.params.id, name: req.body.name },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyRemove(req, res, next) {
+  try {
+    await passkeyService.removePasskey(
+      { userId: req.auth.userId, id: req.params.id },
+      clientMeta(req),
+    );
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyLoginOptions(req, res, next) {
+  try {
+    noStore(res);
+    res.json(await passkeyService.beginLogin());
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function passkeyLoginVerify(req, res, next) {
+  try {
+    const result = await passkeyService.verifyPasskeyLogin(req.body, clientMeta(req));
+
+    if (result.twoFactorRequired) {
+      const { twoFactorRequired, challengeToken, expiresIn } = result;
+      return res.status(202).json({ twoFactorRequired, challengeToken, expiresIn });
+    }
+
+    const { user, accessToken, refreshToken, isNewDevice, platform } = result;
+    if (platform === "WEB") {
+      setAuthCookies(res, { accessToken, refreshToken });
+      return res.json({ user, isNewDevice });
+    }
+    res.json({ user, accessToken, refreshToken, isNewDevice });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   signupEmail,
   signupPhone,
@@ -240,5 +324,12 @@ module.exports = {
   logout,
   logoutAll,
   sessions,
-  disconnectDevice, 
+  disconnectDevice,
+  passkeyList,
+  passkeyRegisterOptions,
+  passkeyRegisterVerify,
+  passkeyRename,
+  passkeyRemove,
+  passkeyLoginOptions,
+  passkeyLoginVerify,
 };

@@ -13,6 +13,11 @@ const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login
 const { refreshBody } = require("../validators/session.validator");
 const { confirmBody, factorBody, loginChallengeBody } = require("../validators/totp.validator");
 const { idParams } = require("../../../core/validation/common");
+const {
+  registerPasskeyBody,
+  renamePasskeyBody,
+  loginPasskeyBody,
+} = require("../validators/passkey.validator");
 
 const router = Router();
 
@@ -96,6 +101,37 @@ router.post(
   validate({ body: factorBody }),
   authLimiter,
   controller.regenerateBackupCodes,
+);
+
+// ===================================== Passkeys =====================================
+router.post("/login/passkey/options", authLimiter, controller.passkeyLoginOptions);
+router.post(
+  "/login/passkey/verify",
+  validate({ body: loginPasskeyBody }),
+  authLimiter,
+  controller.passkeyLoginVerify,
+);
+
+router.get("/passkeys", authenticate, controller.passkeyList);
+router.post("/passkeys/options", authenticate, authLimiter, controller.passkeyRegisterOptions);
+router.post(
+  "/passkeys/verify",
+  authenticate,
+  validate({ body: registerPasskeyBody }),
+  authLimiter,
+  controller.passkeyRegisterVerify,
+);
+router.patch(
+  "/passkeys/:id",
+  authenticate,
+  validate({ params: idParams, body: renamePasskeyBody }),
+  controller.passkeyRename,
+);
+router.delete(
+  "/passkeys/:id",
+  authenticate,
+  validate({ params: idParams }),
+  controller.passkeyRemove,
 );
 
 module.exports = router;

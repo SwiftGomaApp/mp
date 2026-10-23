@@ -93,6 +93,18 @@ const schema = z.object({
     .string()
     .refine((v) => Buffer.from(v, "base64").length === 32, "Must be 32 bytes encoded in base64"),
   TOTP_ISSUER: z.string().min(1).default("SwiftGoma"),
+  PASSKEY_RP_ID: z.string().min(1).default("localhost"),
+  PASSKEY_RP_NAME: z.string().min(1).default("SwiftGoma"),
+  PASSKEY_ORIGINS: z
+    .string()
+    .min(1)
+    .default("http://localhost:3000")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
   IPINFO_TOKEN: optional,
 });
 
@@ -200,6 +212,11 @@ async function loadConfig() {
     },
     geo: {
       ipinfoToken: env.IPINFO_TOKEN,
+    },
+    passkey: {
+      rpId: env.PASSKEY_RP_ID,
+      rpName: env.PASSKEY_RP_NAME,
+      origins: env.PASSKEY_ORIGINS,
     },
     auth: {
       accessSecret: env.JWT_ACCESS_SECRET,

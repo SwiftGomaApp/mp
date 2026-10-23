@@ -43,4 +43,10 @@ const resendSignupBody = z
   .object(targetFields)
   .refine(exactlyOneTarget.check, exactlyOneTarget.params);
 
-module.exports = { signupEmailBody, signupPhoneBody, verifySignupBody, resendSignupBody };
+module.exports = {
+  signupEmailBody,
+  signupPhoneBody,
+  verifySignupBody,
+  resendSignupBody,
+  device,
+};

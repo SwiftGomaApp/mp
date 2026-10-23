@@ -26,7 +26,19 @@ const loginChallengeBody = z
     challengeToken: z.string().trim().min(32).max(128),
     code: code.optional(),
     backupCode: backupCode.optional(),
-  }) 
+  })
   .refine(exactlyOneFactor.check, exactlyOneFactor.params);
 
-module.exports = { confirmBody, factorBody, loginChallengeBody };
+const enrollSetupBody = z.object({ challengeToken: loginChallengeBody.shape.challengeToken });
+const enrollConfirmBody = z.object({
+  challengeToken: loginChallengeBody.shape.challengeToken,
+  code,
+});
+
+module.exports = {
+  confirmBody,
+  factorBody,
+  loginChallengeBody,
+  enrollSetupBody,
+  enrollConfirmBody,
+};

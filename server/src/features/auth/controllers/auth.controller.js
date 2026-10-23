@@ -4,6 +4,7 @@ const sessionService = require("../services/session.service");
 const { assertTrustedOrigin } = require("../../../core/middlewares/auth.middleware");
 const { AppError } = require("../../../core/errors/AppError");
 const passkeyService = require("../services/passkey.service");
+const totpService = service;
 
 function clientMeta(req) {
   return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
@@ -185,6 +186,31 @@ async function verifyLogin(req, res, next) {
   }
 }
 
+async function enrollSetup(req, res, next) {
+  try {
+    noStore(res);
+    res.json(await service.beginEnrollment(req.body));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function enrollConfirm(req, res, next) {
+  try {
+    noStore(res);
+    const { user, accessToken, refreshToken, isNewDevice, backupCodes, platform } =
+      await service.confirmEnrollment(req.body, clientMeta(req));
+
+    if (platform === "WEB") {
+      setAuthCookies(res, { accessToken, refreshToken });
+      return res.json({ user, isNewDevice, backupCodes });
+    }
+    res.json({ user, accessToken, refreshToken, isNewDevice, backupCodes });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function logout(req, res, next) {
   try {
     await sessionService.logout(req.auth, clientMeta(req));
@@ -291,8 +317,8 @@ async function passkeyLoginVerify(req, res, next) {
     const result = await passkeyService.verifyPasskeyLogin(req.body, clientMeta(req));
 
     if (result.twoFactorRequired) {
-      const { twoFactorRequired, challengeToken, expiresIn } = result;
-      return res.status(202).json({ twoFactorRequired, challengeToken, expiresIn });
+      const { twoFactorRequired, enrollment, challengeToken, expiresIn } = result;
+      return res.status(202).json({ twoFactorRequired, enrollment, challengeToken, expiresIn });
     }
 
     const { user, accessToken, refreshToken, isNewDevice, platform } = result;
@@ -321,6 +347,8 @@ module.exports = {
   disable,
   regenerateBackupCodes,
   verifyLogin,
+  enrollSetup,
+  enrollConfirm,
   logout,
   logoutAll,
   sessions,

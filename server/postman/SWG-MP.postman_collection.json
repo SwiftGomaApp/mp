@@ -39,7 +39,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/email",
               "host": ["{{baseUrl}}"],
@@ -64,7 +69,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/phone",
               "host": ["{{baseUrl}}"],
@@ -94,7 +104,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
               "host": ["{{baseUrl}}"],
@@ -124,7 +139,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
               "host": ["{{baseUrl}}"],
@@ -154,7 +174,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
               "host": ["{{baseUrl}}"],
@@ -170,26 +195,42 @@
           "name": "Signup resend - email",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/resend",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "signup", "resend"]
             },
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            }
           }
         },
         {
           "name": "Signup resend - phone",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/resend",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "signup", "resend"]
             },
-            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{phone}}\"\n}" }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            }
           }
         },
         {
@@ -208,13 +249,21 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/request",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "login", "otp", "request"]
             },
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\"\n}" }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            }
           }
         },
         {
@@ -233,13 +282,21 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/request",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "login", "otp", "request"]
             },
-            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"{{phone}}\"\n}" }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            }
           }
         },
         {
@@ -261,7 +318,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
               "host": ["{{baseUrl}}"],
@@ -292,7 +354,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
               "host": ["{{baseUrl}}"],
@@ -323,7 +390,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
               "host": ["{{baseUrl}}"],
@@ -352,7 +424,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
               "host": ["{{baseUrl}}"],
@@ -382,7 +459,12 @@
           ],
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
               "host": ["{{baseUrl}}"],
@@ -414,7 +496,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": ["{{baseUrl}}"],
@@ -447,15 +534,24 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Origin", "value": "{{webOrigin}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{webOrigin}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "refresh"]
             },
-            "body": { "mode": "raw", "raw": "{}" }
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
           }
         },
         {
@@ -475,7 +571,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": ["{{baseUrl}}"],
@@ -509,7 +610,12 @@
               ],
               "request": {
                 "method": "GET",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/sessions",
                   "host": ["{{baseUrl}}"],
@@ -533,7 +639,12 @@
               ],
               "request": {
                 "method": "DELETE",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/sessions/{{targetSessionId}}",
                   "host": ["{{baseUrl}}"],
@@ -554,7 +665,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/logout",
                   "host": ["{{baseUrl}}"],
@@ -578,7 +694,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/logout-all",
                   "host": ["{{baseUrl}}"],
@@ -602,7 +723,12 @@
               ],
               "request": {
                 "method": "GET",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/me",
                   "host": ["{{baseUrl}}"],
@@ -671,7 +797,12 @@
               ],
               "request": {
                 "method": "GET",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa",
                   "host": ["{{baseUrl}}"],
@@ -701,7 +832,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/setup",
                   "host": ["{{baseUrl}}"],
@@ -728,8 +864,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/confirm",
@@ -761,8 +903,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/backup-codes",
@@ -792,8 +940,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/disable",
@@ -823,8 +977,14 @@
               "request": {
                 "method": "POST",
                 "header": [
-                  { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-                  { "key": "Content-Type", "value": "application/json" }
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/disable",
@@ -858,7 +1018,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/otp/verify",
                   "host": ["{{baseUrl}}"],
@@ -889,7 +1054,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/verify",
                   "host": ["{{baseUrl}}"],
@@ -919,7 +1089,12 @@
               ],
               "request": {
                 "method": "POST",
-                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/verify",
                   "host": ["{{baseUrl}}"],
@@ -928,6 +1103,165 @@
                 "body": {
                   "mode": "raw",
                   "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"backupCode\": \"{{backupCode}}\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "2FA - staff enrollment",
+          "description": "Staff (SUPPORT/ADMIN) without 2FA get an enrollment challenge at login instead of tokens. Log in with a staff email first (set {{email}} to a staff account), then run these three in order. Set {{totpCode}} from your authenticator app (or the secret saved in {{totpSecret}}) before the confirm step; the challenge lasts 5 minutes.",
+          "item": [
+            {
+              "name": "Login OTP verify - staff (expect enrollment challenge)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('202', () => pm.response.to.have.status(202));",
+                      "const body = pm.response.json();",
+                      "pm.test('Enrollment challenge returned', () => {",
+                      "  pm.expect(body.twoFactorRequired).to.be.true;",
+                      "  pm.expect(body.enrollment).to.be.true;",
+                      "  pm.expect(body.challengeToken).to.be.a('string');",
+                      "  pm.expect(body.accessToken).to.be.undefined;",
+                      "});",
+                      "pm.environment.set('challengeToken', body.challengeToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/otp/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "otp", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll setup (challenge token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('Secret and otpauth URI returned', () => {",
+                      "  pm.expect(body.secret).to.be.a('string');",
+                      "  pm.expect(body.otpauthUri).to.match(/^otpauth:\\/\\/totp\\//);",
+                      "});",
+                      "pm.environment.set('totpSecret', body.secret);",
+                      "pm.environment.unset('lastTotpStep');"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/setup",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "setup"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll confirm (TOTP code, completes login)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('10 backup codes returned', () => pm.expect(body.backupCodes).to.have.lengthOf(10));",
+                      "pm.test('Logged in', () => {",
+                      "  pm.expect(body.user).to.be.an('object');",
+                      "  pm.expect(body.accessToken).to.be.a('string');",
+                      "  pm.expect(body.refreshToken).to.be.a('string');",
+                      "});",
+                      "pm.environment.set('accessToken', body.accessToken);",
+                      "pm.environment.set('refreshToken', body.refreshToken);",
+                      "pm.environment.set('backupCode', body.backupCodes[0]);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "confirm"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll confirm (same token again, expect rejection)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Challenge already consumed (4xx)', () => pm.expect(pm.response.code).to.be.within(400, 499));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "confirm"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}"
                 }
               }
             }
@@ -955,8 +1289,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/suspend",
@@ -986,8 +1326,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/ban",
@@ -1017,8 +1363,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reactivate",

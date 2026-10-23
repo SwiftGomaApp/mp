@@ -4,7 +4,7 @@ const {
   generateRefreshToken,
   hashRefreshToken,
 } = require("../../../core/auth/tokens");
-const { getConfig, loadConfig } = require("../../../config/env.config");
+const { getConfig } = require("../../../config/env.config");
 const { AppError } = require("../../../core/errors/AppError");
 const { markSessionRevoked } = require("../../../core/auth/revocation");
 const { authConfig } = require("../config/auth.config");
@@ -219,7 +219,7 @@ async function logout({ userId, sessionId }, meta) {
 async function logoutAll({ userId, sessionId }, meta) {
   const ids = await revokeUserSessions(userId, { reason: "LOGOUT_ALL" });
 
-  await loadConfig({
+  await logActivity({
     userId,
     event: "LOGOUT_ALL",
     sessionId,

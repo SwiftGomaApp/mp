@@ -18,10 +18,10 @@ const registerPasskeyBody = z.object({
 
 const renamePasskeyBody = z.object({ name });
 
-const loginPasseyBody = z.object({
+const loginPasskeyBody = z.object({
   challengeId: z.string().trim().min(32).max(128),
   response: credential,
   device,
 });
 
-module.exports = { registerPasskeyBody, renamePasskeyBody, loginPasseyBody };
+module.exports = { registerPasskeyBody, renamePasskeyBody, loginPasskeyBody };

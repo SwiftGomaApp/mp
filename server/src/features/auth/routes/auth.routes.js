@@ -11,7 +11,13 @@ const {
 } = require("../validators/signup.validator");
 const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
 const { refreshBody } = require("../validators/session.validator");
-const { confirmBody, factorBody, loginChallengeBody } = require("../validators/totp.validator");
+const {
+  confirmBody,
+  factorBody,
+  loginChallengeBody,
+  enrollSetupBody,
+  enrollConfirmBody,
+} = require("../validators/totp.validator");
 const { idParams } = require("../../../core/validation/common");
 const {
   registerPasskeyBody,
@@ -61,6 +67,19 @@ router.post(
   validate({ body: loginChallengeBody }),
   authLimiter,
   controller.verifyLogin,
+);
+
+router.post(
+  "/2fa/enroll/setup",
+  validate({ body: enrollSetupBody }),
+  authLimiter,
+  controller.enrollSetup,
+);
+router.post(
+  "/2fa/enroll/confirm",
+  validate({ body: enrollConfirmBody }),
+  authLimiter,
+  controller.enrollConfirm,
 );
 
 // ===================================== SESSIONS =====================================

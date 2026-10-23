@@ -283,7 +283,7 @@ async function notifyNewDevice({ user, device, now, geo }) {
       name: user.name,
       deviceName,
       location,
-      country,
+      country: geo.country,
       date: now,
       activityUrl: getConfig().mail.activityUrl,
     });
@@ -296,10 +296,11 @@ async function finishLogin({ user, method, device, meta }) {
   const state = twoFactorState(user);
 
   if (state === "ENROLL") {
-    throw AppError.forbidden(
-      "La double vérification doit être activée pour ce compte",
-      "TWO_FACTOR_ENROLLMENT_REQUIRED",
-    );
+    return {
+      twoFactorRequired: true,
+      enrollment: true,
+      ...(await createLoginChallenge({ userId: user.id, method, device })),
+    };
   }
   if (state === "CHALLENGE") {
     return {
@@ -694,7 +695,33 @@ async function verifyTwoFactorLogin({ challengeToken, code, backupCode }, meta) 
   return { ...result, platform: challenge.device.platform };
 }
 
+async function beginEnrollment({ challengeToken }) {
+  const challenge = await peekLoginChallenge(challengeToken);
+  const user = await getPrisma().user.findUnique({ where: { id: challenge.userId } });
+  assertCanLogin(user, { email: user?.email });
+  return beginSetup({ userId: user.id });
+}
+
+async function confirmEnrollment({ challengeToken, code }, meta) {
+  const challenge = await peekLoginChallenge(challengeToken);
+  const user = await getPrisma().user.findUnique({ where: { id: challenge.userId } });
+  assertCanLogin(user, { email: user?.email });
+
+  const { backupCodes } = await confirmSetup({ userId: user.id, code }, meta);
+  await consumeLoginChallenge(challengeToken);
+
+  const result = await completeLogin({
+    user,
+    method: challenge.method,
+    device: challenge.device,
+    meta,
+  });
+  return { ...result, backupCodes, platform: challenge.device.platform };
+}
+
 module.exports = {
+  beginEnrollment,
+  confirmEnrollment,
   startSignUp,
   verifySignUp,
   resendSignupOtp,

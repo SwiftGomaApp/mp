@@ -179,13 +179,13 @@ router.post(
   "/password/forgot",
   validate({ body: forgotPasswordBody }),
   ...otpLimiter,
-  controller.forgot,
+  passwordController.forgot,
 );
 router.post(
   "/password/reset",
   validate({ body: resetPasswordBody }),
   authLimiter,
-  controller.reset,
+  passwordController.reset,
 );
 
 // ===================================== SIGNED IN (each change needs a fresh code) =====================================

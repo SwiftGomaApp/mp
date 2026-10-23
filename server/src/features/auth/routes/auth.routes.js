@@ -12,6 +12,7 @@ const {
 const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
 const { refreshBody } = require("../validators/session.validator");
 const { confirmBody, factorBody, loginChallengeBody } = require("../validators/totp.validator");
+const { idParams } = require("../../../core/validation/common");
 
 const router = Router();
 
@@ -60,6 +61,17 @@ router.post(
 // ===================================== SESSIONS =====================================
 router.post("/refresh", validate({ body: refreshBody }), authLimiter, controller.refresh);
 router.get("/me", authenticate, controller.me);
+
+// ===================================== Devices & logout =====================================
+router.post("/logout", authenticate, controller.logout);
+router.post("/logout-all", authenticate, controller.logoutAll);
+router.get("/sessions", authenticate, controller.sessions);
+router.delete(
+  "/sessions/:id",
+  authenticate,
+  validate({ params: idParams }),
+  controller.disconnectDevice,
+);
 
 // ===================================== 2FA =====================================
 router.get("/2fa", authenticate, controller.status);

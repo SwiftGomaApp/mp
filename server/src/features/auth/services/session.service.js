@@ -4,16 +4,15 @@ const {
   generateRefreshToken,
   hashRefreshToken,
 } = require("../../../core/auth/tokens");
-const { getConfig } = require("../../../config/env.config");
+const { getConfig, loadConfig } = require("../../../config/env.config");
 const { AppError } = require("../../../core/errors/AppError");
 const { markSessionRevoked } = require("../../../core/auth/revocation");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
-const { no } = require("zod/v4/locales");
 
 const ROTATION_GRACE_MS = 10 * 1000;
 
-async function createSession({ user, method, device, ipAddress, userAgent }) {
+async function createSession({ user, method, device, ipAddress, userAgent, city, country }) {
   const prisma = getPrisma();
   const refresh = generateRefreshToken();
   const now = new Date();
@@ -53,6 +52,8 @@ async function createSession({ user, method, device, ipAddress, userAgent }) {
         authMethod: method,
         userAgent,
         ipAddress,
+        city,
+        country,
         expiresAt: refresh.expiresAt,
       },
     });
@@ -83,6 +84,7 @@ async function revokeSession(session, reason) {
     data: {
       revokedAt: new Date(),
       revokedReason: reason,
+      pushToken: null,
     },
   });
   await markSessionRevoked(session.id);
@@ -175,4 +177,107 @@ async function refreshSession(refreshToken, meta) {
   };
 }
 
-module.exports = { createSession, refreshSession, revokeSession };
+async function revokeUserSessions(userId, { reason, exceptSessionId } = {}) {
+  const prisma = getPrisma();
+
+  const active = await prisma.session.findMany({
+    where: {
+      userId,
+      revokedAt: null,
+      expiresAt: { gt: new Date() },
+      ...(exceptSessionId && { id: { not: exceptSessionId } }),
+    },
+    select: { id: true },
+  });
+  if (!active.length) return [];
+
+  const ids = active.map((s) => s.id);
+  await prisma.session.updateMany({
+    where: { id: { in: ids }, revokedAt: null },
+    data: { revokedAt: new Date(), revokedReason: reason, pushToken: null },
+  });
+  await Promise.all(ids.map(markSessionRevoked));
+
+  return ids;
+}
+
+async function logout({ userId, sessionId }, meta) {
+  const session = await getPrisma().session.findFirst({
+    where: { id: sessionId, userId },
+  });
+  if (session && !session.revokedAt) await revokeSession(session, "LOGOUT");
+
+  await logActivity({
+    userId,
+    event: "LOGOUT",
+    sessionId,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+}
+
+async function logoutAll({ userId, sessionId }, meta) {
+  const ids = await revokeUserSessions(userId, { reason: "LOGOUT_ALL" });
+
+  await loadConfig({
+    userId,
+    event: "LOGOUT_ALL",
+    sessionId,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    metadata: { revoked: ids.length },
+  });
+
+  return { revoked: ids.length };
+}
+
+async function listSessions({ userId, sessionId }) {
+  const sessions = await getPrisma().session.findMany({
+    where: { userId, revokedAt: null, expiresAt: { gt: new Date() } },
+    orderBy: { lastSeenAt: "desc" },
+    select: {
+      id: true,
+      deviceName: true,
+      platform: true,
+      city: true,
+      country: true,
+      ipAddress: true,
+      createdAt: true,
+      lastSeenAt: true,
+    },
+  });
+
+  return sessions.map((s) => ({ ...s, current: s.id === sessionId }));
+}
+
+async function revokeOwnSession({ userId, sessionId }, targetId, meta) {
+  const target = await getPrisma().session.findFirst({
+    where: { id: targetId, userId, revokedAt: null },
+  });
+  if (!target) throw AppError.notFound("Appareil introuvable", "SESSION_NOT_FOUND");
+
+  await revokeSession(target, "REVOKED_BY_USER");
+
+  await logActivity({
+    userId,
+    event: "SESSION_REVOKED",
+    sessionId: targetId,
+    deviceId: target.deviceId,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    metadata: { byOwner: true },
+  });
+
+  return { revoked: true, current: targetId === sessionId };
+}
+
+module.exports = {
+  createSession,
+  refreshSession,
+  revokeSession,
+  revokeUserSessions,
+  logout,
+  logoutAll,
+  listSessions,
+  revokeOwnSession,
+};

@@ -184,6 +184,44 @@ async function verifyLogin(req, res, next) {
   }
 }
 
+async function logout(req, res, next) {
+  try {
+    await sessionService.logout(req.auth, clientMeta(req));
+    if (req.auth.source === "cookie") clearAuthCookies(res);
+    res.status(204).end();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function logoutAll(req, res, next) {
+  try {
+    const result = await sessionService.logoutAll(req.auth, clientMeta(req));
+    if (req.auth.source === "cookie") clearAuthCookies(res);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function sessions(req, res, next) {
+  try {
+    res.json({ sessions: await sessionService.listSessions(req.auth) });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function disconnectDevice(req, res, next) {
+  try {
+    const result = await sessionService.revokeOwnSession(req.auth, req.params.id, clientMeta(req));
+    if (result.current && req.auth.source === "cookie") clearAuthCookies(res);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   signupEmail,
   signupPhone,
@@ -199,4 +237,8 @@ module.exports = {
   disable,
   regenerateBackupCodes,
   verifyLogin,
+  logout,
+  logoutAll,
+  sessions,
+  disconnectDevice, 
 };

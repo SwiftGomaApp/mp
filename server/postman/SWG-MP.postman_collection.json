@@ -1266,6 +1266,560 @@
               }
             }
           ]
+        },
+        {
+          "name": "Password",
+          "description": "Run in order. Steps marked 'needs a code' use {{otpCode}}: after the previous request, read the code from the email (or SMS) and paste it into the environment variable before sending. Set {{password}} and {{newPassword}} in the environment (both need a letter, a digit and 8+ characters). Steps 2-4 and 8-9 need a signed-in session ({{accessToken}}). Step 7 logs out every device, so sign in again afterwards.",
+          "item": [
+            {
+              "name": "1. Request step-up code (email)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Channel and expiry returned', () => { pm.expect(b.channel).to.eql('EMAIL'); pm.expect(b.expiresMinutes).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"EMAIL\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2. Create password (needs step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"{{password}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2b. Create password again (expect 409 PASSWORD_ALREADY_SET)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('409', () => pm.response.to.have.status(409));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"{{password}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "3. Request step-up code (before update)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "4. Update password (needs new step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.environment.set('previousPassword', pm.environment.get('password'));",
+                      "pm.environment.set('password', pm.environment.get('newPassword'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"{{newPassword}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "4b. Update password with wrong current password (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('code INVALID_CURRENT_PASSWORD', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('INVALID_CURRENT_PASSWORD'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"definitely-wrong-1\",\n  \"newPassword\": \"Another789\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "5. Login with password (mobile)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "const b = pm.response.json();",
+                      "if (b.accessToken) pm.environment.set('accessToken', b.accessToken);",
+                      "if (b.refreshToken) pm.environment.set('refreshToken', b.refreshToken);",
+                      "if (b.challengeToken) pm.environment.set('challengeToken', b.challengeToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "5b. Login with password (web, cookies)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "if (pm.response.code === 200) {",
+                      "  pm.test('Auth cookies set', () => pm.expect(pm.cookies.has('swg_access')).to.be.true);",
+                      "  pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}-web\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "5c. Login with wrong password (expect 401 INVALID_CREDENTIALS)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('401', () => pm.response.to.have.status(401));",
+                      "pm.test('code INVALID_CREDENTIALS', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('INVALID_CREDENTIALS'));",
+                      "pm.test('No tokens', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"definitely-wrong-1\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "6. Forgot password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Message returned', () => pm.expect(pm.response.json().message).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/forgot",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "forgot"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "6b. Forgot password - unknown email (same 200, no leak)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/forgot",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "forgot"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nobody-here@example.com\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7. Reset password (code from email in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.environment.set('password', pm.environment.get('newPassword'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "reset"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7b. Reset password with a bad code (expect 400 OTP_INVALID)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('code OTP_INVALID', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('OTP_INVALID'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "reset"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"000000\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "8. Request step-up code (before remove)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "9. Remove password (needs step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/remove",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "remove"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "9b. Login with password after removal (expect 401)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('401', () => pm.response.to.have.status(401));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            }
+          ]
         }
       ]
     },

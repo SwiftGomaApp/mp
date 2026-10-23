@@ -2,7 +2,11 @@ const { Router } = require("express");
 const controller = require("../controllers/auth.controller");
 const { validate } = require("../../../core/middlewares/validate.middleware");
 const { authenticate } = require("../../../core/middlewares/auth.middleware");
-const { otpLimiter, authLimiter } = require("../../../core/middlewares/rateLimit.middleware");
+const {
+  otpLimiter,
+  authLimiter,
+  stepUpLimiter,
+} = require("../../../core/middlewares/rateLimit.middleware");
 const {
   signupEmailBody,
   signupPhoneBody,
@@ -24,6 +28,16 @@ const {
   renamePasskeyBody,
   loginPasskeyBody,
 } = require("../validators/passkey.validator");
+const passwordController = require("../controllers/password.controller");
+const {
+  passwordOtpRequestBody,
+  createPasswordBody,
+  updatePasswordBody,
+  removePasswordBody,
+  forgotPasswordBody,
+  resetPasswordBody,
+  loginPasswordBody,
+} = require("../validators/password.validator");
 
 const router = Router();
 
@@ -80,6 +94,13 @@ router.post(
   validate({ body: enrollConfirmBody }),
   authLimiter,
   controller.enrollConfirm,
+);
+
+router.post(
+  "/login/password",
+  validate({ body: loginPasswordBody }),
+  authLimiter,
+  passwordController.login,
 );
 
 // ===================================== SESSIONS =====================================
@@ -151,6 +172,50 @@ router.delete(
   authenticate,
   validate({ params: idParams }),
   controller.passkeyRemove,
+);
+
+// ===================================== FORGOT / RESET (public) =====================================
+router.post(
+  "/password/forgot",
+  validate({ body: forgotPasswordBody }),
+  ...otpLimiter,
+  controller.forgot,
+);
+router.post(
+  "/password/reset",
+  validate({ body: resetPasswordBody }),
+  authLimiter,
+  controller.reset,
+);
+
+// ===================================== SIGNED IN (each change needs a fresh code) =====================================
+router.post(
+  "/password/otp/request",
+  authenticate,
+  validate({ body: passwordOtpRequestBody }),
+  stepUpLimiter,
+  passwordController.requestStepUp,
+);
+router.post(
+  "/password",
+  authenticate,
+  validate({ body: createPasswordBody }),
+  authLimiter,
+  passwordController.create,
+);
+router.put(
+  "/password",
+  authenticate,
+  validate({ body: updatePasswordBody }),
+  authLimiter,
+  passwordController.update,
+);
+router.post(
+  "/password/remove",
+  authenticate,
+  validate({ body: removePasswordBody }),
+  authLimiter,
+  passwordController.remove,
 );
 
 module.exports = router;

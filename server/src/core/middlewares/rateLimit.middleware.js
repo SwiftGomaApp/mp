@@ -74,6 +74,14 @@ const authLimiter = createLimiter({
   message: "Trop de tentatives, veuillez réessayer dans quelques minutes",
 });
 
+const stepUpLimiter = createLimiter({
+  name: "step-up",
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  message: "Trop de codes demandés, veuillez réessayer plus tard",
+  keyGenerator: (req) => req.auth?.userId ?? ipKeyGenerator(req.ip),
+});
+
 const otpLimiter = createOtpLimiters();
 
 module.exports = {
@@ -82,5 +90,6 @@ module.exports = {
   normalizeTarget,
   globalLimiter,
   authLimiter,
+  stepUpLimiter,
   otpLimiter,
 };

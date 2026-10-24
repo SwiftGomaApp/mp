@@ -107,6 +107,7 @@ const schema = z.object({
     ),
   IPINFO_TOKEN: optional,
   GOOGLE_CLIENT_IDS: z.string().trim().default(""),
+  APPLE_CLIENT_IDS: z.string().trim().default(""),
 });
 
 let config = null;
@@ -232,6 +233,11 @@ async function loadConfig() {
     },
     google: {
       clientIds: env.GOOGLE_CLIENT_IDS.split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    },
+    apple: {
+      clientIds: env.APPLE_CLIENT_IDS.split(",")
         .map((id) => id.trim())
         .filter(Boolean),
     },

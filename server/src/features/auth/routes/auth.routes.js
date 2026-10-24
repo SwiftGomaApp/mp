@@ -48,6 +48,10 @@ const {
   googleLinkBody,
 } = require("../validators/google.validator");
 
+const appleController = require("../controllers/apple.controller");
+
+const { appleLoginBody, appleSignupBody, appleLinkBody } = require("../validators/apple.validator");
+
 const router = Router();
 
 // ===================================== SIGNUP =====================================
@@ -249,6 +253,25 @@ router.post(
   validate({ body: googleLinkBody }),
   authLimiter,
   googleController.link,
+);
+
+// ===================================== APPLE OAUTH =====================================
+
+router.post("/login/apple", validate({ body: appleLoginBody }), authLimiter, appleController.login);
+
+router.post(
+  "/signup/apple",
+  validate({ body: appleSignupBody }),
+  authLimiter,
+  appleController.signup,
+);
+
+router.post(
+  "/apple/link",
+  authenticate,
+  validate({ body: appleLinkBody }),
+  authLimiter,
+  appleController.link,
 );
 
 module.exports = router;

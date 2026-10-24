@@ -2058,7 +2058,6 @@
             }
           ]
         },
-
         {
           "name": "Google OAuth",
           "item": [
@@ -2130,6 +2129,79 @@
                   "path": ["auth", "google", "link"]
                 },
                 "description": "Associe un compte Google vérifié au compte SwiftGoma actuellement authentifié. Le serveur doit empêcher les associations avec une identité déjà liée à un autre utilisateur."
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "Apple OAuth",
+          "item": [
+            {
+              "name": "Apple - Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/apple",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "apple"]
+                }
+              }
+            },
+            {
+              "name": "Apple - Signup",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"name\": \"SwiftGoma User\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/signup/apple",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "signup", "apple"]
+                }
+              }
+            },
+            {
+              "name": "Apple - Link account",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/apple/link",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "apple", "link"]
+                }
               }
             }
           ]

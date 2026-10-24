@@ -1,4 +1,5 @@
 const { sendSms } = require("./sms");
+const { securityAlertInfo } = require("./securityAlert");
 
 function otpMessage({ code, expiresMinutes }) {
   return `SwiftGoma : votre code est SWG-${code}. Il expire dans ${expiresMinutes} min. Ne le partagez jamais.`;
@@ -24,4 +25,19 @@ async function sendWelcomeSms({ to, name, role }) {
   return sendSms({ to, message: `SwiftGoma : ${hello} ! ${action} dans l'application.` });
 }
 
-module.exports = { sendOtpSms, sendLoginAlertSms, otpMessage, sendWelcomeSms };
+function securityAlertMessage({ type }) {
+  return `SwiftGoma : ${securityAlertInfo(type).sms}. Si ce n'est pas vous, sécurisez votre compte.`;
+}
+
+async function sendSecurityAlertSms({ to, type }) {
+  return sendSms({ to, message: securityAlertMessage({ type }) });
+}
+
+module.exports = {
+  sendOtpSms,
+  sendLoginAlertSms,
+  otpMessage,
+  sendWelcomeSms,
+  sendSecurityAlertSms,
+  securityAlertMessage,
+};

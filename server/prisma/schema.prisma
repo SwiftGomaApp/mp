@@ -75,6 +75,15 @@ enum ActivityEvent {
   SUSPICIOUS_ACTIVITY_REPORTED
 }
 
+enum RecoveryStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
 // ======================================================= MODELS ===========================================
 
 // ---------------------- user model -------------------------
@@ -97,11 +106,12 @@ model User {
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
-  sessions     Session[]
-  passkeys     Passkey[]
-  totp         TotpCredential?
-  backupCodes  BackupCode[]
-  activityLogs ActivityLog[]
+  sessions         Session[]
+  passkeys         Passkey[]
+  totp             TotpCredential?
+  backupCodes      BackupCode[]
+  activityLogs     ActivityLog[]
+  recoveryRequests AccountRecoveryRequest[]
 
   @@index([status, createdAt])
   @@map("users")
@@ -161,14 +171,14 @@ model Passkey {
 // ---------------------- totp model -------------------------
 
 model TotpCredential {
-  id               String    @id @default(uuid())
-  userId           String    @unique
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  secretEncrypted  String
-  confirmedAt      DateTime?
-  lastUsedStep     Int?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  secretEncrypted String
+  confirmedAt     DateTime?
+  lastUsedStep    Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("totp_credentials")
 }
@@ -191,11 +201,11 @@ model BackupCode {
 // ---------------------- activity model -------------------------
 
 model ActivityLog {
-  id         String         @id @default(uuid())
+  id         String          @id @default(uuid())
   userId     String?
-  user       User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   event      ActivityEvent
-  success    Boolean        @default(true)
+  success    Boolean         @default(true)
   method     AuthMethod?
   sessionId  String?
   deviceId   String?
@@ -207,10 +217,43 @@ model ActivityLog {
   userAgent  String?
   target     String?
   metadata   Json?
-  createdAt  DateTime       @default(now())
+  createdAt  DateTime        @default(now())
 
   @@index([userId, createdAt])
   @@index([event, createdAt])
   @@index([createdAt])
   @@map("activity_logs")
+}
+
+// ---------------------- account recovery request -------------------------
+model AccountRecoveryRequest {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status RecoveryStatus @default(PENDING)
+  reason String?
+
+  verificationHash      String?   @unique
+  verificationExpiresAt DateTime?
+
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  reviewReason String?
+
+  requestedAt DateTime  @default(now())
+  approvedAt  DateTime?
+  availableAt DateTime?
+  completedAt DateTime?
+  expiresAt   DateTime?
+
+  completedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([status, requestedAt])
+  @@index([expiresAt])
+  @@map("account_recovery_requests")
 }

@@ -12,6 +12,9 @@ const defaultHandlers = {
   [NOTIFICATION_JOBS.SMS_LOGIN_ALERT]: (data) => sms.sendLoginAlertSms(data),
   [NOTIFICATION_JOBS.EMAIL_WELCOME]: (data) => mail.sendWelcomeEmail(data),
   [NOTIFICATION_JOBS.SMS_WELCOME]: (data) => sms.sendWelcomeSms(data),
+  [NOTIFICATION_JOBS.EMAIL_SECURITY_ALERT]: (data) =>
+    mail.sendSecurityAlertEmail({ ...data, date: new Date(data.date) }),
+  [NOTIFICATION_JOBS.SMS_SECURITY_ALERT]: (data) => sms.sendSecurityAlertSms(data),
 };
 
 function isPermanentFailure(err) {

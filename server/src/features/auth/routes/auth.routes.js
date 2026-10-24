@@ -6,6 +6,7 @@ const {
   otpLimiter,
   authLimiter,
   stepUpLimiter,
+  refreshLimiter,
 } = require("../../../core/middlewares/rateLimit.middleware");
 const {
   signupEmailBody,
@@ -104,7 +105,7 @@ router.post(
 );
 
 // ===================================== SESSIONS =====================================
-router.post("/refresh", validate({ body: refreshBody }), authLimiter, controller.refresh);
+router.post("/refresh", validate({ body: refreshBody }), refreshLimiter, controller.refresh);
 router.get("/me", authenticate, controller.me);
 
 // ===================================== Devices & logout =====================================

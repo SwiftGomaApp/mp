@@ -102,7 +102,7 @@ function meta(m, extra = {}) {
 
 async function requestStepUpOtp({ userId, channel }, m) {
   const user = await loadActiveUser(userId);
-  const contact = resolveContact(userId, channel);
+  const contact = resolveContact(user, channel);
 
   const { code, expiresMinutes } = await issueOtp({
     purpose: STEP_UP_PURPOSE,

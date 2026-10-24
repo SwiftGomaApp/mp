@@ -7,6 +7,8 @@ const NOTIFICATION_JOBS = {
   SMS_LOGIN_ALERT: "sms.login-alert",
   EMAIL_WELCOME: "email.welcome",
   SMS_WELCOME: "sms.welcome",
+  EMAIL_SECURITY_ALERT: "email.security-alert",
+  SMS_SECURITY_ALERT: "sms.security-alert",
 };
 
 function enqueue(name, data) {
@@ -40,6 +42,17 @@ function queueWelcomeSms(data) {
   return enqueue(NOTIFICATION_JOBS.SMS_WELCOME, data);
 }
 
+function queueSecurityAlertEmail({ date, ...rest }) {
+  return enqueue(NOTIFICATION_JOBS.EMAIL_SECURITY_ALERT, {
+    ...rest,
+    date: (date ? new Date(date) : new Date()).toISOString(),
+  });
+}
+
+function queueSecurityAlertSms(data) {
+  return enqueue(NOTIFICATION_JOBS.SMS_SECURITY_ALERT, data);
+}
+
 module.exports = {
   NOTIFICATION_JOBS,
   queueOtpEmail,
@@ -48,4 +61,6 @@ module.exports = {
   queueLoginAlertSms,
   queueWelcomeEmail,
   queueWelcomeSms,
+  queueSecurityAlertEmail,
+  queueSecurityAlertSms,
 };

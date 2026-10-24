@@ -40,6 +40,14 @@ const {
   loginPasswordBody,
 } = require("../validators/password.validator");
 
+const googleController = require("../controllers/google.controller");
+
+const {
+  googleLoginBody,
+  googleSignupBody,
+  googleLinkBody,
+} = require("../validators/google.validator");
+
 const router = Router();
 
 // ===================================== SIGNUP =====================================
@@ -217,6 +225,30 @@ router.post(
   validate({ body: removePasswordBody }),
   authLimiter,
   passwordController.remove,
+);
+
+// ===================================== GOOGLE OAUTH =====================================
+
+router.post(
+  "/login/google",
+  validate({ body: googleLoginBody }),
+  authLimiter,
+  googleController.login,
+);
+
+router.post(
+  "/signup/google",
+  validate({ body: googleSignupBody }),
+  authLimiter,
+  googleController.signup,
+);
+
+router.post(
+  "/google/link",
+  authenticate,
+  validate({ body: googleLinkBody }),
+  authLimiter,
+  googleController.link,
 );
 
 module.exports = router;

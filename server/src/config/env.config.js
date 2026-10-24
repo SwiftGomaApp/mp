@@ -106,6 +106,7 @@ const schema = z.object({
         .filter(Boolean),
     ),
   IPINFO_TOKEN: optional,
+  GOOGLE_CLIENT_IDS: z.string().trim().default(""),
 });
 
 let config = null;
@@ -228,6 +229,11 @@ async function loadConfig() {
       otpMaxAttempts: env.OTP_MAX_ATTEMPTS,
       totpKey: Buffer.from(env.TOTP_ENCRYPTION_KEY, "base64"),
       totpIssuer: env.TOTP_ISSUER,
+    },
+    google: {
+      clientIds: env.GOOGLE_CLIENT_IDS.split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
     },
   });
 

@@ -1820,6 +1820,319 @@
               }
             }
           ]
+        },
+        {
+          "name": "Passkeys",
+          "description": "WebAuthn / Passkeys. Les réponses credential doivent provenir d'une vraie cérémonie WebAuthn dans le navigateur ou le client compatible.",
+          "item": [
+            {
+              "name": "1. Login passkey - options",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('Challenge ID and options returned', () => {",
+                      "  pm.expect(body.challengeId).to.be.a('string');",
+                      "  pm.expect(body.options).to.be.an('object');",
+                      "  pm.expect(body.options.challenge).to.be.a('string');",
+                      "});",
+                      "pm.environment.set('passkeyChallengeId', body.challengeId);",
+                      "pm.environment.set('passkeyAuthenticationOptions', JSON.stringify(body.options));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/passkey/options",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "passkey", "options"]
+                }
+              }
+            },
+            {
+              "name": "2. Login passkey - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                      "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);",
+                      "if (body.challengeToken) pm.environment.set('challengeToken', body.challengeToken);",
+                      "if (body.user) pm.test('User returned after login', () => pm.expect(body.user).to.be.an('object'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/passkey/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "passkey", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeId\": \"{{passkeyChallengeId}}\",\n  \"response\": {{passkeyAuthenticationResponse}},\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman WebAuthn Test\",\n    \"platform\": \"WEB\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "3. List registered passkeys",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Passkeys array returned', () => pm.expect(pm.response.json().passkeys).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys"]
+                }
+              }
+            },
+            {
+              "name": "4. Register passkey - options",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('WebAuthn registration options returned', () => {",
+                      "  pm.expect(body.challenge).to.be.a('string');",
+                      "  pm.expect(body.rp).to.be.an('object');",
+                      "  pm.expect(body.user).to.be.an('object');",
+                      "});",
+                      "pm.environment.set('passkeyRegistrationOptions', JSON.stringify(body));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/options",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "options"]
+                }
+              }
+            },
+            {
+              "name": "5. Register passkey - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "pm.test('Passkey returned', () => pm.expect(pm.response.json().passkey).to.be.an('object'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{passkeyName}}\",\n  \"deviceId\": \"{{deviceId}}\",\n  \"response\": {{passkeyRegistrationResponse}}\n}"
+                }
+              }
+            },
+            {
+              "name": "6. Rename passkey",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('2xx response', () => pm.expect(pm.response.code).to.be.within(200, 299));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"SwiftGoma passkey renamed\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7. Remove passkey",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('204', () => pm.response.to.have.status(204));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                }
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "Google OAuth",
+          "item": [
+            {
+              "name": "Google - Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/google",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "google"]
+                },
+                "description": "Connecte un utilisateur existant avec un Google ID token vérifié par le serveur. Une vérification 2FA peut être nécessaire."
+              }
+            },
+            {
+              "name": "Google - Signup",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/signup/google",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "signup", "google"]
+                },
+                "description": "Crée un compte à partir d'une identité Google vérifiée. Le rôle BUYER est utilisé comme valeur de test ; les rôles privilégiés doivent être refusés côté serveur."
+              }
+            },
+            {
+              "name": "Google - Link account",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/google/link",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "google", "link"]
+                },
+                "description": "Associe un compte Google vérifié au compte SwiftGoma actuellement authentifié. Le serveur doit empêcher les associations avec une identité déjà liée à un autre utilisateur."
+              }
+            }
+          ]
         }
       ]
     },

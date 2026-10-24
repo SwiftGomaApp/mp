@@ -73,6 +73,8 @@ enum ActivityEvent {
   ACCOUNT_BANNED
   ACCOUNT_REACTIVATED
   SUSPICIOUS_ACTIVITY_REPORTED
+  PASSWORD_REMOVED
+  OAUTH_ACCOUNT_LINKED
 }
 
 enum RecoveryStatus {
@@ -82,6 +84,11 @@ enum RecoveryStatus {
   CANCELLED
   COMPLETED
   EXPIRED
+}
+
+enum OAuthProvider {
+  GOOGLE
+  APPLE
 }
 
 // ======================================================= MODELS ===========================================
@@ -112,9 +119,30 @@ model User {
   backupCodes      BackupCode[]
   activityLogs     ActivityLog[]
   recoveryRequests AccountRecoveryRequest[]
+  oauthAccounts OAuthAccount[]
 
   @@index([status, createdAt])
   @@map("users")
+}
+
+// ---------------------- oauth account model -------------------------
+
+model OAuthAccount {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider          OAuthProvider @default(GOOGLE)
+  providerAccountId String
+  email             String?
+  emailVerifiedAt   DateTime?
+
+  createdAt         DateTime      @default(now())
+  lastUsedAt        DateTime?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId, provider])
+  @@map("oauth_accounts")
 }
 
 // ---------------------- session model -------------------------
@@ -225,7 +253,8 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
-// ---------------------- account recovery request -------------------------
+// ---------------------- account recovery request model -------------------------
+
 model AccountRecoveryRequest {
   id     String @id @default(uuid())
   userId String

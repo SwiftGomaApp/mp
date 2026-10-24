@@ -52,6 +52,13 @@ const appleController = require("../controllers/apple.controller");
 
 const { appleLoginBody, appleSignupBody, appleLinkBody } = require("../validators/apple.validator");
 
+const secondaryContactController = require("../controllers/secondary-contact.controller");
+
+const {
+  secondaryContactRequestBody,
+  secondaryContactVerifyBody,
+} = require("../validators/secondary-contact.validator");
+
 const router = Router();
 
 // ===================================== SIGNUP =====================================
@@ -272,6 +279,28 @@ router.post(
   validate({ body: appleLinkBody }),
   authLimiter,
   appleController.link,
+);
+
+// =====================================
+// SECONDARY CONTACTS
+// =====================================
+
+router.get("/secondary-contacts", authenticate, secondaryContactController.list);
+
+router.post(
+  "/secondary-contacts/otp",
+  authenticate,
+  validate({ body: secondaryContactRequestBody }),
+  stepUpLimiter,
+  secondaryContactController.requestOtp,
+);
+
+router.post(
+  "/secondary-contacts/verify",
+  authenticate,
+  validate({ body: secondaryContactVerifyBody }),
+  authLimiter,
+  secondaryContactController.verify,
 );
 
 module.exports = router;

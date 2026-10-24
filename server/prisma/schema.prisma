@@ -75,6 +75,10 @@ enum ActivityEvent {
   SUSPICIOUS_ACTIVITY_REPORTED
   PASSWORD_REMOVED
   OAUTH_ACCOUNT_LINKED
+  SECONDARY_EMAIL_ADDED
+  SECONDARY_PHONE_ADDED
+  SECONDARY_EMAIL_REMOVED
+  SECONDARY_PHONE_REMOVED
 }
 
 enum RecoveryStatus {
@@ -96,12 +100,18 @@ enum OAuthProvider {
 // ---------------------- user model -------------------------
 
 model User {
-  id              String     @id @default(uuid())
+  id              String    @id @default(uuid())
   name            String?
-  email           String?    @unique
-  phone           String?    @unique
+  email           String?   @unique
+  phone           String?   @unique
   emailVerifiedAt DateTime?
   phoneVerifiedAt DateTime?
+
+  secondaryEmail           String?   @unique
+  secondaryEmailVerifiedAt DateTime?
+  secondaryPhone           String?   @unique
+  secondaryPhoneVerifiedAt DateTime?
+
   passwordHash    String?
   role            Role
   status          UserStatus @default(PENDING)
@@ -119,7 +129,7 @@ model User {
   backupCodes      BackupCode[]
   activityLogs     ActivityLog[]
   recoveryRequests AccountRecoveryRequest[]
-  oauthAccounts OAuthAccount[]
+  oauthAccounts    OAuthAccount[]
 
   @@index([status, createdAt])
   @@map("users")
@@ -128,17 +138,17 @@ model User {
 // ---------------------- oauth account model -------------------------
 
 model OAuthAccount {
-  id                String        @id @default(uuid())
-  userId            String
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   provider          OAuthProvider @default(GOOGLE)
   providerAccountId String
   email             String?
   emailVerifiedAt   DateTime?
 
-  createdAt         DateTime      @default(now())
-  lastUsedAt        DateTime?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
 
   @@unique([provider, providerAccountId])
   @@index([userId, provider])

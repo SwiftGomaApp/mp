@@ -1,3 +1,5 @@
+require("net").setDefaultAutoSelectFamilyAttemptTimeout(5000);
+
 require("./instrument");
 
 const Sentry = require("@sentry/node");

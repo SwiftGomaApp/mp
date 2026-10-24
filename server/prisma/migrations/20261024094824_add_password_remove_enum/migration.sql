@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ActivityEvent" ADD VALUE 'PASSWORD_REMOVED';

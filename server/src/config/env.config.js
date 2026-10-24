@@ -67,6 +67,7 @@ const schema = z.object({
   MAIL_LOGO_URL: z.string().url(),
   MAIL_SUPPORT_EMAIL: z.string().email().default("support@swiftgoma.com"),
   MAIL_PRIVACY_URL: z.string().url(),
+  MAIL_ACTIVITY_URL: z.string().url().default("https://swiftgoma.com/compte/activite"),
   MAIL_LOGO_WIDTH: z.coerce.number().int().positive().default(140),
   MAIL_LOGO_HEIGHT: z.coerce.number().int().positive().default(40),
 
@@ -78,6 +79,35 @@ const schema = z.object({
     .default("false")
     .transform((v) => v === "true"),
   SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
+
+  JWT_ACCESS_SECRET: z.string().min(32),
+  ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).default(7),
+
+  OTP_SECRET: z.string().min(32),
+  OTP_TTL_MINUTES: z.coerce.number().int().min(1).max(30).default(10),
+  OTP_RESEND_SECONDS: z.coerce.number().int().min(0).default(60),
+  OTP_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(5),
+
+  TOTP_ENCRYPTION_KEY: z
+    .string()
+    .refine((v) => Buffer.from(v, "base64").length === 32, "Must be 32 bytes encoded in base64"),
+  TOTP_ISSUER: z.string().min(1).default("SwiftGoma"),
+  PASSKEY_RP_ID: z.string().min(1).default("localhost"),
+  PASSKEY_RP_NAME: z.string().min(1).default("SwiftGoma"),
+  PASSKEY_ORIGINS: z
+    .string()
+    .min(1)
+    .default("http://localhost:3000")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
+  IPINFO_TOKEN: optional,
+  GOOGLE_CLIENT_IDS: z.string().trim().default(""),
+  APPLE_CLIENT_IDS: z.string().trim().default(""),
 });
 
 let config = null;
@@ -171,6 +201,7 @@ async function loadConfig() {
       logoUrl: env.MAIL_LOGO_URL,
       supportEmail: env.MAIL_SUPPORT_EMAIL,
       privacyUrl: env.MAIL_PRIVACY_URL,
+      activityUrl: env.MAIL_ACTIVITY_URL,
       logoWidth: env.MAIL_LOGO_WIDTH,
       logoHeight: env.MAIL_LOGO_HEIGHT,
     },
@@ -180,6 +211,35 @@ async function loadConfig() {
       senderId: env.AT_SENDER_ID,
       dryRun: env.SMS_DRY_RUN,
       timeoutMs: env.SMS_TIMEOUT_MS,
+    },
+    geo: {
+      ipinfoToken: env.IPINFO_TOKEN,
+    },
+    passkey: {
+      rpId: env.PASSKEY_RP_ID,
+      rpName: env.PASSKEY_RP_NAME,
+      origins: env.PASSKEY_ORIGINS,
+    },
+    auth: {
+      accessSecret: env.JWT_ACCESS_SECRET,
+      accessTtlSeconds: env.ACCESS_TOKEN_TTL_SECONDS,
+      refreshTtlDays: env.REFRESH_TOKEN_TTL_DAYS,
+      otpSecret: env.OTP_SECRET,
+      otpTtlMinutes: env.OTP_TTL_MINUTES,
+      otpResendSeconds: env.OTP_RESEND_SECONDS,
+      otpMaxAttempts: env.OTP_MAX_ATTEMPTS,
+      totpKey: Buffer.from(env.TOTP_ENCRYPTION_KEY, "base64"),
+      totpIssuer: env.TOTP_ISSUER,
+    },
+    google: {
+      clientIds: env.GOOGLE_CLIENT_IDS.split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
+    },
+    apple: {
+      clientIds: env.APPLE_CLIENT_IDS.split(",")
+        .map((id) => id.trim())
+        .filter(Boolean),
     },
   });
 

@@ -4,6 +4,8 @@ const { AppError } = require("../../../core/errors/AppError");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
 const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
 const { logActivity } = require("./activity.service");
+const { consumeStepUp } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
 
 const PENDING_TTL_SECONDS = 10 * 60;
 
@@ -85,7 +87,7 @@ function getMeta(meta = {}) {
   };
 }
 
-async function requestSecondaryContactOtp({ userId, kind, value }, meta = {}) {
+async function requestSecondaryContactOtp({ userId, kind, value, stepUpCode }, meta = {}) {
   const config = getContactConfig(kind);
   const user = await loadActiveUser(userId);
   const contact = normalizeContact(kind, value);
@@ -96,6 +98,8 @@ async function requestSecondaryContactOtp({ userId, kind, value }, meta = {}) {
       "SECONDARY_CONTACT_ALREADY_SET",
     );
   }
+
+  await consumeStepUp(user, stepUpCode, meta, `secondary_contact.${kind.toLowerCase()}`);
 
   await assertContactAvailable(contact, userId);
 
@@ -131,6 +135,8 @@ async function requestSecondaryContactOtp({ userId, kind, value }, meta = {}) {
       action: `secondary_contact.${kind.toLowerCase()}.request`,
     },
   });
+
+  await notifySecurityChange(userId, "SECONDARY_CONTACT_ADDED");
 
   return {
     message: "Un code de vérification a été envoyé",

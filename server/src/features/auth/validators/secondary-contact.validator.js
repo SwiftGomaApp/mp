@@ -1,5 +1,6 @@
 const { z } = require("zod");
 const { email, drcPhone } = require("../../../core/validation/common");
+const { stepUpCode } = require("./stepUp.validator");
 
 const contactFields = {
   EMAIL: z.object({
@@ -13,8 +14,8 @@ const contactFields = {
 };
 
 const secondaryContactRequestBody = z.discriminatedUnion("kind", [
-  contactFields.EMAIL,
-  contactFields.PHONE,
+  contactFields.EMAIL.extend({ stepUpCode }),
+  contactFields.PHONE.extend({ stepUpCode }),
 ]);
 
 const secondaryContactVerifyBody = z.discriminatedUnion("kind", [

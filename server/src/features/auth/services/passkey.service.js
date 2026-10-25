@@ -19,6 +19,8 @@ const { randomToken, sha256 } = require("../../../core/crypto/crypto");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { assertCanLogin, finishLogin } = require("./auth.service");
+const { consumeStepUp } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
 
 const CHALLENGE_TTL_SECONDS = 5 * 60;
 
@@ -92,7 +94,7 @@ async function beginRegistration({ userId }) {
   return options;
 }
 
-async function finishRegistration({ userId, response, name, deviceId }, meta) {
+async function finishRegistration({ userId, response, name, deviceId, stepUpCode }, meta) {
   const prisma = getPrisma();
   const { rpId, origins } = getConfig().passkey;
 
@@ -128,6 +130,8 @@ async function finishRegistration({ userId, response, name, deviceId }, meta) {
     );
   }
 
+  await consumeStepUp({ id: userId }, stepUpCode, meta, "passkey.add");
+
   const passkey = await prisma.passkey.create({
     data: {
       userId,
@@ -154,6 +158,8 @@ async function finishRegistration({ userId, response, name, deviceId }, meta) {
       backedUp: credentialBackedUp,
     },
   });
+
+  await notifySecurityChange(userId, "LOGIN_METHOD_ADDED");
 
   return passkey;
 }
@@ -208,6 +214,8 @@ async function removePasskey({ userId, id }, meta) {
     userAgent: meta.userAgent,
     metadata: { passkeyId: id },
   });
+
+  await notifySecurityChange(userId, "PASSKEY_REMOVED");
 }
 
 async function revokeAllPasskeys(userId) {

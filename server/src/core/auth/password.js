@@ -4,10 +4,11 @@ const { promisify } = require("util");
 const scrypt = promisify(crypto.scrypt);
 
 const KEY_LENGTH = 64;
+const SALT_BYTES = 16;
 const PARAMS = { N: 2 ** 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 
 async function hashPassword(password) {
-  const salt = crypto.randomBytes(6);
+  const salt = crypto.randomBytes(SALT_BYTES);
   const derived = await scrypt(String(password), salt, KEY_LENGTH, PARAMS);
   return [
     "scrypt",
@@ -36,4 +37,13 @@ async function verifyPassword(password, stored) {
   return derived.length === expected.length && crypto.timingSafeEqual(derived, expected);
 }
 
-module.exports = { hashPassword, verifyPassword };
+function needsRehash(stored) {
+  const [scheme, N, , , saltB64] = String(stored).split("$");
+  return (
+    scheme !== "scrypt" ||
+    Number(N) < PARAMS.N ||
+    Buffer.from(saltB64 ?? "", "base64").length < SALT_BYTES
+  );
+}
+
+module.exports = { hashPassword, verifyPassword, needsRehash };

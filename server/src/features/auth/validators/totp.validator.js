@@ -1,4 +1,5 @@
 const { z, check } = require("zod");
+const { stepUpCode } = require("./stepUp.validator");
 
 const code = z
   .string()
@@ -15,7 +16,7 @@ const exactlyOneFactor = {
   },
 };
 
-const confirmBody = z.object({ code });
+const confirmBody = z.object({ code, stepUpCode });
 
 const factorBody = z
   .object({ code: code.optional(), backupCode: backupCode.optional() })

@@ -5,6 +5,9 @@ const { AppError } = require("../../../core/errors/AppError");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { finishLogin, assertCanLogin } = require("./auth.service");
+const { consumeStepUp } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
+const { tuple } = require("zod");
 
 const googleClient = new OAuth2Client();
 
@@ -149,10 +152,10 @@ async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device
 
   const existingUser = await prisma.user.findUnique({
     where: { email: identity.email },
-    select: { id: true },
+    select: { id: true, status: true },
   });
 
-  if (existingUser) {
+  if (existingUser && existingUser.status !== "PENDING") {
     throw AppError.conflict(
       "Un compte existe déjà avec cette adresse. Connectez-vous avec votre méthode habituelle, puis associez Google.",
       "ACCOUNT_LINK_REQUIRED",
@@ -165,19 +168,20 @@ async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device
 
   try {
     user = await prisma.$transaction(async (tx) => {
-      const created = await await tx.user.create({
-        data: {
-          name: identity.name,
-          email: identity.email,
-          emailVerifiedAt: now,
-          role,
-          status: "ACTIVE",
-          termsVersion: authConfig.legal.termsVersion,
-          privacyVersion: authConfig.legal.privacyVersion,
-          termsAcceptedAt: now,
-          ageConfirmedAt: now,
-        },
-      });
+      const data = {
+        name: identity.name,
+        email: identity.email,
+        emailVerifiedAt: now,
+        role,
+        status: "ACTIVE",
+        termsVersion: authConfig.legal.termsVersion,
+        privacyVersion: authConfig.legal.privacyVersion,
+        termsAcceptedAt: now,
+        ageConfirmedAt: now,
+      };
+      const created = existingUser
+        ? await tx.user.update({ where: { id: existingUser.id }, data })
+        : await tx.user.create({ data });
 
       await tx.oAuthAccount.create({
         data: {
@@ -229,7 +233,7 @@ async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device
   });
 }
 
-async function linkGoogleAccount({ userId, idToken }, meta) {
+async function linkGoogleAccount({ userId, idToken, stepUpCode }, meta) {
   const identity = await verifyGoogleIdToken(idToken);
   const prisma = getPrisma();
 
@@ -242,13 +246,6 @@ async function linkGoogleAccount({ userId, idToken }, meta) {
       status: true,
     },
   });
-
-  if (!user || user.status !== "ACTIVE") {
-    throw AppError.forbidden(
-      "Ce compte ne peut pas associer une nouvelle méthode de connexion",
-      "ACCOUNT_NOT_ACTIVE",
-    );
-  }
 
   if (!user || user.status !== "ACTIVE") {
     throw AppError.forbidden(
@@ -293,6 +290,8 @@ async function linkGoogleAccount({ userId, idToken }, meta) {
     );
   }
 
+  await consumeStepUp({ id: userId }, stepUpCode, meta, "oauth.link.google");
+
   try {
     await prisma.oAuthAccount.create({
       data: {
@@ -322,6 +321,8 @@ async function linkGoogleAccount({ userId, idToken }, meta) {
     userAgent: meta.userAgent,
     metadata: { provider: "GOOGLE" },
   });
+
+  await notifySecurityChange(userId, "LOGIN_METHOD_ADDED");
 
   return { linked: true, alreadyLinked: false };
 }

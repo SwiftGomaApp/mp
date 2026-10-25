@@ -1,6 +1,7 @@
 const { z } = require("zod");
 const { authConfig } = require("../config/auth.config");
 const { device } = require("./signup.validator");
+const { stepUpCode } = require("./stepUp.validator");
 
 const idToken = z.string().trim().min(1).max(8192);
 
@@ -21,9 +22,7 @@ const googleSignupBody = z.object({
   device,
 });
 
-const googleLinkBody = z.object({
-  idToken,
-});
+const googleLinkBody = z.object({ idToken, stepUpCode });
 
 module.exports = {
   googleLoginBody,

@@ -1,4 +1,39 @@
 const ALERTS = {
+  LOGIN_METHOD_ADDED: {
+    subject: "Une nouvelle méthode de connexion a été ajoutée à votre compte SwiftGoma",
+    title: "Une nouvelle méthode de connexion a été ajoutée",
+    sms: "une nouvelle méthode de connexion a été ajoutée à votre compte",
+  },
+  PASSKEY_REMOVED: {
+    subject: "Une empreinte ou un visage a été retiré de votre compte SwiftGoma",
+    title: "Une empreinte ou un visage a été retiré de votre compte",
+    sms: "une empreinte ou un visage a été retiré de votre compte",
+  },
+  SECONDARY_CONTACT_ADDED: {
+    subject: "Un contact secondaire a été ajouté à votre compte SwiftGoma",
+    title: "Un contact secondaire a été ajouté à votre compte",
+    sms: "un contact secondaire a été ajouté à votre compte",
+  },
+  TWO_FACTOR_ENABLED: {
+    subject: "La double vérification a été activée sur votre compte SwiftGoma",
+    title: "La double vérification a été activée",
+    sms: "la double vérification a été activée sur votre compte",
+  },
+  TWO_FACTOR_DISABLED: {
+    subject: "La double vérification a été désactivée sur votre compte SwiftGoma",
+    title: "La double vérification a été désactivée",
+    sms: "la double vérification a été désactivée sur votre compte",
+  },
+  BACKUP_CODES_REGENERATED: {
+    subject: "Vos codes de secours SwiftGoma ont été régénérés",
+    title: "Vos codes de secours ont été régénérés",
+    sms: "vos codes de secours ont été régénérés",
+  },
+  BACKUP_CODE_USED: {
+    subject: "Un code de secours SwiftGoma a été utilisé",
+    title: "Un code de secours a été utilisé pour vous connecter",
+    sms: "un code de secours a été utilisé pour vous connecter",
+  },
   PASSWORD_SET: {
     subject: "Un mot de passe a été ajouté à votre compte SwiftGoma",
     title: "Un mot de passe a été ajouté à votre compte",

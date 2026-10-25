@@ -1,4 +1,5 @@
 const { QUEUES, getQueue } = require("./queues");
+const { assertSmsBudget } = require("../messaging/smsBudget");
 
 const NOTIFICATION_JOBS = {
   EMAIL_OTP: "email.otp",
@@ -26,7 +27,8 @@ function queueLoginAlertEmail({ date, ...rest }) {
   });
 }
 
-function queueOtpSms(data) {
+async function queueOtpSms(data) {
+  await assertSmsBudget();
   return enqueue(NOTIFICATION_JOBS.SMS_OTP, data);
 }
 

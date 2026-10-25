@@ -1,5 +1,6 @@
 const { z } = require("zod");
 const { device } = require("./signup.validator");
+const { stepUpCode } = require("./stepUp.validator");
 
 const credential = z.looseObject({
   id: z.string().min(1).max(1024),
@@ -14,6 +15,7 @@ const registerPasskeyBody = z.object({
   response: credential,
   name: name.optional(),
   deviceId: z.string().trim().min(8).max(128).optional(),
+  stepUpCode,
 });
 
 const renamePasskeyBody = z.object({ name });

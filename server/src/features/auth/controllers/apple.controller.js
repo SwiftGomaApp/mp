@@ -53,6 +53,7 @@ async function link(req, res, next) {
         userId: req.auth.userId,
         idToken: req.body.idToken,
         nonce: req.body.nonce,
+        stepUpCode: req.body.stepUpCode,
       },
       clientMeta(req),
     );

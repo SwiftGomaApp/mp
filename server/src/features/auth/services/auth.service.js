@@ -25,6 +25,8 @@ const { createSession } = require("./session.service");
 const { logger } = require("../../../core/logger/logger");
 const { getConfig } = require("../../../config/env.config");
 const { lookupIp } = require("../../../core/geo/geo");
+const { consumeStepUp } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
 
 const OTP_RESEND_MESSAGE = "Si un compte en attente existe, un nouveau code a été envoyé";
 const UNKNOWN = "Inconnu";
@@ -480,7 +482,7 @@ async function replaceBackupCodes(tx, userId) {
   return codes.map(({ code }) => code);
 }
 
-async function confirmSetup({ userId, code }, meta) {
+async function confirmSetup({ userId, code, stepUpCode, requireStepUp = false }, meta) {
   const prisma = getPrisma();
   await assertAttemptsLeft(userId);
 
@@ -519,6 +521,10 @@ async function confirmSetup({ userId, code }, meta) {
     throw AppError.badRequest("Code invalide", undefined, "TWO_FACTOR_INVALID");
   }
 
+  if (requireStepUp) {
+    await consumeStepUp({ id: userId }, stepUpCode, meta, "totp.enable");
+  }
+
   const backupCodes = await prisma.$transaction(async (tx) => {
     await tx.totpCredential.update({
       where: { userId },
@@ -531,6 +537,7 @@ async function confirmSetup({ userId, code }, meta) {
   const base = { userId, ipAddress: meta.ipAddress, userAgent: meta.userAgent };
   await logActivity({ ...base, event: "TOTP_ENABLED" });
   await logActivity({ ...base, event: "BACKUP_CODES_GENERATED" });
+  await notifySecurityChange(userId, "TWO_FACTOR_ENABLED");
 
   return { backupCodes };
 }
@@ -703,19 +710,7 @@ async function completeLogin({ user, method, device, meta }) {
     userAgent: meta.userAgent,
   };
 
-  await logActivity({
-    userId: user.id,
-    event: "NEW_DEVICE",
-    method,
-    sessionId: tokens.session.id,
-    deviceId: device.deviceId,
-    deviceName: device.deviceName,
-    platform: device.platform,
-    ipAddress: meta.ipAddress,
-    city: geo.city,
-    country: geo.country,
-    userAgent: meta.userAgent,
-  });
+  await logActivity({ ...activity, event: "LOGIN_SUCCESS" });
 
   if (isNewDevice) {
     await logActivity({ ...activity, event: "NEW_DEVICE" });

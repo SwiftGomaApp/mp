@@ -48,7 +48,7 @@ function createOtpLimiters({ createStore } = {}) {
     createLimiter({
       name: "otp-ip",
       windowMs: 60 * 60 * 1000,
-      limit: 10,
+      limit: 30,
       message,
       createStore,
     }),
@@ -93,7 +93,7 @@ function createAuthLimiters({ createStore } = {}) {
     authLimiter: createLimiter({
       name: "auth",
       windowMs: 15 * 60 * 1000,
-      limit: 40,
+      limit: 100,
       message,
       keyGenerator: perRouteKey,
       createStore,

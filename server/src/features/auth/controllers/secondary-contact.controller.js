@@ -4,9 +4,10 @@ async function requestOtp(req, res, next) {
   try {
     const result = await secondaryContactService.requestSecondaryContactOtp(
       {
-        userId: req.user.id,
+        userId: req.auth.userId,
         kind: req.body.kind,
         value: req.body.value,
+        stepUpCode: req.body.stepUpCode,
       },
       {
         ipAddress: req.ip,
@@ -27,7 +28,7 @@ async function verify(req, res, next) {
   try {
     const result = await secondaryContactService.verifySecondaryContact(
       {
-        userId: req.user.id,
+        userId: req.auth.userId,
         kind: req.body.kind,
         value: req.body.value,
         code: req.body.code,

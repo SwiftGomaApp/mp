@@ -217,6 +217,13 @@ router.post(
   passwordController.requestStepUp,
 );
 router.post(
+  "/step-up/otp",
+  authenticate,
+  validate({ body: passwordOtpRequestBody }),
+  stepUpLimiter,
+  passwordController.requestStepUp,
+);
+router.post(
   "/password",
   authenticate,
   validate({ body: createPasswordBody }),

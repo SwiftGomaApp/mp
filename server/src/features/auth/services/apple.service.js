@@ -280,10 +280,10 @@ async function signupWithApple(
   if (identity.email) {
     const existingUser = await prisma.user.findUnique({
       where: { email: identity.email },
-      select: { id: true },
+      select: { id: true, status: true },
     });
 
-    if (existingUser) {
+    if (existingUser && existingUser.status !== "PENDING") {
       throw AppError.conflict(
         "Un compte existe déjà avec cette adresse. Connectez-vous à votre compte puis associez Apple.",
         "ACCOUNT_LINK_REQUIRED",
@@ -296,19 +296,20 @@ async function signupWithApple(
 
   try {
     user = await prisma.$transaction(async (tx) => {
-      const created = await tx.user.create({
-        data: {
-          name: name?.trim() || null,
-          email: identity.email,
-          emailVerifiedAt: identity.email ? now : null,
-          role,
-          status: "ACTIVE",
-          termsVersion: authConfig.legal.termsVersion,
-          privacyVersion: authConfig.legal.privacyVersion,
-          termsAcceptedAt: now,
-          ageConfirmedAt: now,
-        },
-      });
+      const data = {
+        name: name?.trim() || null,
+        email: identity.email,
+        emailVerifiedAt: identity.email ? now : null,
+        role,
+        status: "ACTIVE",
+        termsVersion: authConfig.legal.termsVersion,
+        privacyVersion: authConfig.legal.privacyVersion,
+        termsAcceptedAt: now,
+        ageConfirmedAt: now,
+      };
+      const created = pendingUserId
+        ? await tx.user.update({ where: { id: pendingUserId }, data })
+        : await tx.user.create({ data });
 
       await tx.oAuthAccount.create({
         data: {
@@ -358,7 +359,7 @@ async function signupWithApple(
   });
 }
 
-async function linkAppleAccount({ userId, idToken, nonce }, meta) {
+async function linkAppleAccount({ userId, idToken, nonce, stepUpCode }, meta) {
   const identity = await verifyAppleIdToken(idToken, nonce);
   const prisma = getPrisma();
 
@@ -407,6 +408,8 @@ async function linkAppleAccount({ userId, idToken, nonce }, meta) {
     );
   }
 
+  await consumeStepUp({ id: userId }, stepUpCode, meta, "oauth.link.apple");
+
   try {
     await prisma.oAuthAccount.create({
       data: {
@@ -436,6 +439,8 @@ async function linkAppleAccount({ userId, idToken, nonce }, meta) {
     userAgent: meta.userAgent,
     metadata: { provider: "APPLE" },
   });
+
+  await notifySecurityChange(userId, "LOGIN_METHOD_ADDED");
 
   return { linked: true, alreadyLinked: false };
 }

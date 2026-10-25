@@ -140,7 +140,12 @@ async function confirm(req, res, next) {
     noStore(res);
     res.json(
       await totpService.confirmSetup(
-        { userId: req.auth.userId, code: req.body.code },
+        {
+          userId: req.auth.userId,
+          code: req.body.code,
+          stepUpCode: req.body.stepUpCode,
+          requireStepUp: true,
+        },
         clientMeta(req),
       ),
     );

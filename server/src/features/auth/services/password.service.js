@@ -3,7 +3,7 @@ const { getRedis } = require("../../../core/cache/redis");
 const { AppError } = require("../../../core/errors/AppError");
 const { randomToken } = require("../../../core/crypto/crypto");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
-const { hashPassword, verifyPassword } = require("../../../core/auth/password");
+const { hashPassword, verifyPassword, needsRehash } = require("../../../core/auth/password");
 const {
   queueOtpEmail,
   queueOtpSms,
@@ -15,14 +15,17 @@ const { logger } = require("../../../core/logger/logger");
 const { logActivity } = require("./activity.service");
 const { revokeUserSessions } = require("./session.service");
 const { finishLogin, assertCanLogin, verifySecondFactor } = require("./auth.service");
+const { requestStepUpOtp, consumeStepUp, loadActiveUser } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
 
 const STEP_UP_PURPOSE = `${OTP_PURPOSES.STEP_UP}:password`;
-const MAX_FAILURES = 5;
+const MAX_FAILURES_PER_EMAIL = 20;
 const FAILURE_WINDOW_SECONDS = 15 * 60;
 const FORGOT_MESSAGE =
   "Si un compte existe pour cet e-mail, un code de réinitialisation a été envoyé";
 
-const loginFailKey = (email) => `pw-fail:loign:${email}`;
+const loginFailKey = (email) => `pw-fail:login:${email}`;
+const loginIpFailKey = (email, ip) => `pw-fail:login-ip:${email}:${ip ?? "unknown"}`;
 const userFailKey = (userId) => `pw-fail:user:${userId}`;
 const stepUpTargetKey = (userId) => `step-up-target:password:${userId}`;
 
@@ -33,9 +36,9 @@ async function getDummyHash() {
   return dummyHash;
 }
 
-async function assertNotLocked(key) {
+async function assertNotLocked(key, max = MAX_FAILURES) {
   const count = Number(await getRedis().get(key)) || 0;
-  if (count >= MAX_FAILURES) {
+  if (count >= max) {
     throw AppError.tooManyRequests(
       "Trop de tentatives, veuillez réessayer dans quelques minutes",
       "PASSWORD_LOCKED",
@@ -134,17 +137,17 @@ async function consumeStepUp(user, code, m, action) {
     select: { confirmedAt: true },
   });
 
-  if(totp?.confirmedAt) {
-    await verifySecondFactor(user.id, {code}, m);
+  if (totp?.confirmedAt) {
+    await verifySecondFactor(user.id, { code }, m);
     await logActivity({
       userId: user.id,
       event: "SETP_UP_VERIFIED",
       ...meta(m),
       metadata: {
         action,
-        factor: "TOTP"
-      }
-    })
+        factor: "TOTP",
+      },
+    });
     return;
   }
 
@@ -297,7 +300,9 @@ async function resetPassword({ email, code, newPassword }, m) {
 }
 
 async function loginWithPassword({ email, password, device }, m) {
-  await assertNotLocked(loginFailKey(email));
+  const ipKey = loginIpFailKey(email, m.ipAddress);
+  await assertNotLocked(ipKey, MAX_FAILURES);
+  await assertNotLocked(loginFailKey(email), MAX_FAILURES_PER_EMAIL);
 
   const user = await getPrisma().user.findFirst({
     where: { email, emailVerifiedAt: { not: null } },
@@ -307,7 +312,10 @@ async function loginWithPassword({ email, password, device }, m) {
   const matches = await verifyPassword(password, user?.passwordHash ?? (await getDummyHash()));
 
   if (!user?.passwordHash || !matches) {
-    const failures = await recordFailure(loginFailKey(email));
+    const [failures] = await Promise.all([
+      recordFailure(ipKey),
+      recordFailure(loginFailKey(email)),
+    ]);
     if (user) {
       const base = {
         userId: user.id,
@@ -329,7 +337,16 @@ async function loginWithPassword({ email, password, device }, m) {
   }
 
   assertCanLogin(user, { email });
-  await clearFailures(loginFailKey(email));
+  await Promise.all([clearFailures(ipKey), clearFailures(loginFailKey(email))]);
+
+  if (needsRehash(user.passwordHash)) {
+    await getPrisma()
+      .user.update({
+        where: { id: user.id },
+        data: { passwordHash: await hashPassword(password) },
+      })
+      .catch((err) => logger.warn({ err, userId: user.id }, "Password rehash failed"));
+  }
 
   return finishLogin({ user, method: "PASSWORD", device, meta: m });
 }

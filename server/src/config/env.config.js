@@ -79,6 +79,7 @@ const schema = z.object({
     .default("false")
     .transform((v) => v === "true"),
   SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
+  SMS_DAILY_OTP_LIMIT: z.coerce.number().int().min(0).default(2000),
 
   JWT_ACCESS_SECRET: z.string().min(32),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
@@ -211,6 +212,7 @@ async function loadConfig() {
       senderId: env.AT_SENDER_ID,
       dryRun: env.SMS_DRY_RUN,
       timeoutMs: env.SMS_TIMEOUT_MS,
+      dailyOtpLimit: env.SMS_DAILY_OTP_LIMIT,
     },
     geo: {
       ipinfoToken: env.IPINFO_TOKEN,

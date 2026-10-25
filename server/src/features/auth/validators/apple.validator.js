@@ -1,6 +1,7 @@
 const { z } = require("zod");
 const { authConfig } = require("../config/auth.config");
 const { device } = require("./signup.validator");
+const { stepUpCode } = require("./stepUp.validator");
 
 const idToken = z.string().trim().min(1).max(16384);
 
@@ -26,10 +27,7 @@ const appleSignupBody = z.object({
   device,
 });
 
-const appleLinkBody = z.object({
-  idToken,
-  nonce,
-});
+const appleLinkBody = z.object({ idToken, nonce, stepUpCode });
 
 module.exports = {
   appleLoginBody,

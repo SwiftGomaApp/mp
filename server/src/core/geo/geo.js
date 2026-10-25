@@ -5,6 +5,8 @@ const { logger } = require("../logger/logger");
 const regionNames = new Intl.DisplayNames(["fr"], { type: "region" });
 const TIMEOUT_MS = 1500;
 const EMPTY = Object.freeze({ city: null, country: null });
+const PRIVATE_IP =
+  /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1$|fe80:|f[cd][0-9a-f]{2}:)/i;
 
 function countryName(code) {
   return code ? regionNames.of(code) : null;
@@ -25,12 +27,13 @@ async function lookupOnline(ip) {
   if (!res.ok) throw new Error(`ipinfo responded ${res.status}`);
 
   const data = await res.json();
+  logger.debug({ ip, data }, "ipinfo response");
   return { city: data.city || null, country: countryName(data.country) };
 }
 
 async function lookupIp(ip) {
   const clean = String(ip ?? "").replace(/^::ffff:/, "");
-  if (!clean) return EMPTY;
+  if (!clean || PRIVATE_IP.test(clean)) return EMPTY;
 
   try {
     const online = await lookupOnline(clean);

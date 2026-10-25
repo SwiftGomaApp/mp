@@ -7,6 +7,7 @@ const passkeyService = require("../services/passkey.service");
 const totpService = service;
 
 function clientMeta(req) {
+  console.log("IP DEBUG", { ip: req.ip, xff: req.headers["x-forwarded-for"] });
   return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
 }
 

@@ -226,6 +226,8 @@ async function verifySignUp({ email, phone, code, device }, meta) {
     },
   });
 
+  const geo = await lookupIp(meta.ipAddress);
+
   const method = isEmail ? "EMAIL_OTP" : "PHONE_OTP";
   const tokens = await createSession({
     user,
@@ -233,6 +235,8 @@ async function verifySignUp({ email, phone, code, device }, meta) {
     device,
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
+    city: geo.city,
+    country: geo.country,
   });
 
   await logActivity({
@@ -245,6 +249,8 @@ async function verifySignUp({ email, phone, code, device }, meta) {
     platform: device.platform,
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
+    city: geo.city,
+    country: geo.country,
   });
 
   try {
@@ -659,15 +665,18 @@ async function completeLogin({ user, method, device, meta }) {
   const now = new Date();
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
 
+  const geo = await lookupIp(meta.ipAddress);
+
   const tokens = await createSession({
     user,
     method,
     device,
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
+    city: geo.city,
+    country: geo.country,
   });
 
-  const geo = await lookupIp(meta.ipAddress);
   const activity = {
     userId: user.id,
     method,

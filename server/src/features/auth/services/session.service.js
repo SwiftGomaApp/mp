@@ -9,6 +9,7 @@ const { AppError } = require("../../../core/errors/AppError");
 const { markSessionRevoked } = require("../../../core/auth/revocation");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
+const { lookupIp } = require("../../../core/geo/geo");
 
 const ROTATION_GRACE_MS = 10 * 1000;
 
@@ -94,6 +95,7 @@ async function refreshSession(refreshToken, meta) {
   const prisma = getPrisma();
   const now = new Date();
   const hash = hashRefreshToken(refreshToken);
+  const geo = session.ipAddress !== meta.ipAddress ? await lookupIp(meta.ipAddress) : null;
 
   const session = await prisma.session.findUnique({
     where: { refreshTokenHash: hash },
@@ -161,6 +163,7 @@ async function refreshSession(refreshToken, meta) {
       expiresAt: next.expiresAt,
       ipAddress: meta.ipAddress,
       userAgent: meta.userAgent,
+      ...(geo && { city: geo.city, country: geo.country }),
     },
   });
   if (count !== 1) {

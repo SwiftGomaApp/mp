@@ -432,7 +432,7 @@ async function beginSetup({ userId }) {
     where: { id: userId },
     include: {
       totp: {
-        select: { confirmedAt: true },
+        select: { confirmedAt: true, secretEncrypted: true, updatedAt: true },
       },
     },
   });
@@ -445,6 +445,14 @@ async function beginSetup({ userId }) {
     );
   }
 
+  const accountName = user.email ?? user.phone ?? user.id;
+  const PENDING_SECRET_TTL_MS = 15 * 60 * 1000;
+
+  if (user.totp && Date.now() - user.totp.updatedAt.getTime() < PENDING_SECRET_TTL_MS) {
+    const secret = decryptSecret(user.totp.secretEncrypted);
+    return { secret, otpauthUri: buildOtpauthUri({ secret, accountName }) };
+  }
+
   const secret = generateTotpSecret();
   const data = { secretEncrypted: encryptSecret(secret), confirmedAt: null, lastUsedStep: null };
 
@@ -454,7 +462,6 @@ async function beginSetup({ userId }) {
     update: data,
   });
 
-  const accountName = user.email ?? user.phone ?? user.id;
   return { secret, otpauthUri: buildOtpauthUri({ secret, accountName }) };
 }
 

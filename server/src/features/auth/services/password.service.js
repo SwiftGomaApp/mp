@@ -14,7 +14,7 @@ const { getConfig } = require("../../../config/env.config");
 const { logger } = require("../../../core/logger/logger");
 const { logActivity } = require("./activity.service");
 const { revokeUserSessions } = require("./session.service");
-const { finishLogin, assertCanLogin } = require("./auth.service");
+const { finishLogin, assertCanLogin, verifySecondFactor } = require("./auth.service");
 
 const STEP_UP_PURPOSE = `${OTP_PURPOSES.STEP_UP}:password`;
 const MAX_FAILURES = 5;
@@ -129,6 +129,25 @@ async function requestStepUpOtp({ userId, channel }, m) {
 }
 
 async function consumeStepUp(user, code, m, action) {
+  const totp = await getPrisma().totpCredential.findUnique({
+    where: { userId: user.id },
+    select: { confirmedAt: true },
+  });
+
+  if(totp?.confirmedAt) {
+    await verifySecondFactor(user.id, {code}, m);
+    await logActivity({
+      userId: user.id,
+      event: "SETP_UP_VERIFIED",
+      ...meta(m),
+      metadata: {
+        action,
+        factor: "TOTP"
+      }
+    })
+    return;
+  }
+
   const target = await getRedis().get(stepUpTargetKey(user.id));
   if (!target) throw AppError.badRequest("Code invalide ou expiré", undefined, "OTP_INVALID");
   try {

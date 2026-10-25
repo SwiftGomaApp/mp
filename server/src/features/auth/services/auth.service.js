@@ -254,6 +254,12 @@ async function verifySignUp({ email, phone, code, device }, meta) {
   });
 
   try {
+    await notifyNewDevice({ user, device, now, geo });
+  } catch (err) {
+    logger.warn({ err, userId: user.id }, "Failed to queue signup login alert");
+  }
+
+  try {
     if (isEmail) await queueWelcomeEmail({ to: user.email, name: user.name, role: user.role });
     else await queueWelcomeSms({ to: user.phone, name: user.name, role: user.role });
   } catch (err) {
@@ -697,7 +703,19 @@ async function completeLogin({ user, method, device, meta }) {
     userAgent: meta.userAgent,
   };
 
-  await logActivity({ ...activity, event: "LOGIN_SUCCESS" });
+  await logActivity({
+    userId: user.id,
+    event: "NEW_DEVICE",
+    method,
+    sessionId: tokens.session.id,
+    deviceId: device.deviceId,
+    deviceName: device.deviceName,
+    platform: device.platform,
+    ipAddress: meta.ipAddress,
+    city: geo.city,
+    country: geo.country,
+    userAgent: meta.userAgent,
+  });
 
   if (isNewDevice) {
     await logActivity({ ...activity, event: "NEW_DEVICE" });

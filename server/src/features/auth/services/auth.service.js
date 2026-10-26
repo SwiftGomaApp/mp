@@ -281,15 +281,30 @@ async function resendSignupOtp({ email, phone }) {
   return { message: OTP_RESEND_MESSAGE };
 }
 
-async function requestLoginOtp({ email, phone }, meta) {
+function maskEmail(value) {
+  const [local, domain] = value.split("@");
+  return `${local.slice(0, 1)}***@${domain}`;
+}
+
+async function requestLoginOtp({ email, phone, channel }, meta) {
   const user = await findLoginUser({ email, phone });
   assertCanLogin(user, { email });
-  const prisma = getPrisma();
 
   const target = email ?? phone;
+  const viaEmail = Boolean(phone) && channel === "EMAIL";
+
+  if (viaEmail && !(user.email && user.emailVerifiedAt)) {
+    throw AppError.badRequest(
+      "Aucune adresse e-mail vérifiée pour recevoir le code",
+      undefined,
+      "CONTACT_NOT_AVAILABLE",
+    );
+  }
+
   const { code, expiresMinutes } = await issueOtp({ purpose: OTP_PURPOSES.LOGIN, target });
 
   if (email) await queueOtpEmail({ to: target, name: user.name, code, expiresMinutes });
+  else if (viaEmail) await queueOtpEmail({ to: user.email, name: user.name, code, expiresMinutes });
   else await queueOtpSms({ to: target, code, expiresMinutes });
 
   await logActivity({
@@ -304,8 +319,8 @@ async function requestLoginOtp({ email, phone }, meta) {
   });
 
   return {
-    method: email ? "EMAIL" : "PHONE",
-    target,
+    method: email || viaEmail ? "EMAIL" : "PHONE",
+    target: viaEmail ? maskEmail(user.email) : target,
     expiresMinutes,
   };
 }

@@ -25,11 +25,18 @@ const authConfig = Object.freeze({
     primaryContactVetoWindowMs: 24 * HOUR,
     teamReviewDelayMs: 48 * HOUR,
     payoutLockMs: 72 * HOUR,
+    completionWindowMs: 7 * DAY,
   }),
 
   deletionGracePeriodMs: 30 * DAY,
 
   activityLogWindowMs: 90 * DAY,
+
+  retention: Object.freeze({
+    sessionsMs: 30 * DAY,
+    activityLogsMs: 365 * DAY,
+    recoveryRequestsMs: 30 * DAY,
+  }),
 
   legal: Object.freeze({ termsVersion: "1.0", privacyVersion: "1.0" }),
 });

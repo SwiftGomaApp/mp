@@ -90,6 +90,12 @@ enum ActivityEvent {
   STAFF_SETUP_RESENT
   LOGIN_METHOD_REMOVED
   SUPPORT_REQUEST_CREATED
+  SUPPORT_REQUEST_CLOSED
+  SECONDARY_EMAIL_CHANGED
+  SECONDARY_PHONE_CHANGED
+  ACCOUNT_RECOVERY_REQUESTED
+  ACCOUNT_RECOVERY_CANCELLED
+  ACCOUNT_RECOVERY_COMPLETED
   SECONDARY_PHONE_REMOVED
 }
 
@@ -325,6 +331,9 @@ model SupportRequest {
   message   String
   status    SupportRequestStatus @default(OPEN)
   ipAddress String?
+  note      String?
+  closedBy  String?
+  closedAt  DateTime?
   createdAt DateTime             @default(now())
   updatedAt DateTime             @updatedAt
 

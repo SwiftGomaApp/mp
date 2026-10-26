@@ -7,7 +7,15 @@ const { getPrisma } = require("../db/prisma");
 const { authConfig } = require("../../features/auth/config/auth.config");
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
-const TWO_FACTOR_EXEMPT_PATHS = new Set(["/2fa/setup", "/2fa/confirm", "/logout", "/logout-all", "/me"]);
+const TWO_FACTOR_EXEMPT_PATHS = new Set([
+  "/2fa/setup",
+  "/2fa/confirm",
+  "/step-up/otp",
+  "/password/otp/request",
+  "/logout",
+  "/logout-all",
+  "/me",
+]);
 
 function extractToken(req) {
   const [scheme, bearer] = (req.headers.authorization || "").split(" ");

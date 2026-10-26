@@ -33,7 +33,13 @@ const secondaryContactVerifyBody = z.discriminatedUnion("kind", [
   }),
 ]);
 
+const secondaryContactRemoveBody = z.object({
+  kind: z.enum(["EMAIL", "PHONE"]),
+  stepUpCode,
+});
+
 module.exports = {
   secondaryContactRequestBody,
   secondaryContactVerifyBody,
+  secondaryContactRemoveBody,
 };

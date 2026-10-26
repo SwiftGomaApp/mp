@@ -1,5 +1,5 @@
 const { z } = require("zod");
-const { drcPhone, email } = require("../../../core/validation/common");
+const { drcPhone, email, pagination } = require("../../../core/validation/common");
 
 const supportRequestBody = z
   .object({
@@ -12,4 +12,12 @@ const supportRequestBody = z
     path: ["email"],
   });
 
-module.exports = { supportRequestBody };
+const supportRequestListQuery = pagination.extend({
+  status: z.enum(["OPEN", "CLOSED"]).default("OPEN"),
+});
+
+const closeSupportRequestBody = z.object({
+  note: z.string().trim().min(3).max(500).optional(),
+});
+
+module.exports = { supportRequestBody, supportRequestListQuery, closeSupportRequestBody };

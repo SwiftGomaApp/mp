@@ -22,3 +22,31 @@ describe("parseTrustProxy", () => {
     expect(parseTrustProxy(input)).toBeNull();
   });
 });
+
+describe("productionProblems", () => {
+  const { productionProblems } = require("../src/config/env.config");
+  const safe = {
+    NODE_ENV: "production",
+    SMS_DRY_RUN: false,
+    PASSKEY_RP_ID: "swiftgoma.com",
+    PASSKEY_ORIGINS: ["https://swiftgoma.com"],
+  };
+
+  it("accepts a safe production configuration", () => {
+    expect(productionProblems(safe)).toEqual([]);
+  });
+
+  it("refuses dry-run SMS and localhost passkeys in production", () => {
+    const problems = productionProblems({
+      ...safe,
+      SMS_DRY_RUN: true,
+      PASSKEY_RP_ID: "localhost",
+      PASSKEY_ORIGINS: ["http://localhost:3000"],
+    });
+    expect(problems).toHaveLength(3);
+  });
+
+  it("ignores development settings", () => {
+    expect(productionProblems({ ...safe, NODE_ENV: "development", SMS_DRY_RUN: true })).toEqual([]);
+  });
+});

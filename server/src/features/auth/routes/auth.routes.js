@@ -40,6 +40,7 @@ const {
   loginPasswordBody,
 } = require("../validators/password.validator");
 const googleController = require("../controllers/google.controller");
+const oauthController = require("../controllers/oauth.controller");
 const {
   googleLoginBody,
   googleSignupBody,
@@ -55,7 +56,20 @@ const {
 const methodsController = require("../controllers/methods.controller");
 const { methodParams, removeMethodBody } = require("../validators/methods.validator");
 const supportRequestController = require("../controllers/supportRequest.controller");
-const { supportRequestBody } = require("../validators/supportRequest.validator");
+const {
+  supportRequestBody,
+  supportRequestListQuery,
+  closeSupportRequestBody,
+} = require("../validators/supportRequest.validator");
+const securityController = require("../controllers/security.controller");
+const { activityQuery } = require("../validators/security.validator");
+const recoveryController = require("../controllers/recovery.controller");
+const {
+  recoveryRequestBody,
+  recoveryVerifyBody,
+  recoveryContactBody,
+  recoveryCompleteBody,
+} = require("../validators/recovery.validator");
 
 const appleController = require("../controllers/apple.controller");
 
@@ -64,6 +78,7 @@ const { appleLoginBody, appleSignupBody, appleLinkBody } = require("../validator
 const secondaryContactController = require("../controllers/secondary-contact.controller");
 
 const {
+  secondaryContactRemoveBody,
   secondaryContactRequestBody,
   secondaryContactVerifyBody,
 } = require("../validators/secondary-contact.validator");
@@ -256,6 +271,8 @@ router.post(
 
 // ===================================== GOOGLE OAUTH =====================================
 
+router.post("/oauth/nonce", authLimiter, oauthController.nonce);
+
 router.post(
   "/login/google",
   validate({ body: googleLoginBody }),
@@ -319,6 +336,50 @@ router.post(
   secondaryContactController.verify,
 );
 
+router.post(
+  "/secondary-contacts/remove",
+  authenticate,
+  validate({ body: secondaryContactRemoveBody }),
+  authLimiter,
+  secondaryContactController.remove,
+);
+
+// ===================================== ACTIVITY AND SECURITY CHECKLIST =====================================
+router.get(
+  "/activity",
+  authenticate,
+  validate({ query: activityQuery }),
+  securityController.activity,
+);
+router.get("/security", authenticate, securityController.checklist);
+
+// ===================================== ACCOUNT RECOVERY =====================================
+router.post(
+  "/recovery/request",
+  validate({ body: recoveryRequestBody }),
+  ...otpLimiter,
+  recoveryController.request,
+);
+router.post(
+  "/recovery/verify",
+  validate({ body: recoveryVerifyBody }),
+  authLimiter,
+  recoveryController.verify,
+);
+router.post(
+  "/recovery/contact",
+  validate({ body: recoveryContactBody }),
+  authLimiter,
+  recoveryController.contact,
+);
+router.post(
+  "/recovery/complete",
+  validate({ body: recoveryCompleteBody }),
+  authLimiter,
+  recoveryController.complete,
+);
+router.post("/recovery/cancel", authenticate, authLimiter, recoveryController.cancel);
+
 // ===================================== SIGN-IN METHODS =====================================
 router.get("/methods", authenticate, methodsController.list);
 router.post(
@@ -335,6 +396,21 @@ router.post(
   validate({ body: supportRequestBody }),
   ...otpLimiter,
   supportRequestController.create,
+);
+router.get(
+  "/support-requests",
+  authenticate,
+  requireRole("SUPPORT", "ADMIN"),
+  validate({ query: supportRequestListQuery }),
+  supportRequestController.list,
+);
+router.post(
+  "/support-requests/:id/close",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: closeSupportRequestBody }),
+  authLimiter,
+  supportRequestController.close,
 );
 
 // ===================================== STAFF ACCOUNTS =====================================

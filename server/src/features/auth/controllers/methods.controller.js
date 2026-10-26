@@ -1,8 +1,5 @@
 const service = require("../services/methods.service");
-
-function clientMeta(req) {
-  return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
-}
+const { clientMeta } = require("../../../core/http/clientMeta");
 
 async function list(req, res, next) {
   try {

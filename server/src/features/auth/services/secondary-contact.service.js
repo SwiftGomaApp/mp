@@ -4,7 +4,7 @@ const { AppError } = require("../../../core/errors/AppError");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
 const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
 const { logActivity } = require("./activity.service");
-const { consumeStepUp } = require("./stepUp.service");
+const { consumeStepUp, loadActiveUser } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
 
 const PENDING_TTL_SECONDS = 10 * 60;
@@ -13,12 +13,16 @@ const CONTACTS = {
   EMAIL: {
     field: "secondaryEmail",
     verifiedField: "secondaryEmailVerifiedAt",
-    event: "SECONDARY_EMAIL_ADDED",
+    addedEvent: "SECONDARY_EMAIL_ADDED",
+    changedEvent: "SECONDARY_EMAIL_CHANGED",
+    removedEvent: "SECONDARY_EMAIL_REMOVED",
   },
   PHONE: {
     field: "secondaryPhone",
     verifiedField: "secondaryPhoneVerifiedAt",
-    event: "SECONDARY_PHONE_ADDED",
+    addedEvent: "SECONDARY_PHONE_ADDED",
+    changedEvent: "SECONDARY_PHONE_CHANGED",
+    removedEvent: "SECONDARY_PHONE_REMOVED",
   },
 };
 
@@ -46,38 +50,32 @@ function getContactConfig(kind) {
   return config;
 }
 
-async function loadActiveUser(userId) {
-  const user = await getPrisma().user.findUnique({
-    where: { id: userId },
-  });
-
-  if (!user || user.status !== "ACTIVE") {
-    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
-  }
-
-  return user;
-}
-
 async function assertContactAvailable(contact, userId) {
-  const existingUser = await getPrisma().user.findFirst({
+  const existing = await getPrisma().user.findFirst({
     where: {
-      id: { not: userId },
       OR: [
         { email: contact },
         { phone: contact },
-        { secondaryEmail: contact },
-        { secondaryPhone: contact },
+        { secondaryEmail: contact, id: { not: userId } },
+        { secondaryPhone: contact, id: { not: userId } },
       ],
     },
     select: { id: true },
   });
 
-  if (existingUser) {
+  if (!existing) return;
+
+  if (existing.id === userId) {
     throw AppError.conflict(
-      "Cet e-mail ou ce numéro est déjà associé à un autre compte",
-      "CONTACT_ALREADY_IN_USE",
+      "Le contact de récupération doit être différent de vos contacts principaux",
+      "CONTACT_SAME_AS_PRIMARY",
     );
   }
+
+  throw AppError.conflict(
+    "Cet e-mail ou ce numéro est déjà associé à un autre compte",
+    "CONTACT_ALREADY_IN_USE",
+  );
 }
 
 function getMeta(meta = {}) {
@@ -92,10 +90,10 @@ async function requestSecondaryContactOtp({ userId, kind, value, stepUpCode }, m
   const user = await loadActiveUser(userId);
   const contact = normalizeContact(kind, value);
 
-  if (user[config.field]) {
+  if (user[config.field] === contact) {
     throw AppError.conflict(
-      "Un contact secondaire de ce type est déjà enregistré",
-      "SECONDARY_CONTACT_ALREADY_SET",
+      "Ce contact de récupération est déjà enregistré",
+      "SECONDARY_CONTACT_UNCHANGED",
     );
   }
 
@@ -136,8 +134,6 @@ async function requestSecondaryContactOtp({ userId, kind, value, stepUpCode }, m
     },
   });
 
-  await notifySecurityChange(userId, "SECONDARY_CONTACT_ADDED");
-
   return {
     message: "Un code de vérification a été envoyé",
     kind,
@@ -151,7 +147,8 @@ async function verifySecondaryContact({ userId, kind, value, code }, meta = {}) 
   const contact = normalizeContact(kind, value);
   const redis = getRedis();
 
-  await loadActiveUser(userId);
+  const user = await loadActiveUser(userId);
+  const previous = user[config.field];
 
   const storedContact = await redis.get(pendingKey(userId, kind));
 
@@ -173,11 +170,7 @@ async function verifySecondaryContact({ userId, kind, value, code }, meta = {}) 
 
   try {
     const result = await getPrisma().user.updateMany({
-      where: {
-        id: userId,
-        status: "ACTIVE",
-        [config.field]: null,
-      },
+      where: { id: userId, status: "ACTIVE" },
       data: {
         [config.field]: contact,
         [config.verifiedField]: new Date(),
@@ -185,10 +178,7 @@ async function verifySecondaryContact({ userId, kind, value, code }, meta = {}) 
     });
 
     if (result.count !== 1) {
-      throw AppError.conflict(
-        "Un contact secondaire de ce type est déjà enregistré",
-        "SECONDARY_CONTACT_ALREADY_SET",
-      );
+      throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
     }
   } catch (err) {
     if (err.code === "P2002") {
@@ -205,7 +195,7 @@ async function verifySecondaryContact({ userId, kind, value, code }, meta = {}) 
 
   await logActivity({
     userId,
-    event: config.event,
+    event: previous ? config.changedEvent : config.addedEvent,
     method: kind === "EMAIL" ? "EMAIL_OTP" : "PHONE_OTP",
     ...getMeta(meta),
     target: contact,
@@ -214,12 +204,47 @@ async function verifySecondaryContact({ userId, kind, value, code }, meta = {}) 
     },
   });
 
+  await notifySecurityChange(
+    userId,
+    previous ? "SECONDARY_CONTACT_CHANGED" : "SECONDARY_CONTACT_ADDED",
+  );
+
   return {
-    message: "Contact secondaire vérifié avec succès",
+    message: "Contact de récupération vérifié avec succès",
     kind,
     contact,
     verified: true,
   };
+}
+
+async function removeSecondaryContact({ userId, kind, stepUpCode }, meta = {}) {
+  const config = getContactConfig(kind);
+  const user = await loadActiveUser(userId);
+
+  if (!user[config.field]) {
+    throw AppError.notFound(
+      "Aucun contact de récupération de ce type n'est enregistré",
+      "SECONDARY_CONTACT_NOT_FOUND",
+    );
+  }
+
+  await consumeStepUp(user, stepUpCode, meta, `secondary_contact.${kind.toLowerCase()}.remove`);
+
+  await getPrisma().user.update({
+    where: { id: userId },
+    data: { [config.field]: null, [config.verifiedField]: null },
+  });
+  await getRedis().del(pendingKey(userId, kind));
+
+  await logActivity({
+    userId,
+    event: config.removedEvent,
+    ...getMeta(meta),
+    metadata: { action: `secondary_contact.${kind.toLowerCase()}.removed` },
+  });
+  await notifySecurityChange(userId, "SECONDARY_CONTACT_REMOVED");
+
+  return listSecondaryContacts(userId);
 }
 
 async function listSecondaryContacts(userId) {
@@ -236,5 +261,6 @@ async function listSecondaryContacts(userId) {
 module.exports = {
   requestSecondaryContactOtp,
   verifySecondaryContact,
+  removeSecondaryContact,
   listSecondaryContacts,
 };

@@ -1,4 +1,4 @@
-const { z, check } = require("zod");
+const { z } = require("zod");
 const { stepUpCode } = require("./stepUp.validator");
 
 const code = z

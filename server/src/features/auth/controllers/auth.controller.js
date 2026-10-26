@@ -4,12 +4,8 @@ const sessionService = require("../services/session.service");
 const { assertTrustedOrigin } = require("../../../core/middlewares/auth.middleware");
 const { AppError } = require("../../../core/errors/AppError");
 const passkeyService = require("../services/passkey.service");
+const { clientMeta } = require("../../../core/http/clientMeta");
 const totpService = service;
-
-function clientMeta(req) {
-  console.log("IP DEBUG", { ip: req.ip, xff: req.headers["x-forwarded-for"] });
-  return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
-}
 
 async function signupEmail(req, res, next) {
   try {

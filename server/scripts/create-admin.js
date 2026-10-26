@@ -4,7 +4,7 @@ const { email: emailSchema } = require("../src/core/validation/common");
 
 function fail(message) {
   console.error(`X ${message}`);
-  process.exit();
+  process.exitCode = 1;
 }
 
 async function main() {

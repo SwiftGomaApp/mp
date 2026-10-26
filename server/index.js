@@ -14,6 +14,11 @@ const { closeQueues } = require("./src/core/queue/queues");
 
 async function main() {
   const config = await loadConfig();
+  if (config.isProd && !config.trustProxy) {
+    logger.warn(
+      "TRUST_PROXY is not set: behind a reverse proxy every client shares one IP and rate limits will not work",
+    );
+  }
   await connectPrisma();
   await connectRedis();
   await verifyMailer().catch((err) => logger.warn({ err }, "SMTP not reachable"));

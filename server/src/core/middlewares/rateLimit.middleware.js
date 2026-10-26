@@ -5,7 +5,15 @@ const { AppError } = require("../errors/AppError");
 const { sha256 } = require("../crypto/crypto");
 const { REFRESH_COOKIE } = require("../auth/cookies");
 
-function createLimiter({ name, windowMs, limit, keyGenerator, message, createStore }) {
+function createLimiter({
+  name,
+  windowMs,
+  limit,
+  keyGenerator,
+  message,
+  createStore,
+  failOpen = false,
+}) {
   let limiter = null;
 
   return (req, res, next) => {
@@ -15,7 +23,7 @@ function createLimiter({ name, windowMs, limit, keyGenerator, message, createSto
         limit,
         standardHeaders: "draft-7",
         legacyHeaders: false,
-        passOnStoreError: true,
+        passOnStoreError: failOpen,
         validate: { creationStack: false },
         keyGenerator: keyGenerator || ((r) => ipKeyGenerator(r.ip)),
         ...(createStore
@@ -67,6 +75,7 @@ const globalLimiter = createLimiter({
   name: "global",
   windowMs: 60 * 1000,
   limit: 120,
+  failOpen: true,
 });
 
 const stepUpLimiter = createLimiter({

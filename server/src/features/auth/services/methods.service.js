@@ -70,7 +70,11 @@ function assertCanRemove({ user, oauth, passkeys }, method) {
     );
   }
 
-  if ((method === "EMAIL" || method === "PHONE") && !hasVerifiedEmail(after) && !hasVerifiedPhone(after)) {
+  if (
+    (method === "EMAIL" || method === "PHONE") &&
+    !hasVerifiedEmail(after) &&
+    !hasVerifiedPhone(after)
+  ) {
     throw AppError.forbidden(
       "Vous devez garder au moins un e-mail ou un numéro vérifié",
       "LAST_CONTACT",
@@ -97,9 +101,15 @@ async function removeMethod({ userId, method, code }, meta) {
   await consumeStepUp(user, code, meta, `method.remove.${method.toLowerCase()}`);
 
   if (method === "EMAIL") {
-    await prisma.user.update({ where: { id: userId }, data: { email: null, emailVerifiedAt: null } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { email: null, emailVerifiedAt: null },
+    });
   } else if (method === "PHONE") {
-    await prisma.user.update({ where: { id: userId }, data: { phone: null, phoneVerifiedAt: null } });
+    await prisma.user.update({
+      where: { id: userId },
+      data: { phone: null, phoneVerifiedAt: null },
+    });
   } else {
     await prisma.oAuthAccount.deleteMany({ where: { userId, provider: method } });
   }

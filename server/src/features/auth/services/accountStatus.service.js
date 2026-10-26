@@ -56,6 +56,10 @@ async function reactivateAccount({ userId, actorId, reason }, meta) {
     { userId, actorId, reason, status: "ACTIVE", event: "ACCOUNT_REACTIVATED" },
     meta,
   );
+  await getPrisma().supportRequest.updateMany({
+    where: { userId, status: "OPEN" },
+    data: { status: "CLOSED", closedBy: actorId, closedAt: new Date(), note: "Compte réactivé" },
+  });
 }
 
 module.exports = { suspendAccount, banAccount, reactivateAccount };

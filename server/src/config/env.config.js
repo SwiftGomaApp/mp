@@ -115,6 +115,20 @@ const schema = z.object({
 
 let config = null;
 
+function productionProblems(env) {
+  if (env.NODE_ENV !== "production") return [];
+
+  const problems = [];
+  if (env.SMS_DRY_RUN) problems.push("SMS_DRY_RUN must be false in production");
+  if (env.PASSKEY_RP_ID === "localhost") {
+    problems.push("PASSKEY_RP_ID must be your real domain in production");
+  }
+  if (env.PASSKEY_ORIGINS.some((origin) => origin.includes("localhost"))) {
+    problems.push("PASSKEY_ORIGINS must not contain localhost in production");
+  }
+  return problems;
+}
+
 function loadFromDotenv() {
   require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 }
@@ -158,9 +172,13 @@ async function loadConfig() {
   const provider =
     process.env.SECRETS_PROVIDER || (nodeEnv === "production" ? "infisical" : "dotenv");
 
+  if (!["infisical", "dotenv", "env"].includes(provider)) {
+    throw new Error(`Unknown SECRETS_PROVIDER "${provider}" (use infisical, dotenv or env)`);
+  }
+
   if (provider === "infisical") {
     await loadFromInfisical();
-  } else {
+  } else if (provider === "dotenv") {
     loadFromDotenv();
   }
 
@@ -171,6 +189,11 @@ async function loadConfig() {
   }
 
   const env = parsed.data;
+
+  const problems = productionProblems(env);
+  if (problems.length) {
+    throw new Error(`Unsafe production configuration:\n  - ${problems.join("\n  - ")}`);
+  }
 
   config = Object.freeze({
     env: env.NODE_ENV,
@@ -257,4 +280,4 @@ function getConfig() {
   return config;
 }
 
-module.exports = { loadConfig, getConfig, parseTrustProxy };
+module.exports = { loadConfig, getConfig, parseTrustProxy, productionProblems };

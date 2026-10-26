@@ -1,4 +1,5 @@
 const secondaryContactService = require("../services/secondary-contact.service");
+const { clientMeta } = require("../../../core/http/clientMeta");
 
 async function requestOtp(req, res, next) {
   try {
@@ -9,16 +10,10 @@ async function requestOtp(req, res, next) {
         value: req.body.value,
         stepUpCode: req.body.stepUpCode,
       },
-      {
-        ipAddress: req.ip,
-        userAgent: req.get("user-agent"),
-      },
+      clientMeta(req),
     );
 
-    return res.status(200).json({
-      success: true,
-      data: result,
-    });
+    return res.json(result);
   } catch (error) {
     return next(error);
   }
@@ -33,16 +28,27 @@ async function verify(req, res, next) {
         value: req.body.value,
         code: req.body.code,
       },
-      {
-        ipAddress: req.ip,
-        userAgent: req.get("user-agent"),
-      },
+      clientMeta(req),
     );
 
-    return res.status(200).json({
-      success: true,
-      data: result,
-    });
+    return res.json(result);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    const result = await secondaryContactService.removeSecondaryContact(
+      {
+        userId: req.auth.userId,
+        kind: req.body.kind,
+        stepUpCode: req.body.stepUpCode,
+      },
+      clientMeta(req),
+    );
+
+    return res.json(result);
   } catch (error) {
     return next(error);
   }
@@ -50,12 +56,9 @@ async function verify(req, res, next) {
 
 async function list(req, res, next) {
   try {
-    const result = await secondaryContactService.listSecondaryContacts(req.user.id);
+    const result = await secondaryContactService.listSecondaryContacts(req.auth.userId);
 
-    return res.status(200).json({
-      success: true,
-      data: result,
-    });
+    return res.json(result);
   } catch (error) {
     return next(error);
   }
@@ -64,5 +67,6 @@ async function list(req, res, next) {
 module.exports = {
   requestOtp,
   verify,
+  remove,
   list,
 };

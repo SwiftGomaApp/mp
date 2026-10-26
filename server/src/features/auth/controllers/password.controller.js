@@ -1,9 +1,6 @@
 const service = require("../services/password.service");
 const { setAuthCookies } = require("../../../core/auth/cookies");
-
-function clientMeta(req) {
-  return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
-}
+const { clientMeta } = require("../../../core/http/clientMeta");
 
 function handler(fn) {
   return async (req, res, next) => {

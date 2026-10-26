@@ -174,10 +174,7 @@ async function resetStaffTwoFactor({ actorId, userId, code, reason }, meta) {
     select: { id: true },
   });
   if (!credential) {
-    throw AppError.conflict(
-      "La double vérification n'est pas activée",
-      "TWO_FACTOR_NOT_ENABLED",
-    );
+    throw AppError.conflict("La double vérification n'est pas activée", "TWO_FACTOR_NOT_ENABLED");
   }
 
   await prisma.$transaction([

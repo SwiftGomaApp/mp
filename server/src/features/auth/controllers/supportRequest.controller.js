@@ -1,8 +1,5 @@
 const service = require("../services/supportRequest.service");
-
-function clientMeta(req) {
-  return { ipAddress: req.ip, userAgent: req.get("user-agent")?.slice(0, 255) };
-}
+const { clientMeta } = require("../../../core/http/clientMeta");
 
 async function create(req, res, next) {
   try {
@@ -12,4 +9,25 @@ async function create(req, res, next) {
   }
 }
 
-module.exports = { create };
+async function list(req, res, next) {
+  try {
+    res.json(await service.listSupportRequests(req.validated.query));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function close(req, res, next) {
+  try {
+    res.json(
+      await service.closeSupportRequest(
+        { actorId: req.auth.userId, id: req.params.id, ...req.body },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { create, list, close };

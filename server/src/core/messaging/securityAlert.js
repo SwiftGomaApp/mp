@@ -19,6 +19,27 @@ const ALERTS = {
     title: "Un contact secondaire a été ajouté à votre compte",
     sms: "un contact secondaire a été ajouté à votre compte",
   },
+  SECONDARY_CONTACT_CHANGED: {
+    subject: "Un contact de récupération a été modifié sur votre compte SwiftGoma",
+    title: "Un contact de récupération a été modifié sur votre compte",
+    sms: "un contact de récupération a été modifié sur votre compte",
+  },
+  SECONDARY_CONTACT_REMOVED: {
+    subject: "Un contact de récupération a été retiré de votre compte SwiftGoma",
+    title: "Un contact de récupération a été retiré de votre compte",
+    sms: "un contact de récupération a été retiré de votre compte",
+  },
+  RECOVERY_REQUESTED: {
+    subject: "Une récupération de votre compte SwiftGoma a été demandée",
+    title:
+      "Une récupération de votre compte a été demandée. Si ce n'est pas vous, connectez-vous et annulez-la dans les 24 heures",
+    sms: "une récupération de votre compte a été demandée, annulable pendant 24 h",
+  },
+  RECOVERY_COMPLETED: {
+    subject: "Votre compte SwiftGoma a été récupéré avec un nouveau contact",
+    title: "Votre compte a été récupéré avec un nouveau contact principal",
+    sms: "votre compte a été récupéré avec un nouveau contact principal",
+  },
   TWO_FACTOR_ENABLED: {
     subject: "La double vérification a été activée sur votre compte SwiftGoma",
     title: "La double vérification a été activée",

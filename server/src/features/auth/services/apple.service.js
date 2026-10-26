@@ -5,6 +5,7 @@ const { AppError } = require("../../../core/errors/AppError");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { finishLogin, assertCanLogin } = require("./auth.service");
+const { consumeNonce } = require("../../../core/auth/nonce");
 
 const APPLE_ISSUER = "https://appleid.apple.com";
 const APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
@@ -164,6 +165,8 @@ async function verifyAppleIdToken(idToken, expectedNonce) {
   ) {
     throw AppError.unauthorized("Le nonce Apple est invalide", "APPLE_NONCE_INVALID");
   }
+
+  await consumeNonce(expectedNonce, "APPLE_NONCE_INVALID");
 
   const emailVerified = payload.email_verified === true || payload.email_verified === "true";
 

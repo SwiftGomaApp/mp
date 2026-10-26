@@ -7,7 +7,7 @@ const { logActivity } = require("./activity.service");
 const { finishLogin, assertCanLogin } = require("./auth.service");
 const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
-const { tuple } = require("zod");
+const { consumeNonce } = require("../../../core/auth/nonce");
 
 const googleClient = new OAuth2Client();
 
@@ -42,6 +42,7 @@ async function verifyGoogleIdToken(idToken) {
     providerAccountId: payload.sub,
     email: payload.email.trim().toLowerCase(),
     name: payload.name?.trim() || null,
+    nonce: payload.nonce,
   };
 }
 
@@ -74,6 +75,9 @@ async function findGoogleAccount(providerAccountId) {
 
 async function loginWithGoogle({ idToken, device }, meta) {
   const identity = await verifyGoogleIdToken(idToken);
+  if (identity.nonce !== nonce)
+    throw AppError.unauthorized("Nonce invalide", "GOOGLE_NONCE_INVALID");
+  await consumeNonce(nonce, "GOOGLE_NONCE_INVALID");
   const account = await findGoogleAccount(identity.providerAccountId);
 
   if (!account) {

@@ -1,6 +1,6 @@
 const { getConfig } = require("../../config/env.config");
 
-const ACCESS_COOKIE = "swg_access";
+const ACCESS_COOKIE = "__Host-swg_access";
 const REFRESH_COOKIE = "swg_refresh";
 const REFRESH_COOKIE_PATH = "/api/v1/auth";
 
@@ -13,6 +13,7 @@ function setAuthCookies(res, { accessToken, refreshToken }) {
 
   res.cookie(ACCESS_COOKIE, accessToken, {
     ...baseOptions(),
+    secure: true,
     path: "/",
     maxAge: accessTtlSeconds * 1000,
   });
@@ -24,7 +25,7 @@ function setAuthCookies(res, { accessToken, refreshToken }) {
 }
 
 function clearAuthCookies(res) {
-  res.clearCookie(ACCESS_COOKIE, { ...baseOptions(), path: "/" });
+  res.clearCookie(ACCESS_COOKIE, { ...baseOptions(), secure: true, path: "/" });
   res.clearCookie(REFRESH_COOKIE, { ...baseOptions(), path: REFRESH_COOKIE_PATH });
 }
 

@@ -34,11 +34,11 @@ const MAX_FAILURES = 5;
 const FAILURE_WINDOW_SECONDS = 15 * 60;
 const CHALLENGE_TTL_SECONDS = 5 * 60;
 
-const failKey = (userId) => `2fa-fail:${userId}`;
+const failKey = (userId, scope) => `2fa-fail:${scope}:${userId}`;
 const challengeKey = (token) => `2fa-challenge:${sha256(token)}`;
 
-async function assertAttemptsLeft(userId) {
-  const count = Number(await getRedis().get(failKey(userId))) || 0;
+async function assertAttemptsLeft(userId, scope) {
+  const count = Number(await getRedis().get(failKey(userId, scope))) || 0;
   if (count >= MAX_FAILURES) {
     throw AppError.tooManyRequests(
       "Trop de codes incorrects, veuillez réessayer dans quelques minutes",
@@ -47,14 +47,14 @@ async function assertAttemptsLeft(userId) {
   }
 }
 
-async function recordFailure(userId) {
+async function recordFailure(userId, scope) {
   const redis = getRedis();
-  const count = await redis.incr(failKey(userId));
-  if (count === 1) await redis.expire(failKey(userId), FAILURE_WINDOW_SECONDS);
+  const count = await redis.incr(failKey(userId, scope));
+  if (count === 1) await redis.expire(failKey(userId, scope), FAILURE_WINDOW_SECONDS);
 }
 
-async function clearFailures(userId) {
-  await getRedis().del(failKey(userId));
+async function clearFailures(userId, scope) {
+  await getRedis().del(failKey(userId, scope));
 }
 
 async function getStatus(userId) {
@@ -379,24 +379,6 @@ async function verifyLoginOtp({ email, phone, code, device }, meta) {
 
   assertCanLogin(user, { email });
 
-  // const state = twoFactorState(user);
-
-  // if (state === "ENROLL") {
-  //   throw AppError.forbidden(
-  //     "La double vérification doit être activée pour ce compte",
-  //     "TWO_FACTOR_ENROLLMENT_REQUIRED",
-  //   );
-  // }
-
-  // if (state === "CHALLENGE") {
-  //   return {
-  //     twoFactorRequired: true,
-  //     ...(await createLoginChallenge({ userId: user.id, method, device })),
-  //   };
-  // }
-
-  // return completeLogin({ user, method, device, meta });
-
   return finishLogin({ user, method, device, meta });
 }
 
@@ -542,9 +524,9 @@ async function confirmSetup({ userId, code, stepUpCode, requireStepUp = false },
   return { backupCodes };
 }
 
-async function verifySecondFactor(userId, { code, backupCode }, meta) {
+async function verifySecondFactor(userId, { code, backupCode }, meta, scope = "session") {
   const prisma = getPrisma();
-  await assertAttemptsLeft(userId);
+  await assertAttemptsLeft(userId, scope);
 
   const credential = await prisma.totpCredential.findUnique({
     where: { userId },
@@ -581,7 +563,7 @@ async function verifySecondFactor(userId, { code, backupCode }, meta) {
         data: { lastUsedStep: step },
       });
       if (count === 1) {
-        await clearFailures(userId);
+        await clearFailures(userId, scope);
         return { factor: "TOTP" };
       }
     }
@@ -591,13 +573,13 @@ async function verifySecondFactor(userId, { code, backupCode }, meta) {
       data: { usedAt: new Date() },
     });
     if (count === 1) {
-      await clearFailures(userId);
+      await clearFailures(userId, scope);
       await logActivity({ ...base, event: "BACKUP_CODE_USED" });
       return { factor: "BACKUP_CODE" };
     }
   }
 
-  await recordFailure(userId);
+  await recordFailure(userId, scope);
   await logActivity({ ...base, event: "TOTP_FAILED", success: false });
   throw AppError.badRequest("Code invalide", undefined, "TWO_FACTOR_INVALID");
 }
@@ -735,7 +717,12 @@ async function verifyTwoFactorLogin({ challengeToken, code, backupCode }, meta) 
   const user = await getPrisma().user.findUnique({ where: { id: challenge.userId } });
   assertCanLogin(user, { email: user?.email });
 
-  await verifySecondFactor(user.id, { code, backupCode }, { ...meta, device: challenge.device });
+  await verifySecondFactor(
+    user.id,
+    { code, backupCode },
+    { ...meta, device: challenge.device },
+    "login",
+  );
   await consumeLoginChallenge(challengeToken);
 
   const result = await completeLogin({

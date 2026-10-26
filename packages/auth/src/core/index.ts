@@ -6,3 +6,4 @@ export * from "./constants";
 export * from "./errors";
 export * from "./memoryStore";
 export * from "./types";
+export * from "./http";

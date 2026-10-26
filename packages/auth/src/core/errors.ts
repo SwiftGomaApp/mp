@@ -18,6 +18,7 @@ export interface RawApiResponse {
   status: number;
   data?: unknown;
   headers?: Record<string, unknown> | undefined;
+  cause?: unknown;
 }
 
 const MESSAGES = {
@@ -195,6 +196,7 @@ export function createApiError(response: RawApiResponse): ApiError {
     status,
     details: body.details,
     requestId: body.requestId,
+    cause: response.cause,
   };
 
   if (status === 401) return new UnauthorizedError(init);

@@ -1,0 +1,2451 @@
+{
+  "info": {
+    "name": "SWG-MP",
+    "description": "SwiftGoma MarketPlace API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup - email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "email"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"role\": \"{{role}}\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup - phone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "phone"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{name}}\",\n  \"phone\": \"{{phone}}\",\n  \"role\": \"{{role}}\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup verify - email (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup verify - phone (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup verify - email (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Auth cookies set', () => {",
+                  "  pm.expect(pm.cookies.has('swg_access')).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup resend - email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "resend"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Signup resend - phone",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup/resend",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup", "resend"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP request - email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('OTP sent', () => pm.expect(pm.response.json()).to.have.property('expiresMinutes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "request"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP request - phone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('OTP sent', () => pm.expect(pm.response.json()).to.have.property('expiresMinutes'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "request"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('isNewDevice is a boolean', () => pm.expect(body.isNewDevice).to.be.a('boolean'));",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - phone (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('isNewDevice is a boolean', () => pm.expect(body.isNewDevice).to.be.a('boolean'));",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (new device alert)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('New device detected', () => pm.expect(body.isNewDevice).to.be.true);",
+                  "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                  "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"postman-{{$randomUUID}}\",\n    \"deviceName\": \"Postman New Device\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Login OTP verify - email (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Auth cookies set', () => pm.expect(pm.cookies.has('swg_access')).to.be.true);",
+                  "pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/otp/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "otp", "verify"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}-web\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Get me",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('Returns the user', () => pm.expect(body.user).to.have.property('id'));",
+                  "pm.test('Returns the session id', () => pm.expect(body.user).to.have.property('sessionId'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Refresh token (mobile)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('New token pair returned', () => {",
+                  "  pm.expect(body).to.have.property('accessToken');",
+                  "  pm.expect(body).to.have.property('refreshToken');",
+                  "  pm.expect(body.refreshToken).to.not.equal(pm.environment.get('refreshToken'));",
+                  "});",
+                  "pm.environment.set('oldRefreshToken', pm.environment.get('refreshToken'));",
+                  "pm.environment.set('accessToken', body.accessToken);",
+                  "pm.environment.set('refreshToken', body.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh token (web, cookies)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Cookies refreshed', () => {",
+                  "  pm.expect(pm.cookies.has('swg_access')).to.be.true;",
+                  "  pm.expect(pm.cookies.has('swg_refresh')).to.be.true;",
+                  "});",
+                  "pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Origin",
+                "value": "{{webOrigin}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "Refresh token reuse (old token, expect rejection)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rejected', () => pm.expect([401, 409]).to.include(pm.response.code));",
+                  "const code = pm.response.json().error.code;",
+                  "pm.test('Reuse or race code', () => pm.expect(['TOKEN_REUSED', 'REFRESH_IN_PROGRESS', 'REFRESH_TOKEN_INVALID']).to.include(code));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{oldRefreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Sessions",
+          "item": [
+            {
+              "name": "List sessions (devices)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const list = pm.response.json().sessions;",
+                      "pm.test('Exactly one current session', () => pm.expect(list.filter((s) => s.current)).to.have.lengthOf(1));",
+                      "const other = list.find((s) => !s.current);",
+                      "if (other) pm.environment.set('targetSessionId', other.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/sessions",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "sessions"]
+                }
+              }
+            },
+            {
+              "name": "Disconnect device",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Session revoked', () => pm.expect(pm.response.json().revoked).to.be.true);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/sessions/{{targetSessionId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "sessions", "{{targetSessionId}}"]
+                }
+              }
+            },
+            {
+              "name": "Logout",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('204', () => pm.response.to.have.status(204));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/logout",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "logout"]
+                }
+              }
+            },
+            {
+              "name": "Logout all devices",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('revoked count returned', () => pm.expect(pm.response.json().revoked).to.be.a('number'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/logout-all",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "logout-all"]
+                }
+              }
+            },
+            {
+              "name": "Get me (revoked session, expect 401)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('401', () => pm.response.to.have.status(401));",
+                      "pm.test('SESSION_REVOKED', () => pm.expect(pm.response.json().error.code).to.eql('SESSION_REVOKED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/me",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "me"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "2FA",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Generates {{totpCode}} for requests whose name contains 'TOTP code'. Needs {{totpSecret}} from '2FA setup'.",
+                  "if (pm.info.requestName.includes('TOTP code')) {",
+                  "  const secret = pm.environment.get('totpSecret');",
+                  "  if (!secret) {",
+                  "    console.warn('Run \"2FA setup\" first: totpSecret is missing');",
+                  "  } else {",
+                  "    const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';",
+                  "    let bits = '';",
+                  "    for (const c of secret.replace(/=+$/, '').toUpperCase()) bits += B32.indexOf(c).toString(2).padStart(5, '0');",
+                  "    const key = [];",
+                  "    for (let i = 0; i + 8 <= bits.length; i += 8) key.push(parseInt(bits.slice(i, i + 8), 2));",
+                  "    const words = [];",
+                  "    key.forEach((b, i) => { words[i >>> 2] = (words[i >>> 2] || 0) | (b << (24 - (i % 4) * 8)); });",
+                  "    const keyWA = CryptoJS.lib.WordArray.create(words, key.length);",
+                  "",
+                  "    // Server rejects a step that was already used, so move to the next one if needed.",
+                  "    const current = Math.floor(Date.now() / 30000);",
+                  "    const last = Number(pm.environment.get('lastTotpStep') || 0);",
+                  "    const step = Math.max(current, last + 1);",
+                  "    if (step > current + 1) console.warn('TOTP step already used: wait up to 30s, then resend');",
+                  "",
+                  "    const mac = CryptoJS.HmacSHA1(CryptoJS.lib.WordArray.create([0, step], 8), keyWA);",
+                  "    const h = [];",
+                  "    for (let i = 0; i < 20; i++) h.push((mac.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);",
+                  "    const o = h[19] & 0xf;",
+                  "    const bin = ((h[o] & 0x7f) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3];",
+                  "    pm.environment.set('totpCode', String(bin % 1000000).padStart(6, '0'));",
+                  "    pm.environment.set('lastTotpStep', String(step));",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "item": [
+            {
+              "name": "2FA status",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Has enabled flag', () => pm.expect(pm.response.json()).to.have.property('enabled'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa"]
+                }
+              }
+            },
+            {
+              "name": "2FA setup",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('Secret and otpauth URI returned', () => {",
+                      "  pm.expect(body.secret).to.be.a('string');",
+                      "  pm.expect(body.otpauthUri).to.match(/^otpauth:\\/\\/totp\\//);",
+                      "});",
+                      "pm.environment.set('totpSecret', body.secret);",
+                      "pm.environment.unset('lastTotpStep');"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/setup",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "setup"]
+                }
+              }
+            },
+            {
+              "name": "2FA confirm (TOTP code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('10 backup codes returned', () => pm.expect(body.backupCodes).to.have.lengthOf(10));",
+                      "pm.environment.set('backupCode', body.backupCodes[0]);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/confirm",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "confirm"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA regenerate backup codes (TOTP code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('10 backup codes returned', () => pm.expect(body.backupCodes).to.have.lengthOf(10));",
+                      "pm.environment.set('backupCode', body.backupCodes[0]);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/backup-codes",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "backup-codes"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA disable (TOTP code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('2FA disabled', () => pm.expect(pm.response.json().enabled).to.be.false);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/disable",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "disable"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA disable (backup code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('2FA disabled', () => pm.expect(pm.response.json().enabled).to.be.false);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/disable",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "disable"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"backupCode\": \"{{backupCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Login OTP verify - email (2FA user, expect challenge)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('202', () => pm.response.to.have.status(202));",
+                      "const body = pm.response.json();",
+                      "pm.test('Challenge returned', () => {",
+                      "  pm.expect(body.twoFactorRequired).to.be.true;",
+                      "  pm.expect(body.challengeToken).to.be.a('string');",
+                      "});",
+                      "pm.environment.set('challengeToken', body.challengeToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/otp/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "otp", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA verify login (TOTP code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('isNewDevice is a boolean', () => pm.expect(pm.response.json().isNewDevice).to.be.a('boolean'));",
+                      "const body = pm.response.json();",
+                      "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                      "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA verify login (backup code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                      "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"backupCode\": \"{{backupCode}}\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "2FA - staff enrollment",
+          "description": "Staff (SUPPORT/ADMIN) without 2FA get an enrollment challenge at login instead of tokens. Log in with a staff email first (set {{email}} to a staff account), then run these three in order. Set {{totpCode}} from your authenticator app (or the secret saved in {{totpSecret}}) before the confirm step; the challenge lasts 5 minutes.",
+          "item": [
+            {
+              "name": "Login OTP verify - staff (expect enrollment challenge)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('202', () => pm.response.to.have.status(202));",
+                      "const body = pm.response.json();",
+                      "pm.test('Enrollment challenge returned', () => {",
+                      "  pm.expect(body.twoFactorRequired).to.be.true;",
+                      "  pm.expect(body.enrollment).to.be.true;",
+                      "  pm.expect(body.challengeToken).to.be.a('string');",
+                      "  pm.expect(body.accessToken).to.be.undefined;",
+                      "});",
+                      "pm.environment.set('challengeToken', body.challengeToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/otp/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "otp", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll setup (challenge token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('Secret and otpauth URI returned', () => {",
+                      "  pm.expect(body.secret).to.be.a('string');",
+                      "  pm.expect(body.otpauthUri).to.match(/^otpauth:\\/\\/totp\\//);",
+                      "});",
+                      "pm.environment.set('totpSecret', body.secret);",
+                      "pm.environment.unset('lastTotpStep');"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/setup",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "setup"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll confirm (TOTP code, completes login)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('10 backup codes returned', () => pm.expect(body.backupCodes).to.have.lengthOf(10));",
+                      "pm.test('Logged in', () => {",
+                      "  pm.expect(body.user).to.be.an('object');",
+                      "  pm.expect(body.accessToken).to.be.a('string');",
+                      "  pm.expect(body.refreshToken).to.be.a('string');",
+                      "});",
+                      "pm.environment.set('accessToken', body.accessToken);",
+                      "pm.environment.set('refreshToken', body.refreshToken);",
+                      "pm.environment.set('backupCode', body.backupCodes[0]);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "confirm"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2FA enroll confirm (same token again, expect rejection)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Challenge already consumed (4xx)', () => pm.expect(pm.response.code).to.be.within(400, 499));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "2fa", "enroll", "confirm"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeToken\": \"{{challengeToken}}\",\n  \"code\": \"{{totpCode}}\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Password",
+          "description": "Run in order. Steps marked 'needs a code' use {{otpCode}}: after the previous request, read the code from the email (or SMS) and paste it into the environment variable before sending. Set {{password}} and {{newPassword}} in the environment (both need a letter, a digit and 8+ characters). Steps 2-4 and 8-9 need a signed-in session ({{accessToken}}). Step 7 logs out every device, so sign in again afterwards.",
+          "item": [
+            {
+              "name": "1. Request step-up code (email)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Channel and expiry returned', () => { pm.expect(b.channel).to.eql('EMAIL'); pm.expect(b.expiresMinutes).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"EMAIL\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2. Create password (needs step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"{{password}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "2b. Create password again (expect 409 PASSWORD_ALREADY_SET)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('409', () => pm.response.to.have.status(409));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"{{password}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "3. Request step-up code (before update)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "4. Update password (needs new step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.environment.set('previousPassword', pm.environment.get('password'));",
+                      "pm.environment.set('password', pm.environment.get('newPassword'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"{{password}}\",\n  \"newPassword\": \"{{newPassword}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "4b. Update password with wrong current password (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('code INVALID_CURRENT_PASSWORD', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('INVALID_CURRENT_PASSWORD'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"definitely-wrong-1\",\n  \"newPassword\": \"Another789\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "5. Login with password (mobile)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "const b = pm.response.json();",
+                      "if (b.accessToken) pm.environment.set('accessToken', b.accessToken);",
+                      "if (b.refreshToken) pm.environment.set('refreshToken', b.refreshToken);",
+                      "if (b.challengeToken) pm.environment.set('challengeToken', b.challengeToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "5b. Login with password (web, cookies)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "if (pm.response.code === 200) {",
+                      "  pm.test('Auth cookies set', () => pm.expect(pm.cookies.has('swg_access')).to.be.true);",
+                      "  pm.test('No tokens in body', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));",
+                      "}"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}-web\",\n    \"deviceName\": \"Postman Web\",\n    \"platform\": \"WEB\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "5c. Login with wrong password (expect 401 INVALID_CREDENTIALS)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('401', () => pm.response.to.have.status(401));",
+                      "pm.test('code INVALID_CREDENTIALS', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('INVALID_CREDENTIALS'));",
+                      "pm.test('No tokens', () => pm.expect(pm.response.json()).to.not.have.property('accessToken'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"definitely-wrong-1\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "6. Forgot password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Message returned', () => pm.expect(pm.response.json().message).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/forgot",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "forgot"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "6b. Forgot password - unknown email (same 200, no leak)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/forgot",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "forgot"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"nobody-here@example.com\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7. Reset password (code from email in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.environment.set('password', pm.environment.get('newPassword'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "reset"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"{{otpCode}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7b. Reset password with a bad code (expect 400 OTP_INVALID)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('code OTP_INVALID', () => pm.expect(pm.response.json().error?.code ?? pm.response.json().code).to.eql('OTP_INVALID'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/reset",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "reset"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"code\": \"000000\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "8. Request step-up code (before remove)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/otp/request",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "otp", "request"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "9. Remove password (needs step-up code in {{otpCode}})",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/password/remove",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "password", "remove"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "9b. Login with password after removal (expect 401)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('401', () => pm.response.to.have.status(401));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/password",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "password"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman Mobile\",\n    \"platform\": \"ANDROID\"\n  }\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Passkeys",
+          "description": "WebAuthn / Passkeys. Les réponses credential doivent provenir d'une vraie cérémonie WebAuthn dans le navigateur ou le client compatible.",
+          "item": [
+            {
+              "name": "1. Login passkey - options",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('Challenge ID and options returned', () => {",
+                      "  pm.expect(body.challengeId).to.be.a('string');",
+                      "  pm.expect(body.options).to.be.an('object');",
+                      "  pm.expect(body.options.challenge).to.be.a('string');",
+                      "});",
+                      "pm.environment.set('passkeyChallengeId', body.challengeId);",
+                      "pm.environment.set('passkeyAuthenticationOptions', JSON.stringify(body.options));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/passkey/options",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "passkey", "options"]
+                }
+              }
+            },
+            {
+              "name": "2. Login passkey - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 or 202 (2FA)', () => pm.expect([200, 202]).to.include(pm.response.code));",
+                      "const body = pm.response.json();",
+                      "if (body.accessToken) pm.environment.set('accessToken', body.accessToken);",
+                      "if (body.refreshToken) pm.environment.set('refreshToken', body.refreshToken);",
+                      "if (body.challengeToken) pm.environment.set('challengeToken', body.challengeToken);",
+                      "if (body.user) pm.test('User returned after login', () => pm.expect(body.user).to.be.an('object'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/passkey/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "passkey", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challengeId\": \"{{passkeyChallengeId}}\",\n  \"response\": {{passkeyAuthenticationResponse}},\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"deviceName\": \"Postman WebAuthn Test\",\n    \"platform\": \"WEB\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "3. List registered passkeys",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Passkeys array returned', () => pm.expect(pm.response.json().passkeys).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys"]
+                }
+              }
+            },
+            {
+              "name": "4. Register passkey - options",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const body = pm.response.json();",
+                      "pm.test('WebAuthn registration options returned', () => {",
+                      "  pm.expect(body.challenge).to.be.a('string');",
+                      "  pm.expect(body.rp).to.be.an('object');",
+                      "  pm.expect(body.user).to.be.an('object');",
+                      "});",
+                      "pm.environment.set('passkeyRegistrationOptions', JSON.stringify(body));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/options",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "options"]
+                }
+              }
+            },
+            {
+              "name": "5. Register passkey - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "pm.test('Passkey returned', () => pm.expect(pm.response.json().passkey).to.be.an('object'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "verify"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{passkeyName}}\",\n  \"deviceId\": \"{{deviceId}}\",\n  \"response\": {{passkeyRegistrationResponse}}\n}"
+                }
+              }
+            },
+            {
+              "name": "6. Rename passkey",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('2xx response', () => pm.expect(pm.response.code).to.be.within(200, 299));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"SwiftGoma passkey renamed\"\n}"
+                }
+              }
+            },
+            {
+              "name": "7. Remove passkey",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": ["pm.test('204', () => pm.response.to.have.status(204));"]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Google OAuth",
+          "item": [
+            {
+              "name": "Google - Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/google",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "google"]
+                },
+                "description": "Connecte un utilisateur existant avec un Google ID token vérifié par le serveur. Une vérification 2FA peut être nécessaire."
+              }
+            },
+            {
+              "name": "Google - Signup",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/signup/google",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "signup", "google"]
+                },
+                "description": "Crée un compte à partir d'une identité Google vérifiée. Le rôle BUYER est utilisé comme valeur de test ; les rôles privilégiés doivent être refusés côté serveur."
+              }
+            },
+            {
+              "name": "Google - Link account",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/google/link",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "google", "link"]
+                },
+                "description": "Associe un compte Google vérifié au compte SwiftGoma actuellement authentifié. Le serveur doit empêcher les associations avec une identité déjà liée à un autre utilisateur."
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "Apple OAuth",
+          "item": [
+            {
+              "name": "Apple - Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login/apple",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "login", "apple"]
+                }
+              }
+            },
+            {
+              "name": "Apple - Signup",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"name\": \"SwiftGoma User\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/signup/apple",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "signup", "apple"]
+                }
+              }
+            },
+            {
+              "name": "Apple - Link account",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/apple/link",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "apple", "link"]
+                }
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "Secondary Contacts",
+          "item": [
+            {
+              "name": "Secondary Contacts - List",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "secondary-contacts"]
+                }
+              }
+            },
+            {
+              "name": "Secondary Contacts - Request Email OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{secondaryEmail}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts/otp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "secondary-contacts", "otp"]
+                }
+              }
+            },
+            {
+              "name": "Secondary Contacts - Verify Email",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{secondaryEmail}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "secondary-contacts", "verify"]
+                }
+              }
+            },
+            {
+              "name": "Secondary Contacts - Request Phone OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{secondaryPhone}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts/otp",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "secondary-contacts", "otp"]
+                }
+              }
+            },
+            {
+              "name": "Secondary Contacts - Verify Phone",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{secondaryPhone}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts/verify",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["auth", "secondary-contacts", "verify"]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Suspend user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is SUSPENDED', () => pm.expect(pm.response.json().status).to.eql('SUSPENDED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/suspend",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{targetUserId}}", "suspend"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Fraude signalée\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Ban user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is BANNED', () => pm.expect(pm.response.json().status).to.eql('BANNED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/ban",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{targetUserId}}", "ban"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violations répétées des règles\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reactivate user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "pm.test('Status is ACTIVE', () => pm.expect(pm.response.json().status).to.eql('ACTIVE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{targetUserId}}", "reactivate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Vérification terminée, compte rétabli\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

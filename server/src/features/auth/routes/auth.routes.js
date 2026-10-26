@@ -1,0 +1,443 @@
+const { Router } = require("express");
+const controller = require("../controllers/auth.controller");
+const { validate } = require("../../../core/middlewares/validate.middleware");
+const { authenticate, requireRole } = require("../../../core/middlewares/auth.middleware");
+const {
+  otpLimiter,
+  authLimiter,
+  stepUpLimiter,
+  refreshLimiter,
+} = require("../../../core/middlewares/rateLimit.middleware");
+const {
+  signupEmailBody,
+  signupPhoneBody,
+  verifySignupBody,
+  resendSignupBody,
+} = require("../validators/signup.validator");
+const { loginOtpRequestBody, loginOtpVerifyBody } = require("../validators/login.validator");
+const { refreshBody } = require("../validators/session.validator");
+const {
+  confirmBody,
+  factorBody,
+  loginChallengeBody,
+  enrollSetupBody,
+  enrollConfirmBody,
+} = require("../validators/totp.validator");
+const { idParams } = require("../../../core/validation/common");
+const {
+  registerPasskeyBody,
+  renamePasskeyBody,
+  loginPasskeyBody,
+} = require("../validators/passkey.validator");
+const passwordController = require("../controllers/password.controller");
+const {
+  passwordOtpRequestBody,
+  createPasswordBody,
+  updatePasswordBody,
+  removePasswordBody,
+  forgotPasswordBody,
+  resetPasswordBody,
+  loginPasswordBody,
+} = require("../validators/password.validator");
+const googleController = require("../controllers/google.controller");
+const oauthController = require("../controllers/oauth.controller");
+const {
+  googleLoginBody,
+  googleSignupBody,
+  googleLinkBody,
+} = require("../validators/google.validator");
+const staffController = require("../controllers/staff.controller");
+const {
+  createStaffBody,
+  staffSetupBody,
+  resendStaffSetupBody,
+  resetStaffTwoFactorBody,
+} = require("../validators/staff.validator");
+const methodsController = require("../controllers/methods.controller");
+const { methodParams, removeMethodBody } = require("../validators/methods.validator");
+const supportRequestController = require("../controllers/supportRequest.controller");
+const {
+  supportRequestBody,
+  supportRequestListQuery,
+  closeSupportRequestBody,
+} = require("../validators/supportRequest.validator");
+const securityController = require("../controllers/security.controller");
+const { activityQuery } = require("../validators/security.validator");
+const recoveryController = require("../controllers/recovery.controller");
+const {
+  recoveryRequestBody,
+  recoveryVerifyBody,
+  recoveryContactBody,
+  recoveryCompleteBody,
+} = require("../validators/recovery.validator");
+
+const appleController = require("../controllers/apple.controller");
+
+const { appleLoginBody, appleSignupBody, appleLinkBody } = require("../validators/apple.validator");
+
+const secondaryContactController = require("../controllers/secondary-contact.controller");
+
+const {
+  secondaryContactRemoveBody,
+  secondaryContactRequestBody,
+  secondaryContactVerifyBody,
+} = require("../validators/secondary-contact.validator");
+
+const router = Router();
+
+// ===================================== SIGNUP =====================================
+router.post(
+  "/signup/email",
+  validate({ body: signupEmailBody }),
+  ...otpLimiter,
+  controller.signupEmail,
+);
+router.post(
+  "/signup/phone",
+  validate({ body: signupPhoneBody }),
+  ...otpLimiter,
+  controller.signupPhone,
+);
+router.post("/signup/verify", validate({ body: verifySignupBody }), authLimiter, controller.verify);
+router.post(
+  "/signup/resend",
+  validate({ body: resendSignupBody }),
+  ...otpLimiter,
+  controller.resend,
+);
+
+// ===================================== LOGIN =====================================
+router.post(
+  "/login/otp/request",
+  validate({ body: loginOtpRequestBody }),
+  ...otpLimiter,
+  controller.requestOtp,
+);
+router.post(
+  "/login/otp/verify",
+  validate({ body: loginOtpVerifyBody }),
+  authLimiter,
+  controller.verifyOtp,
+);
+
+router.post(
+  "/2fa/verify",
+  validate({ body: loginChallengeBody }),
+  authLimiter,
+  controller.verifyLogin,
+);
+
+router.post(
+  "/2fa/enroll/setup",
+  validate({ body: enrollSetupBody }),
+  authLimiter,
+  controller.enrollSetup,
+);
+router.post(
+  "/2fa/enroll/confirm",
+  validate({ body: enrollConfirmBody }),
+  authLimiter,
+  controller.enrollConfirm,
+);
+
+router.post(
+  "/login/password",
+  validate({ body: loginPasswordBody }),
+  authLimiter,
+  passwordController.login,
+);
+
+// ===================================== SESSIONS =====================================
+router.post("/refresh", validate({ body: refreshBody }), refreshLimiter, controller.refresh);
+router.get("/me", authenticate, controller.me);
+
+// ===================================== Devices & logout =====================================
+router.post("/logout", authenticate, controller.logout);
+router.post("/logout-all", authenticate, controller.logoutAll);
+router.get("/sessions", authenticate, controller.sessions);
+router.delete(
+  "/sessions/:id",
+  authenticate,
+  validate({ params: idParams }),
+  controller.disconnectDevice,
+);
+
+// ===================================== 2FA =====================================
+router.get("/2fa", authenticate, controller.status);
+router.post("/2fa/setup", authenticate, authLimiter, controller.setup);
+router.post(
+  "/2fa/confirm",
+  authenticate,
+  validate({ body: confirmBody }),
+  authLimiter,
+  controller.confirm,
+);
+router.post(
+  "/2fa/disable",
+  authenticate,
+  validate({ body: factorBody }),
+  authLimiter,
+  controller.disable,
+);
+router.post(
+  "/2fa/backup-codes",
+  authenticate,
+  validate({ body: factorBody }),
+  authLimiter,
+  controller.regenerateBackupCodes,
+);
+
+// ===================================== Passkeys =====================================
+router.post("/login/passkey/options", authLimiter, controller.passkeyLoginOptions);
+router.post(
+  "/login/passkey/verify",
+  validate({ body: loginPasskeyBody }),
+  authLimiter,
+  controller.passkeyLoginVerify,
+);
+
+router.get("/passkeys", authenticate, controller.passkeyList);
+router.post("/passkeys/options", authenticate, authLimiter, controller.passkeyRegisterOptions);
+router.post(
+  "/passkeys/verify",
+  authenticate,
+  validate({ body: registerPasskeyBody }),
+  authLimiter,
+  controller.passkeyRegisterVerify,
+);
+router.patch(
+  "/passkeys/:id",
+  authenticate,
+  validate({ params: idParams, body: renamePasskeyBody }),
+  controller.passkeyRename,
+);
+router.delete(
+  "/passkeys/:id",
+  authenticate,
+  validate({ params: idParams }),
+  controller.passkeyRemove,
+);
+
+// ===================================== FORGOT / RESET (public) =====================================
+router.post(
+  "/password/forgot",
+  validate({ body: forgotPasswordBody }),
+  ...otpLimiter,
+  passwordController.forgot,
+);
+router.post(
+  "/password/reset",
+  validate({ body: resetPasswordBody }),
+  authLimiter,
+  passwordController.reset,
+);
+
+// ===================================== SIGNED IN (each change needs a fresh code) =====================================
+router.post(
+  "/password/otp/request",
+  authenticate,
+  validate({ body: passwordOtpRequestBody }),
+  stepUpLimiter,
+  passwordController.requestStepUp,
+);
+router.post(
+  "/step-up/otp",
+  authenticate,
+  validate({ body: passwordOtpRequestBody }),
+  stepUpLimiter,
+  passwordController.requestStepUp,
+);
+router.post(
+  "/password",
+  authenticate,
+  validate({ body: createPasswordBody }),
+  authLimiter,
+  passwordController.create,
+);
+router.put(
+  "/password",
+  authenticate,
+  validate({ body: updatePasswordBody }),
+  authLimiter,
+  passwordController.update,
+);
+router.post(
+  "/password/remove",
+  authenticate,
+  validate({ body: removePasswordBody }),
+  authLimiter,
+  passwordController.remove,
+);
+
+// ===================================== GOOGLE OAUTH =====================================
+
+router.post("/oauth/nonce", authLimiter, oauthController.nonce);
+
+router.post(
+  "/login/google",
+  validate({ body: googleLoginBody }),
+  authLimiter,
+  googleController.login,
+);
+
+router.post(
+  "/signup/google",
+  validate({ body: googleSignupBody }),
+  authLimiter,
+  googleController.signup,
+);
+
+router.post(
+  "/google/link",
+  authenticate,
+  validate({ body: googleLinkBody }),
+  authLimiter,
+  googleController.link,
+);
+
+// ===================================== APPLE OAUTH =====================================
+
+router.post("/login/apple", validate({ body: appleLoginBody }), authLimiter, appleController.login);
+
+router.post(
+  "/signup/apple",
+  validate({ body: appleSignupBody }),
+  authLimiter,
+  appleController.signup,
+);
+
+router.post(
+  "/apple/link",
+  authenticate,
+  validate({ body: appleLinkBody }),
+  authLimiter,
+  appleController.link,
+);
+
+// =====================================
+// SECONDARY CONTACTS
+// =====================================
+
+router.get("/secondary-contacts", authenticate, secondaryContactController.list);
+
+router.post(
+  "/secondary-contacts/otp",
+  authenticate,
+  validate({ body: secondaryContactRequestBody }),
+  stepUpLimiter,
+  secondaryContactController.requestOtp,
+);
+
+router.post(
+  "/secondary-contacts/verify",
+  authenticate,
+  validate({ body: secondaryContactVerifyBody }),
+  authLimiter,
+  secondaryContactController.verify,
+);
+
+router.post(
+  "/secondary-contacts/remove",
+  authenticate,
+  validate({ body: secondaryContactRemoveBody }),
+  authLimiter,
+  secondaryContactController.remove,
+);
+
+// ===================================== ACTIVITY AND SECURITY CHECKLIST =====================================
+router.get(
+  "/activity",
+  authenticate,
+  validate({ query: activityQuery }),
+  securityController.activity,
+);
+router.get("/security", authenticate, securityController.checklist);
+
+// ===================================== ACCOUNT RECOVERY =====================================
+router.post(
+  "/recovery/request",
+  validate({ body: recoveryRequestBody }),
+  ...otpLimiter,
+  recoveryController.request,
+);
+router.post(
+  "/recovery/verify",
+  validate({ body: recoveryVerifyBody }),
+  authLimiter,
+  recoveryController.verify,
+);
+router.post(
+  "/recovery/contact",
+  validate({ body: recoveryContactBody }),
+  authLimiter,
+  recoveryController.contact,
+);
+router.post(
+  "/recovery/complete",
+  validate({ body: recoveryCompleteBody }),
+  authLimiter,
+  recoveryController.complete,
+);
+router.post("/recovery/cancel", authenticate, authLimiter, recoveryController.cancel);
+
+// ===================================== SIGN-IN METHODS =====================================
+router.get("/methods", authenticate, methodsController.list);
+router.post(
+  "/methods/:method/remove",
+  authenticate,
+  validate({ params: methodParams, body: removeMethodBody }),
+  authLimiter,
+  methodsController.remove,
+);
+
+// ===================================== SUSPENDED ACCOUNTS =====================================
+router.post(
+  "/support-request",
+  validate({ body: supportRequestBody }),
+  ...otpLimiter,
+  supportRequestController.create,
+);
+router.get(
+  "/support-requests",
+  authenticate,
+  requireRole("SUPPORT", "ADMIN"),
+  validate({ query: supportRequestListQuery }),
+  supportRequestController.list,
+);
+router.post(
+  "/support-requests/:id/close",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: closeSupportRequestBody }),
+  authLimiter,
+  supportRequestController.close,
+);
+
+// ===================================== STAFF ACCOUNTS =====================================
+router.post(
+  "/staff",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ body: createStaffBody }),
+  authLimiter,
+  staffController.create,
+);
+router.post("/staff/setup", validate({ body: staffSetupBody }), authLimiter, staffController.setup);
+router.post(
+  "/staff/:id/resend-setup",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: resendStaffSetupBody }),
+  authLimiter,
+  staffController.resendSetup,
+);
+router.post(
+  "/staff/:id/reset-2fa",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: resetStaffTwoFactorBody }),
+  authLimiter,
+  staffController.resetTwoFactor,
+);
+
+module.exports = router;

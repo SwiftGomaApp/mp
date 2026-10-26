@@ -2,8 +2,18 @@ const { rateLimit, ipKeyGenerator } = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const { getRedis } = require("../cache/redis");
 const { AppError } = require("../errors/AppError");
+const { sha256 } = require("../crypto/crypto");
+const { REFRESH_COOKIE } = require("../auth/cookies");
 
-function createLimiter({ name, windowMs, limit, keyGenerator, message, createStore }) {
+function createLimiter({
+  name,
+  windowMs,
+  limit,
+  keyGenerator,
+  message,
+  createStore,
+  failOpen = false,
+}) {
   let limiter = null;
 
   return (req, res, next) => {
@@ -13,7 +23,7 @@ function createLimiter({ name, windowMs, limit, keyGenerator, message, createSto
         limit,
         standardHeaders: "draft-7",
         legacyHeaders: false,
-        passOnStoreError: true,
+        passOnStoreError: failOpen,
         validate: { creationStack: false },
         keyGenerator: keyGenerator || ((r) => ipKeyGenerator(r.ip)),
         ...(createStore
@@ -46,7 +56,7 @@ function createOtpLimiters({ createStore } = {}) {
     createLimiter({
       name: "otp-ip",
       windowMs: 60 * 60 * 1000,
-      limit: 10,
+      limit: 30,
       message,
       createStore,
     }),
@@ -65,22 +75,60 @@ const globalLimiter = createLimiter({
   name: "global",
   windowMs: 60 * 1000,
   limit: 120,
+  failOpen: true,
 });
 
-const authLimiter = createLimiter({
-  name: "auth",
-  windowMs: 15 * 60 * 1000,
-  limit: 20,
-  message: "Trop de tentatives, veuillez réessayer dans quelques minutes",
+const stepUpLimiter = createLimiter({
+  name: "step-up",
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  message: "Trop de codes demandés, veuillez réessayer plus tard",
+  keyGenerator: (req) => req.auth?.userId ?? ipKeyGenerator(req.ip),
 });
+
+function perRouteKey(req) {
+  return `${ipKeyGenerator(req.ip)}|${req.method} ${req.baseUrl}${req.route?.path ?? req.path}`;
+}
+
+function refreshKey(req) {
+  const token = req.body?.refreshToken ?? req.cookies?.[REFRESH_COOKIE];
+  return token ? `token:${sha256(token).slice(0, 32)}` : `ip:${ipKeyGenerator(req.ip)}`;
+}
+
+function createAuthLimiters({ createStore } = {}) {
+  const message = "Trop de tentatives, veuillez réessayer dans quelques minutes";
+
+  return {
+    authLimiter: createLimiter({
+      name: "auth",
+      windowMs: 15 * 60 * 1000,
+      limit: 100,
+      message,
+      keyGenerator: perRouteKey,
+      createStore,
+    }),
+    refreshLimiter: createLimiter({
+      name: "refresh",
+      windowMs: 15 * 60 * 1000,
+      limit: 60,
+      message,
+      keyGenerator: refreshKey,
+      createStore,
+    }),
+  };
+}
 
 const otpLimiter = createOtpLimiters();
+const { authLimiter, refreshLimiter } = createAuthLimiters();
 
 module.exports = {
   createLimiter,
   createOtpLimiters,
+  createAuthLimiters,
   normalizeTarget,
   globalLimiter,
   authLimiter,
+  stepUpLimiter,
+  refreshLimiter,
   otpLimiter,
 };

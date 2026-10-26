@@ -6,12 +6,15 @@ const { logger } = require("./core/logger/logger");
 const { disconnectPrisma } = require("./core/db/prisma");
 const { closeMailer } = require("./core/mail/mailer");
 const { startWorkers } = require("./core/queue/workers");
+const { closeQueues } = require("./core/queue/queues");
 const { processors } = require("./jobs");
+const { scheduleMaintenance } = require("./jobs/maintenance.job");
 
 async function main() {
   await loadConfig();
 
   const closeWorkers = startWorkers(processors);
+  await scheduleMaintenance();
 
   let shuttingDown = false;
 
@@ -28,6 +31,7 @@ async function main() {
 
     try {
       await closeWorkers();
+      await closeQueues();
       await closeMailer();
       await disconnectPrisma();
       await Sentry.close(2000);

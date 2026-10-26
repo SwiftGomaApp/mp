@@ -16,7 +16,7 @@ RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma genera
 
 COPY index.js instrument.js ./
 COPY src ./src
-COPY scripts/migrate.js ./scripts/migrate.js
+COPY scripts/migrate.js scripts/create-admin.js scripts/reset-admin-2fa.js ./scripts/
 
 USER node
 

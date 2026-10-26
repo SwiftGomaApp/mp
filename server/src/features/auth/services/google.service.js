@@ -46,6 +46,13 @@ async function verifyGoogleIdToken(idToken) {
   };
 }
 
+async function assertGoogleNonce(identity, nonce) {
+  if (!nonce || identity.nonce !== nonce) {
+    throw AppError.unauthorized("Nonce invalide", "GOOGLE_NONCE_INVALID");
+  }
+  await consumeNonce(nonce, "GOOGLE_NONCE_INVALID");
+}
+
 function clientMeta(meta) {
   return {
     ipAddress: meta.ipAddress,
@@ -73,11 +80,9 @@ async function findGoogleAccount(providerAccountId) {
   });
 }
 
-async function loginWithGoogle({ idToken, device }, meta) {
+async function loginWithGoogle({ idToken, nonce, device }, meta) {
   const identity = await verifyGoogleIdToken(idToken);
-  if (identity.nonce !== nonce)
-    throw AppError.unauthorized("Nonce invalide", "GOOGLE_NONCE_INVALID");
-  await consumeNonce(nonce, "GOOGLE_NONCE_INVALID");
+  await assertGoogleNonce(identity, nonce);
   const account = await findGoogleAccount(identity.providerAccountId);
 
   if (!account) {
@@ -118,7 +123,7 @@ async function loginWithGoogle({ idToken, device }, meta) {
   });
 }
 
-async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device }, meta) {
+async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device, nonce }, meta) {
   if (acceptTerms !== true || confirmAge !== true) {
     throw AppError.badRequest(
       "L'acceptation des conditions et la confirmation d'âge sont obligatoires",
@@ -135,6 +140,7 @@ async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device
   }
 
   const identity = await verifyGoogleIdToken(idToken);
+  await assertGoogleNonce(identity, nonce);
   const prisma = getPrisma();
 
   const linked = await prisma.oAuthAccount.findUnique({

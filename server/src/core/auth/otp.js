@@ -17,7 +17,12 @@ function normalizeTarget(target) {
 
 function keys(purpose, target) {
   const t = normalizeTarget(target);
-  return { otp: `otp:${purpose}:${t}`, cooldown: `otp-cooldown:${purpose}:${t}`, target: t };
+  return {
+    otp: `otp:${purpose}:${t}`,
+    cooldown: `otp-cooldown:${purpose}:${t}`,
+    hourly: `otp-hourly:${t}`,
+    target: t,
+  };
 }
 
 function digest(purpose, target, code) {
@@ -25,7 +30,7 @@ function digest(purpose, target, code) {
 }
 
 async function issueOtp({ purpose, target }) {
-  const { otpTtlMinutes, otpResendSeconds } = getConfig().auth;
+  const { otpTtlMinutes, otpResendSeconds, otpMaxPerHour } = getConfig().auth;
   const redis = getRedis();
   const k = keys(purpose, target);
 
@@ -37,6 +42,20 @@ async function issueOtp({ purpose, target }) {
         429,
         "OTP_COOLDOWN",
         `Veuillez patienter ${retryAfterSeconds} secondes avant de demander un nouveau code`,
+        { retryAfterSeconds },
+      );
+    }
+  }
+
+  if (otpMaxPerHour > 0) {
+    const count = await redis.incr(k.hourly);
+    if (count === 1) await redis.expire(k.hourly, 60 * 60);
+    if (count > otpMaxPerHour) {
+      const retryAfterSeconds = Math.max(await redis.ttl(k.hourly), 1);
+      throw new AppError(
+        429,
+        "OTP_HOURLY_LIMIT",
+        `Trop de codes demandés pour ce contact, veuillez réessayer dans ${Math.ceil(retryAfterSeconds / 60)} minutes`,
         { retryAfterSeconds },
       );
     }

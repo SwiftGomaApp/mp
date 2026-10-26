@@ -4,8 +4,10 @@ const { isSessionRevoked } = require("../auth/revocation");
 const { ACCESS_COOKIE } = require("../auth/cookies");
 const { AppError } = require("../errors/AppError");
 const { getPrisma } = require("../db/prisma");
+const { authConfig } = require("../../features/auth/config/auth.config");
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+const TWO_FACTOR_EXEMPT_PATHS = new Set(["/2fa/setup", "/2fa/confirm", "/logout", "/logout-all", "/me"]);
 
 function extractToken(req) {
   const [scheme, bearer] = (req.headers.authorization || "").split(" ");
@@ -26,6 +28,22 @@ function assertTrustedOrigin(req) {
   }
 }
 
+async function assertStaffTwoFactor(req, auth) {
+  if (!authConfig.twoFactorRequiredRoles.includes(auth.role)) return;
+  if (TWO_FACTOR_EXEMPT_PATHS.has(req.path)) return;
+
+  const credential = await getPrisma().totpCredential.findUnique({
+    where: { userId: auth.userId },
+    select: { confirmedAt: true },
+  });
+  if (!credential?.confirmedAt) {
+    throw AppError.forbidden(
+      "La double vérification doit être activée pour continuer",
+      "TWO_FACTOR_REQUIRED",
+    );
+  }
+}
+
 async function authenticate(req, res, next) {
   try {
     const found = extractToken(req);
@@ -37,6 +55,8 @@ async function authenticate(req, res, next) {
     if (await isSessionRevoked(auth.sessionId)) {
       throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
     }
+
+    await assertStaffTwoFactor(req, auth);
 
     req.auth = { ...auth, source: found.source };
     next();

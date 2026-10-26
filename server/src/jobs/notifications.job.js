@@ -15,6 +15,7 @@ const defaultHandlers = {
   [NOTIFICATION_JOBS.EMAIL_SECURITY_ALERT]: (data) =>
     mail.sendSecurityAlertEmail({ ...data, date: new Date(data.date) }),
   [NOTIFICATION_JOBS.SMS_SECURITY_ALERT]: (data) => sms.sendSecurityAlertSms(data),
+  [NOTIFICATION_JOBS.EMAIL_STAFF_SETUP]: (data) => mail.sendStaffSetupEmail(data),
 };
 
 function isPermanentFailure(err) {

@@ -4,6 +4,11 @@ const ALERTS = {
     title: "Une nouvelle méthode de connexion a été ajoutée",
     sms: "une nouvelle méthode de connexion a été ajoutée à votre compte",
   },
+  LOGIN_METHOD_REMOVED: {
+    subject: "Une méthode de connexion a été retirée de votre compte SwiftGoma",
+    title: "Une méthode de connexion a été retirée",
+    sms: "une méthode de connexion a été retirée de votre compte",
+  },
   PASSKEY_REMOVED: {
     subject: "Une empreinte ou un visage a été retiré de votre compte SwiftGoma",
     title: "Une empreinte ou un visage a été retiré de votre compte",

@@ -10,6 +10,7 @@ const NOTIFICATION_JOBS = {
   SMS_WELCOME: "sms.welcome",
   EMAIL_SECURITY_ALERT: "email.security-alert",
   SMS_SECURITY_ALERT: "sms.security-alert",
+  EMAIL_STAFF_SETUP: "email.staff-setup",
 };
 
 function enqueue(name, data) {
@@ -55,6 +56,10 @@ function queueSecurityAlertSms(data) {
   return enqueue(NOTIFICATION_JOBS.SMS_SECURITY_ALERT, data);
 }
 
+function queueStaffSetupEmail(data) {
+  return enqueue(NOTIFICATION_JOBS.EMAIL_STAFF_SETUP, data);
+}
+
 module.exports = {
   NOTIFICATION_JOBS,
   queueOtpEmail,
@@ -65,4 +70,5 @@ module.exports = {
   queueWelcomeSms,
   queueSecurityAlertEmail,
   queueSecurityAlertSms,
+  queueStaffSetupEmail,
 };

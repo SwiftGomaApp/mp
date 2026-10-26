@@ -68,6 +68,7 @@ const schema = z.object({
   MAIL_SUPPORT_EMAIL: z.string().email().default("support@swiftgoma.com"),
   MAIL_PRIVACY_URL: z.string().url(),
   MAIL_ACTIVITY_URL: z.string().url().default("https://swiftgoma.com/compte/activite"),
+  MAIL_STAFF_SETUP_URL: z.string().url().default("https://admin.swiftgoma.com/activation"),
   MAIL_LOGO_WIDTH: z.coerce.number().int().positive().default(140),
   MAIL_LOGO_HEIGHT: z.coerce.number().int().positive().default(40),
 
@@ -89,6 +90,7 @@ const schema = z.object({
   OTP_TTL_MINUTES: z.coerce.number().int().min(1).max(30).default(10),
   OTP_RESEND_SECONDS: z.coerce.number().int().min(0).default(60),
   OTP_MAX_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(5),
+  OTP_MAX_PER_HOUR: z.coerce.number().int().min(0).default(5),
 
   TOTP_ENCRYPTION_KEY: z
     .string()
@@ -203,6 +205,7 @@ async function loadConfig() {
       supportEmail: env.MAIL_SUPPORT_EMAIL,
       privacyUrl: env.MAIL_PRIVACY_URL,
       activityUrl: env.MAIL_ACTIVITY_URL,
+      staffSetupUrl: env.MAIL_STAFF_SETUP_URL,
       logoWidth: env.MAIL_LOGO_WIDTH,
       logoHeight: env.MAIL_LOGO_HEIGHT,
     },
@@ -230,6 +233,7 @@ async function loadConfig() {
       otpTtlMinutes: env.OTP_TTL_MINUTES,
       otpResendSeconds: env.OTP_RESEND_SECONDS,
       otpMaxAttempts: env.OTP_MAX_ATTEMPTS,
+      otpMaxPerHour: env.OTP_MAX_PER_HOUR,
       totpKey: Buffer.from(env.TOTP_ENCRYPTION_KEY, "base64"),
       totpIssuer: env.TOTP_ISSUER,
     },

@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const controller = require("../controllers/auth.controller");
 const { validate } = require("../../../core/middlewares/validate.middleware");
-const { authenticate } = require("../../../core/middlewares/auth.middleware");
+const { authenticate, requireRole } = require("../../../core/middlewares/auth.middleware");
 const {
   otpLimiter,
   authLimiter,
@@ -39,14 +39,23 @@ const {
   resetPasswordBody,
   loginPasswordBody,
 } = require("../validators/password.validator");
-
 const googleController = require("../controllers/google.controller");
-
 const {
   googleLoginBody,
   googleSignupBody,
   googleLinkBody,
 } = require("../validators/google.validator");
+const staffController = require("../controllers/staff.controller");
+const {
+  createStaffBody,
+  staffSetupBody,
+  resendStaffSetupBody,
+  resetStaffTwoFactorBody,
+} = require("../validators/staff.validator");
+const methodsController = require("../controllers/methods.controller");
+const { methodParams, removeMethodBody } = require("../validators/methods.validator");
+const supportRequestController = require("../controllers/supportRequest.controller");
+const { supportRequestBody } = require("../validators/supportRequest.validator");
 
 const appleController = require("../controllers/apple.controller");
 
@@ -308,6 +317,51 @@ router.post(
   validate({ body: secondaryContactVerifyBody }),
   authLimiter,
   secondaryContactController.verify,
+);
+
+// ===================================== SIGN-IN METHODS =====================================
+router.get("/methods", authenticate, methodsController.list);
+router.post(
+  "/methods/:method/remove",
+  authenticate,
+  validate({ params: methodParams, body: removeMethodBody }),
+  authLimiter,
+  methodsController.remove,
+);
+
+// ===================================== SUSPENDED ACCOUNTS =====================================
+router.post(
+  "/support-request",
+  validate({ body: supportRequestBody }),
+  ...otpLimiter,
+  supportRequestController.create,
+);
+
+// ===================================== STAFF ACCOUNTS =====================================
+router.post(
+  "/staff",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ body: createStaffBody }),
+  authLimiter,
+  staffController.create,
+);
+router.post("/staff/setup", validate({ body: staffSetupBody }), authLimiter, staffController.setup);
+router.post(
+  "/staff/:id/resend-setup",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: resendStaffSetupBody }),
+  authLimiter,
+  staffController.resendSetup,
+);
+router.post(
+  "/staff/:id/reset-2fa",
+  authenticate,
+  requireRole("ADMIN"),
+  validate({ params: idParams, body: resetStaffTwoFactorBody }),
+  authLimiter,
+  staffController.resetTwoFactor,
 );
 
 module.exports = router;

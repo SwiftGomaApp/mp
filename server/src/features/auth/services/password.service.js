@@ -134,7 +134,9 @@ async function forgotPassword({ email }, m) {
     });
     await queueOtpEmail({ to: email, name: user.name, code, expiresMinutes });
   } catch (err) {
-    if (!(err instanceof AppError && err.code === "OTP_COOLDOWN")) throw err;
+    if (!(err instanceof AppError && ["OTP_COOLDOWN", "OTP_HOURLY_LIMIT"].includes(err.code))) {
+      throw err;
+    }
     return { message: FORGOT_MESSAGE };
   }
 

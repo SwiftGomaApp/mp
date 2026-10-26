@@ -6,6 +6,7 @@ const authConfig = Object.freeze({
   maxDevicesPerUser: 5,
   staffWebIdleTimeoutMs: 30 * MINUTE,
   sessionMaxLifetimeMs: 90 * DAY,
+  staffSetupTtlMs: 3 * DAY,
 
   unconfirmedSignupTtlMs: 3 * DAY,
   minAge: 18,

@@ -86,6 +86,10 @@ enum ActivityEvent {
   SECONDARY_EMAIL_ADDED
   SECONDARY_PHONE_ADDED
   SECONDARY_EMAIL_REMOVED
+  STAFF_ACCOUNT_CREATED
+  STAFF_SETUP_RESENT
+  LOGIN_METHOD_REMOVED
+  SUPPORT_REQUEST_CREATED
   SECONDARY_PHONE_REMOVED
 }
 
@@ -96,6 +100,11 @@ enum RecoveryStatus {
   CANCELLED
   COMPLETED
   EXPIRED
+}
+
+enum SupportRequestStatus {
+  OPEN
+  CLOSED
 }
 
 enum OAuthProvider {
@@ -139,6 +148,7 @@ model User {
   activityLogs     ActivityLog[]
   recoveryRequests AccountRecoveryRequest[]
   oauthAccounts    OAuthAccount[]
+  supportRequests  SupportRequest[]
 
   @@index([status, createdAt])
   @@map("users")
@@ -304,4 +314,21 @@ model AccountRecoveryRequest {
   @@index([status, requestedAt])
   @@index([expiresAt])
   @@map("account_recovery_requests")
+}
+
+// ---------------------- support request model (suspended accounts) -------------------------
+
+model SupportRequest {
+  id        String               @id @default(uuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  status    SupportRequestStatus @default(OPEN)
+  ipAddress String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@map("support_requests")
 }

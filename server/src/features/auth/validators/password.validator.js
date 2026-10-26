@@ -39,4 +39,5 @@ module.exports = {
   forgotPasswordBody,
   resetPasswordBody,
   loginPasswordBody,
+  newPassword,
 };

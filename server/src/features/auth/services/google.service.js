@@ -8,6 +8,7 @@ const { finishLogin, assertCanLogin } = require("./auth.service");
 const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
 const { consumeNonce } = require("../../../core/auth/nonce");
+const { linkToVerifiedAccount } = require("./oauthLink.service");
 
 const googleClient = new OAuth2Client();
 
@@ -86,16 +87,15 @@ async function loginWithGoogle({ idToken, nonce, device }, meta) {
   const account = await findGoogleAccount(identity.providerAccountId);
 
   if (!account) {
-    const existingUser = await getPrisma().user.findUnique({
-      where: { email: identity.email },
-      select: { id: true },
-    });
+    const linkedUser = await linkToVerifiedAccount({ provider: "GOOGLE", identity }, meta);
 
-    if (existingUser) {
-      throw AppError.conflict(
-        "Un compte existe déjà avec cette adresse. Connectez-vous avec votre méthode habituelle, puis associez Google depuis votre compte.",
-        "ACCOUNT_LINK_REQUIRED",
-      );
+    if (linkedUser) {
+      return finishLogin({
+        user: linkedUser,
+        method: "GOOGLE",
+        device,
+        meta: clientMeta(meta),
+      });
     }
 
     throw AppError.notFound(
@@ -158,6 +158,17 @@ async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device
       "Ce compte Google est déjà associé à SwiftGoma. Veuillez vous connecter.",
       "GOOGLE_ACCOUNT_ALREADY_REGISTERED",
     );
+  }
+
+  const linkedUser = await linkToVerifiedAccount({ provider: "GOOGLE", identity }, meta);
+
+  if (linkedUser) {
+    return finishLogin({
+      user: linkedUser,
+      method: "GOOGLE",
+      device,
+      meta: clientMeta(meta),
+    });
   }
 
   const existingUser = await prisma.user.findUnique({

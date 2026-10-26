@@ -36,7 +36,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "db:migrate:prod": "node scripts/migrate.js"
+    "db:migrate:prod": "node scripts/migrate.js",
+    "create-admin": "node scripts/create-admin.js",
+    "reset-admin-2fa": "node scripts/reset-admin-2fa.js"
   },
   "engines": {
     "node": ">=24"

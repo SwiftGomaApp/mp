@@ -3,6 +3,7 @@ const { otpTemplate } = require("./templates/otp.template");
 const { loginAlertTemplate } = require("./templates/loginAlert.template");
 const { welcomeTemplate } = require("./templates/welcome.template");
 const { securityAlertTemplate } = require("./templates/securityAlert.template");
+const { staffSetupTemplate } = require("./templates/staffSetup.template");
 
 async function sendOtpEmail({ to, name, code, expiresMinutes }) {
   const { subject, html, text } = otpTemplate({ name, code, expiresMinutes });
@@ -31,4 +32,15 @@ async function sendSecurityAlertEmail({ to, name, type, date, activityUrl }) {
   return sendMail({ to, subject, html, text });
 }
 
-module.exports = { sendOtpEmail, sendLoginAlertEmail, sendWelcomeEmail, sendSecurityAlertEmail };
+async function sendStaffSetupEmail(data) {
+  const { subject, html, text } = staffSetupTemplate(data);
+  return sendMail({ to: data.to, subject, html, text });
+}
+
+module.exports = {
+  sendOtpEmail,
+  sendLoginAlertEmail,
+  sendWelcomeEmail,
+  sendSecurityAlertEmail,
+  sendStaffSetupEmail,
+};

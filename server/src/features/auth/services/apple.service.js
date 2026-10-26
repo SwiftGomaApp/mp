@@ -5,7 +5,10 @@ const { AppError } = require("../../../core/errors/AppError");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { finishLogin, assertCanLogin } = require("./auth.service");
+const { consumeStepUp } = require("./stepUp.service");
+const { notifySecurityChange } = require("./securityNotice.service");
 const { consumeNonce } = require("../../../core/auth/nonce");
+const { linkToVerifiedAccount } = require("./oauthLink.service");
 
 const APPLE_ISSUER = "https://appleid.apple.com";
 const APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
@@ -123,7 +126,7 @@ async function verifyAppleIdToken(idToken, expectedNonce) {
 
   if (!signingKey) throw invalidAppleToken();
 
-  let signatureValid = false;
+  let signatureValid;
 
   try {
     const publicKey = crypto.createPublicKey({
@@ -220,6 +223,17 @@ async function loginWithApple({ idToken, nonce, device }, meta) {
   const account = await findAppleAccount(identity.providerAccountId);
 
   if (!account) {
+    const linkedUser = await linkToVerifiedAccount({ provider: "APPLE", identity }, meta);
+
+    if (linkedUser) {
+      return finishLogin({
+        user: linkedUser,
+        method: "APPLE",
+        device,
+        meta: clientMeta(meta),
+      });
+    }
+
     throw AppError.notFound(
       "Aucun compte Apple SwiftGoma n'est associé à cette identité. Veuillez créer un compte.",
       "ACCOUNT_NOT_FOUND",
@@ -280,6 +294,19 @@ async function signupWithApple(
     );
   }
 
+  const linkedUser = await linkToVerifiedAccount({ provider: "APPLE", identity }, meta);
+
+  if (linkedUser) {
+    return finishLogin({
+      user: linkedUser,
+      method: "APPLE",
+      device,
+      meta: clientMeta(meta),
+    });
+  }
+
+  let pendingUserId = null;
+
   if (identity.email) {
     const existingUser = await prisma.user.findUnique({
       where: { email: identity.email },
@@ -292,6 +319,8 @@ async function signupWithApple(
         "ACCOUNT_LINK_REQUIRED",
       );
     }
+
+    pendingUserId = existingUser?.id ?? null;
   }
 
   const now = new Date();

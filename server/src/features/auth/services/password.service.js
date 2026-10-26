@@ -4,21 +4,15 @@ const { AppError } = require("../../../core/errors/AppError");
 const { randomToken } = require("../../../core/crypto/crypto");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
 const { hashPassword, verifyPassword, needsRehash } = require("../../../core/auth/password");
-const {
-  queueOtpEmail,
-  queueOtpSms,
-  queueSecurityAlertEmail,
-  queueSecurityAlertSms,
-} = require("../../../core/queue/notifications");
-const { getConfig } = require("../../../config/env.config");
+const { queueOtpEmail } = require("../../../core/queue/notifications");
 const { logger } = require("../../../core/logger/logger");
 const { logActivity } = require("./activity.service");
 const { revokeUserSessions } = require("./session.service");
-const { finishLogin, assertCanLogin, verifySecondFactor } = require("./auth.service");
+const { finishLogin, assertCanLogin } = require("./auth.service");
 const { requestStepUpOtp, consumeStepUp, loadActiveUser } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
 
-const STEP_UP_PURPOSE = `${OTP_PURPOSES.STEP_UP}:password`;
+const MAX_FAILURES = 5;
 const MAX_FAILURES_PER_EMAIL = 20;
 const FAILURE_WINDOW_SECONDS = 15 * 60;
 const FORGOT_MESSAGE =
@@ -27,7 +21,6 @@ const FORGOT_MESSAGE =
 const loginFailKey = (email) => `pw-fail:login:${email}`;
 const loginIpFailKey = (email, ip) => `pw-fail:login-ip:${email}:${ip ?? "unknown"}`;
 const userFailKey = (userId) => `pw-fail:user:${userId}`;
-const stepUpTargetKey = (userId) => `step-up-target:password:${userId}`;
 
 let dummyHash;
 
@@ -55,126 +48,8 @@ async function recordFailure(key) {
 
 const clearFailures = (key) => getRedis().del(key);
 
-async function loadActiveUser(userId) {
-  const user = await getPrisma().user.findUnique({
-    where: { id: userId },
-  });
-  if (!user || user.status !== "ACTIVE") {
-    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
-  }
-  return user;
-}
-
-function resolveContact(user, channel) {
-  const email = user.email && user.emailVerifiedAt ? user.email : null;
-  const phone = user.phone && user.phoneVerifiedAt ? user.phone : null;
-  const wanted = channel ?? (email ? "EMAIL" : "PHONE");
-
-  if (wanted === "EMAIL" && email) return { channel: "EMAIL", target: email };
-  if (wanted === "PHONE" && phone) return { channel: "PHONE", target: phone };
-
-  throw AppError.badRequest(
-    "Aucun contact vérifié disponible pour recevoir le code",
-    undefined,
-    "CONTACT_NOT_AVAILABLE",
-  );
-}
-
-async function notifySecurityChange(user, type) {
-  try {
-    const { activityUrl } = getConfig().mail;
-    if (user.email && user.emailVerifiedAt) {
-      await queueSecurityAlertEmail({
-        to: user.email,
-        name: user.name,
-        type,
-        date: new Date(),
-        activityUrl,
-      });
-    } else if (user.phone && user.phoneVerifiedAt) {
-      await queueSecurityAlertSms({ to: user.phone, type });
-    }
-  } catch (err) {
-    logger.warn({ err, userId: user.id, type }, "Failed to queue security alert");
-  }
-}
-
 function meta(m, extra = {}) {
   return { ipAddress: m.ipAddress, userAgent: m.userAgent, ...extra };
-}
-
-async function requestStepUpOtp({ userId, channel }, m) {
-  const user = await loadActiveUser(userId);
-  const contact = resolveContact(user, channel);
-
-  const { code, expiresMinutes } = await issueOtp({
-    purpose: STEP_UP_PURPOSE,
-    target: contact.target,
-  });
-
-  await getRedis().set(stepUpTargetKey(userId), contact.target, "EX", expiresMinutes * 60);
-
-  if (contact.channel === "EMAIL") {
-    await queueOtpEmail({ to: contact.target, name: user.name, code, expiresMinutes });
-  } else {
-    await queueOtpSms({ to: contact.target, code, expiresMinutes });
-  }
-
-  await logActivity({
-    userId,
-    event: "OTP_REQUESTED",
-    method: contact.channel === "EMAIL" ? "EMAIL_OTP" : "PHONE_OTP",
-    ...meta(m),
-    metadata: { purpose: OTP_PURPOSES.STEP_UP, action: "password" },
-  });
-
-  return { channel: contact.channel, target: contact.target, expiresMinutes };
-}
-
-async function consumeStepUp(user, code, m, action) {
-  const totp = await getPrisma().totpCredential.findUnique({
-    where: { userId: user.id },
-    select: { confirmedAt: true },
-  });
-
-  if (totp?.confirmedAt) {
-    await verifySecondFactor(user.id, { code }, m);
-    await logActivity({
-      userId: user.id,
-      event: "SETP_UP_VERIFIED",
-      ...meta(m),
-      metadata: {
-        action,
-        factor: "TOTP",
-      },
-    });
-    return;
-  }
-
-  const target = await getRedis().get(stepUpTargetKey(user.id));
-  if (!target) throw AppError.badRequest("Code invalide ou expiré", undefined, "OTP_INVALID");
-  try {
-    await verifyOtp({ purpose: STEP_UP_PURPOSE, target, code });
-  } catch (err) {
-    if (err instanceof AppError) {
-      await logActivity({
-        userId: user.id,
-        event: "OTP_FAILED",
-        success: false,
-        ...meta(m),
-        metadata: { purpose: OTP_PURPOSES.STEP_UP, action, reason: err.code },
-      });
-    }
-    throw err;
-  }
-
-  await getRedis().del(stepUpTargetKey(user.id));
-  await logActivity({
-    userId: user.id,
-    event: "STEP_UP_VERIFIED",
-    ...meta(m),
-    metadata: { action },
-  });
 }
 
 async function createPassword({ userId, password, code }, m) {

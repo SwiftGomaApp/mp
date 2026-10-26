@@ -184,7 +184,6 @@ async function refreshSession(refreshToken, meta) {
   const prisma = getPrisma();
   const now = new Date();
   const hash = hashRefreshToken(refreshToken);
-  const geo = session.ipAddress !== meta.ipAddress ? await lookupIp(meta.ipAddress) : null;
 
   let session = await prisma.session.findUnique({
     where: { refreshTokenHash: hash },
@@ -223,6 +222,8 @@ async function refreshSession(refreshToken, meta) {
 
     session = reused;
   }
+
+  const geo = session.ipAddress !== meta.ipAddress ? await lookupIp(meta.ipAddress) : null;
 
   if (session.revokedAt) {
     throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
@@ -266,8 +267,7 @@ async function refreshSession(refreshToken, meta) {
       expiresAt: next.expiresAt,
       ipAddress: meta.ipAddress,
       userAgent: meta.userAgent,
-      city: geo.city,
-      country: geo.country,
+      ...(geo && { city: geo.city, country: geo.country }),
     },
   });
   if (count !== 1) {

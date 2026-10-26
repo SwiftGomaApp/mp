@@ -408,6 +408,7 @@ async function getMe({ userId, sessionId }) {
     emailVerified: Boolean(user.emailVerifiedAt),
     phoneVerified: Boolean(user.phoneVerifiedAt),
     hasPassword: Boolean(user.passwordHash),
+    verificationStatus: user.verificationStatus,
     twoFactorEnabled: Boolean(user.totp?.confirmedAt),
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,

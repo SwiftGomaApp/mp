@@ -61,6 +61,32 @@ const GUIDES = {
     ],
     tip: "Votre boutique sera visible dès que votre dossier sera approuvé par l'équipe SwiftGoma.",
   },
+  RIDER: {
+    title: "Comment livrer avec SwiftGoma",
+    steps: [
+      [
+        "Envoyez vos documents",
+        "Pièce d'identité et selfie, permis de conduire (moto ou voiture), photo de votre véhicule et de sa plaque.",
+      ],
+      [
+        "Acceptez le contrat livreur",
+        "L'acceptation se fait dans l'application, avec un code reçu sur votre téléphone.",
+      ],
+      [
+        "Faites-vous relier à des boutiques",
+        "Une fois votre dossier approuvé, choisissez une boutique et envoyez une demande. Le vendeur l'accepte ou la refuse. Vous pouvez travailler avec plusieurs boutiques.",
+      ],
+      [
+        "Confirmez le montant avant de partir",
+        "Le montant de chaque livraison est convenu avec la boutique et confirmé avant le départ.",
+      ],
+      [
+        "Livrez et scannez le QR",
+        "Votre position est partagée pendant la livraison. Après le scan du QR de l'acheteur, le montant arrive dans votre portefeuille et devient disponible après 24 heures.",
+      ],
+    ],
+    tip: "Conseil : ajoutez un contact de récupération dans la sécurité du compte, pour retrouver votre accès si vous perdez votre téléphone.",
+  },
 };
 
 function guideFor(role) {

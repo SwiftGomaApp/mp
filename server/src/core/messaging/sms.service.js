@@ -17,10 +17,11 @@ async function sendLoginAlertSms({ to, deviceName, location }) {
 }
 
 async function sendWelcomeSms({ to, name, role }) {
-  const action =
-    role === "SELLER"
-      ? "Envoyez vos documents pour activer votre boutique"
-      : "Découvrez les boutiques de Goma et commandez";
+  const actions = {
+    SELLER: "Envoyez vos documents pour activer votre boutique",
+    RIDER: "Envoyez vos documents pour pouvoir livrer",
+  };
+  const action = actions[role] ?? "Découvrez les boutiques de Goma et commandez";
   const hello = name ? `bienvenue ${name}` : "bienvenue";
   return sendSms({ to, message: `SwiftGoma : ${hello} ! ${action} dans l'application.` });
 }

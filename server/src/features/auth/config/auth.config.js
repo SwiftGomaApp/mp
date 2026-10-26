@@ -10,14 +10,12 @@ const authConfig = Object.freeze({
   unconfirmedSignupTtlMs: 3 * DAY,
   minAge: 18,
 
-  riderInviteTtlMs: 7 * DAY,
-
   twoFactorRequiredRoles: Object.freeze(["SUPPORT", "ADMIN"]),
   backupCodesCount: 10,
   maxPasskeysPerUser: 10,
 
   staffRoles: Object.freeze(["SUPPORT", "ADMIN"]),
-  selfSignupRoles: Object.freeze(["BUYER", "SELLER"]),
+  selfSignupRoles: Object.freeze(["BUYER", "SELLER", "RIDER"]),
 
   password: Object.freeze({ minLength: 8, maxLength: 128 }),
 

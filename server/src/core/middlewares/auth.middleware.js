@@ -3,6 +3,7 @@ const { verifyAccessToken } = require("../auth/tokens");
 const { isSessionRevoked } = require("../auth/revocation");
 const { ACCESS_COOKIE } = require("../auth/cookies");
 const { AppError } = require("../errors/AppError");
+const { getPrisma } = require("../db/prisma");
 
 const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
@@ -52,4 +53,25 @@ function requireRole(...roles) {
   };
 }
 
-module.exports = { authenticate, requireRole, assertTrustedOrigin };
+function requireApproved() {
+  return async (req, res, next) => {
+    try {
+      if (!req.auth) throw AppError.unauthorized();
+      const user = await getPrisma().user.findUnique({
+        where: { id: req.auth.userId },
+        select: { verificationStatus: true },
+      });
+      if (user?.verificationStatus !== "APPROVED") {
+        throw AppError.forbidden(
+          "Votre dossier doit être approuvé avant de continuer",
+          "VERIFICATION_REQUIRED",
+        );
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+}
+
+module.exports = { authenticate, requireRole, requireApproved, assertTrustedOrigin };

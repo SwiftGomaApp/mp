@@ -2,7 +2,14 @@ import { DEFAULT_CHALLENGE_TTL_SECONDS } from "./challenge";
 import { ERROR_CODES } from "./constants";
 import { ApiError } from "./errors";
 import type { RefreshResult, StartSessionInput } from "./session";
-import type { AuthUser, CodeRequested, CurrentUser, LogoutAllResult, ResendResult } from "./types";
+import type {
+  AuthUser,
+  CodeRequested,
+  CurrentUser,
+  LogoutAllResult,
+  ResendResult,
+  TwoFactorSetup,
+} from "./types";
 
 type Dict = Record<string, unknown>;
 
@@ -13,6 +20,8 @@ export type ParsedLogin =
 function isRecord(value: unknown): value is Dict {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
+
+export type SessionLogin = Extract<ParsedLogin, { kind: "session" }>;
 
 export function unexpectedResponse(): ApiError {
   return new ApiError({
@@ -105,4 +114,29 @@ export function parseRefresh(value: unknown): RefreshResult {
     refreshToken: typeof data.refreshToken === "string" ? data.refreshToken : null,
     expiresIn: typeof data.expiresIn === "number" ? data.expiresIn : undefined,
   };
+}
+
+export function parseVerifiedLogin(value: unknown): SessionLogin {
+  const parsed = parseLogin(value);
+  if (parsed.kind !== "session") throw unexpectedResponse();
+  return parsed;
+}
+
+export function parseTwoFactorSetup(value: unknown): TwoFactorSetup {
+  const { secret, otpauthUri } = readRecord(value);
+  if (typeof secret !== "string" || typeof otpauthUri !== "string") throw unexpectedResponse();
+  return { secret, otpauthUri };
+}
+
+export function parseEnrollment(value: unknown): { login: SessionLogin; backupCodes: string[] } {
+  const data = readRecord(value);
+  const login = parseVerifiedLogin(data);
+  const { backupCodes } = data;
+  if (
+    !Array.isArray(backupCodes) ||
+    !backupCodes.every((c): c is string => typeof c === "string")
+  ) {
+    throw unexpectedResponse();
+  }
+  return { login, backupCodes };
 }

@@ -15,6 +15,7 @@ import {
   type SessionState,
 } from "./session";
 import { createSignup, type SignupApi } from "./signup";
+import { createTwoFactor, type TwoFactorApi } from "./twoFactor";
 
 export interface AuthSession {
   readonly state: SessionState;
@@ -28,6 +29,7 @@ export interface Auth extends AccountApi {
   signup: SignupApi;
   login: LoginApi;
   session: AuthSession;
+  twoFactor: TwoFactorApi;
   api: AxiosInstance;
   destroy(): void;
 }
@@ -72,6 +74,7 @@ export function createAuth(input: AuthConfig): Auth {
   return {
     signup: createSignup(ctx),
     login: createLogin(ctx),
+    twoFactor: createTwoFactor(ctx),
     ...createAccount(ctx),
     session: {
       get state() {

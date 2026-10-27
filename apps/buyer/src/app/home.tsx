@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +8,7 @@ import { Button, GlassIconButton } from "@/shared/ui/button";
 
 export default function Home() {
   const colors = useThemeColors();
+  const router = useRouter();
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -48,12 +50,12 @@ export default function Home() {
             Paiement sécurisé
           </Text>
           <Text className="mt-1 font-sans text-sm text-muted-foreground">
-            Votre argent est gardé jusqu'à ce que vous confirmiez la réception avec le code QR.
+            Votre argent est gardé jusqu&apos;à ce que vous confirmiez la réception avec le code QR.
           </Text>
         </View>
 
         <View className="mt-6 w-full">
-          <Button label="Commencer" size="lg" fullWidth onPress={() => {}} />
+          <Button label="Se connecter" size="lg" fullWidth onPress={() => router.push("/login")} />
         </View>
       </View>
     </SafeAreaView>

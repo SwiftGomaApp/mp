@@ -1,0 +1,15 @@
+export const LOGIN_CONTENT = {
+  title: "Connectez-vous à votre compte",
+  subtitle: "Entrez votre e-mail, nous vous envoyons un code pour vous connecter.",
+  emailPlaceholder: "Adresse e-mail",
+  usePassword: "Se connecter avec un mot de passe",
+  usePhone: "Numéro de téléphone",
+  useEmail: "Adresse e-mail",
+  phonePlaceholder: "8XX XXX XXX",
+  continue: "Continuer",
+  or: "ou",
+  google: "Continuer avec Google",
+  apple: "Continuer avec Apple",
+  noAccount: "Pas encore de compte ?",
+  signUp: "S'inscrire",
+} as const;

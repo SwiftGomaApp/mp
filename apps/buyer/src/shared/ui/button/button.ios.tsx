@@ -13,6 +13,7 @@ import { Platform } from "react-native";
 
 import { useThemeColors } from "@/core/theme";
 
+import { PressableButton } from "./button.pressable";
 import { accentColor, contentColor } from "./button.styles";
 import { ButtonProps, ButtonSize } from "../../../../types";
 
@@ -25,6 +26,13 @@ const controlSizes = {
 const supportsGlass = Number.parseInt(String(Platform.Version), 10) >= 26;
 
 export function Button(props: ButtonProps) {
+  // The native SwiftUI button cannot show a custom logo (Google's, for example), so a label button
+  // with a `leading` element is drawn with the React Native version instead.
+  if (props.variant !== "icon" && props.leading) return <PressableButton {...props} />;
+  return <NativeButton {...props} />;
+}
+
+function NativeButton(props: ButtonProps) {
   const { size = "md", disabled = false, onPress, style } = props;
   const colors = useThemeColors();
   const { colorScheme } = useColorScheme();

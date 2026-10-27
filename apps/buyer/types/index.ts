@@ -1,4 +1,5 @@
 import type { SymbolViewProps } from "expo-symbols";
+import type { ReactNode } from "react";
 import type { StyleProp, ViewStyle } from "react-native";
 
 export type ButtonSize = "lg" | "md" | "sm";
@@ -19,6 +20,8 @@ export type LabelButtonProps = ButtonBaseProps & {
   label: string;
   fullWidth?: boolean;
   loading?: boolean;
+  /** Something shown before the label, for example a logo. */
+  leading?: ReactNode;
 };
 
 export type IconButtonProps = ButtonBaseProps & {

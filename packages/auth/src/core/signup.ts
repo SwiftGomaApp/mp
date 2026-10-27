@@ -1,7 +1,8 @@
 import { AUTH_ENDPOINTS, type SelfSignupRole } from "./constants";
 import { deviceBody, openSession, skipAuth, type FlowContext } from "./context";
 import { parseCodeRequested, parseResend, parseSignupVerified } from "./mapping";
-import type { AuthUser, CodeRequested, ResendResult } from "./types";
+import type { AuthUser, CodeRequested, LoginResult, ResendResult } from "./types";
+import { socialSignup, type AppleSignupInput, type SocialSignupInput } from "./social";
 
 interface SignupBase {
   name: string;
@@ -43,6 +44,8 @@ export interface SignupApi {
     verify(input: VerifyPhoneInput): Promise<SignupResult>;
     resend(input: { phone: string }): Promise<ResendResult>;
   };
+  google(input: SocialSignupInput): Promise<LoginResult>;
+  apple(input: AppleSignupInput): Promise<LoginResult>;
 }
 
 type Target = { email: string } | { phone: string };
@@ -83,5 +86,7 @@ export function createSignup(ctx: FlowContext): SignupApi {
       verify: ({ phone, code }) => verify({ phone }, code),
       resend: ({ phone }) => resend({ phone }),
     },
+    google: (input) => socialSignup(ctx, "google", input),
+    apple: (input) => socialSignup(ctx, "apple", input),
   };
 }

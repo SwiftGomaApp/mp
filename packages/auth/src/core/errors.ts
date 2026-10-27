@@ -1,4 +1,4 @@
-import { ERROR_CODES, type ErrorCode } from "./constants";
+import { ERROR_CODES, type ErrorCode, type SocialProvider } from "./constants";
 
 export interface FieldError {
   field: string;
@@ -33,6 +33,7 @@ const MESSAGES = {
   tooManyRequests: "Trop de requêtes, veuillez réessayer plus tard",
   server: "Une erreur est survenue",
   notAuthenticated: "Vous n'êtes pas connecté",
+  socialDisabled: "Cette méthode de connexion n'est pas activée",
 } as const;
 
 export class ApiError extends Error {
@@ -91,6 +92,20 @@ export class NotAuthenticatedError extends ApiError {
       status: null,
       cause: init.cause,
     });
+  }
+}
+
+export class SocialLoginDisabledError extends ApiError {
+  override name = "SocialLoginDisabledError";
+  readonly provider: SocialProvider;
+
+  constructor(provider: SocialProvider) {
+    super({
+      message: MESSAGES.socialDisabled,
+      code: ERROR_CODES.SOCIAL_LOGIN_DISABLED,
+      status: null,
+    });
+    this.provider = provider;
   }
 }
 

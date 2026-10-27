@@ -2,6 +2,7 @@ import { AUTH_ENDPOINTS } from "./constants";
 import { completeLogin, deviceBody, skipAuth, type FlowContext } from "./context";
 import { parseCodeRequested, parseLogin } from "./mapping";
 import type { CodeRequested, LoginResult } from "./types";
+import { socialLogin, type SocialLoginInput } from "./social";
 
 export interface EmailCodeRequestInput {
   email: string;
@@ -37,6 +38,8 @@ export interface LoginApi {
     verify(input: PhoneCodeVerifyInput): Promise<LoginResult>;
   };
   password(input: PasswordLoginInput): Promise<LoginResult>;
+  google(input: SocialLoginInput): Promise<LoginResult>;
+  apple(input: SocialLoginInput): Promise<LoginResult>;
 }
 
 export function createLogin(ctx: FlowContext): LoginApi {
@@ -76,5 +79,7 @@ export function createLogin(ctx: FlowContext): LoginApi {
       );
       return completeLogin(ctx, parseLogin(response.data));
     },
+    google: (input) => socialLogin(ctx, "google", input),
+    apple: (input) => socialLogin(ctx, "apple", input),
   };
 }

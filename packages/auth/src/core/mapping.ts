@@ -140,3 +140,9 @@ export function parseEnrollment(value: unknown): { login: SessionLogin; backupCo
   }
   return { login, backupCodes };
 }
+
+export function parseNonce(value: unknown): string {
+  const { nonce } = readRecord(value);
+  if (typeof nonce !== "string" || nonce === "") throw unexpectedResponse();
+  return nonce;
+}

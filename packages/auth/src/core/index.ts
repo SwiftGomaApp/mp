@@ -33,3 +33,10 @@ export type {
   TwoFactorConfirmInput,
   TwoFactorVerifyInput,
 } from "./twoFactor.ts";
+export type {
+  AppleSignupInput,
+  IdTokenProvider,
+  SocialLoginInput,
+  SocialSignupInput,
+  SocialsApi,
+} from "./social";

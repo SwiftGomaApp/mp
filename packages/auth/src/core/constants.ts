@@ -43,6 +43,9 @@ export const DEFAULT_ACCESS_TOKEN_TTL_SECONDS = 900;
 export const REFRESH_LOCK_NAME = "swiftgoma-auth-refresh";
 export const REFRESH_RETRY_DELAYS_MS = [5_000, 15_000, 30_000, 60_000] as const;
 
+export const SOCIAL_PROVIDERS = ["google", "apple"] as const;
+export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number];
+
 export const CLIENT_ERROR_CODES = {
   NETWORK_ERROR: "NETWORK_ERROR",
   TIMEOUT: "TIMEOUT",

@@ -1,38 +1,22 @@
-import { useState } from "react";
+import { Keyboard } from "react-native";
 
-import { COUNTRY_CODE, LOCAL_PHONE_LENGTH, toLocalDigits } from "@/shared/utils/phone";
+import { loginCodeDialog } from "../login-dialogs";
+import { useContactInput, type ContactMode } from "./use-contact-input";
 
-import { EMAIL_RE } from "../auth.constants";
-
-export type LoginMode = "email" | "phone";
+export type LoginMode = ContactMode;
 
 export function useLoginForm() {
-  const [mode, setMode] = useState<LoginMode>("email");
-  const [email, setEmail] = useState("");
-  const [localPhone, setLocalPhone] = useState("");
-
-  const isValid =
-    mode === "phone" ? localPhone.length === LOCAL_PHONE_LENGTH : EMAIL_RE.test(email.trim());
-
-  const switchMode = () => setMode((current) => (current === "email" ? "phone" : "email"));
+  const contact = useContactInput();
 
   const submit = () => {
-    if (!isValid) return;
-    // Auth is not wired yet. This will call, from @swiftgoma/auth:
-    //   mode "email": auth.login.emailCode.request({ email: email.trim() })
-    //   mode "phone": auth.login.phoneCode.request({ phone: COUNTRY_CODE + localPhone })
-    // then show the code entry step.
+    if (!contact.isValid) return;
+    Keyboard.dismiss();
+    // Simulation: auth is not wired yet. This will call, from @swiftgoma/auth:
+    //   mode "email": auth.login.emailCode.request({ email: contact.email.trim() })
+    //   mode "phone": auth.login.phoneCode.request({ phone: contact.countryCode + contact.phone })
+    // and open the code dialog once the code has been sent.
+    loginCodeDialog.open();
   };
 
-  return {
-    mode,
-    switchMode,
-    email,
-    setEmail,
-    phone: localPhone,
-    setPhone: (raw: string) => setLocalPhone(toLocalDigits(raw)),
-    countryCode: COUNTRY_CODE,
-    isValid,
-    submit,
-  };
+  return { ...contact, submit };
 }

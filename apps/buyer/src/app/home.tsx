@@ -4,7 +4,9 @@ import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useThemeColors } from "@/core/theme";
+import { codeDialog, confirmDialog } from "@/modules/home/demo-dialogs";
 import { demoSheet } from "@/modules/home/demo-sheet";
+import { DemoDialogs } from "@/modules/home/views/demo-dialogs";
 import { DemoSheet } from "@/modules/home/views/demo-sheet";
 import { Button, GlassIconButton } from "@/shared/ui/button";
 
@@ -65,10 +67,25 @@ export default function Home() {
             fullWidth
             onPress={demoSheet.open}
           />
+          <Button
+            label="Alerte (démo)"
+            variant="outline"
+            size="lg"
+            fullWidth
+            onPress={confirmDialog.open}
+          />
+          <Button
+            label="Code (démo)"
+            variant="outline"
+            size="lg"
+            fullWidth
+            onPress={codeDialog.open}
+          />
         </View>
       </View>
 
       <DemoSheet />
+      <DemoDialogs />
     </SafeAreaView>
   );
 }

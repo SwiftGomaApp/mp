@@ -43,8 +43,9 @@ export function AppSheet({
     return () => clearTimeout(timer);
   }, [isOpen, progress]);
 
+  // Android has no snapping: the sheet opens at its first detent.
   const sheetHeight = Math.min(
-    Math.max(...detents.map((d) => detentHeight(d, windowHeight))),
+    detentHeight(detents[0] ?? "medium", windowHeight),
     windowHeight - insets.top,
   );
 

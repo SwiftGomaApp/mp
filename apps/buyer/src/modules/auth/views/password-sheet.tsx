@@ -10,6 +10,7 @@ import { FORGOT_CONTENT, PASSWORD_CONTENT } from "../auth.content";
 import { useForgotPasswordForm } from "../hooks/use-forgot-password-form";
 import { usePasswordLoginForm } from "../hooks/use-password-login-form";
 import { passwordSheet } from "../password-sheet";
+import { PasswordCodeDialog } from "./password-code-dialog";
 
 type View = "login" | "forgot";
 
@@ -66,6 +67,9 @@ export function PasswordSheet() {
       ) : (
         <PasswordLoginForm form={login} onForgotPassword={openForgot} />
       )}
+
+      {/* Inside the sheet, so the dialog is presented over the sheet and not behind it. */}
+      <PasswordCodeDialog />
     </ScrollSheet>
   );
 }

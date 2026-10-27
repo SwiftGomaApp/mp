@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { Keyboard } from "react-native";
 
 import { EMAIL_RE } from "../auth.constants";
+import { passwordCodeDialog } from "../login-dialogs";
 
 export function usePasswordLoginForm() {
   const [email, setEmail] = useState("");
@@ -11,8 +13,11 @@ export function usePasswordLoginForm() {
 
   const submit = () => {
     if (!canSubmit) return;
-    // Auth is not wired yet. This will call auth.login.password({ email: email.trim(), password })
-    // from @swiftgoma/auth and handle its three results.
+    Keyboard.dismiss();
+    // Simulation: auth is not wired yet. This will call
+    // auth.login.password({ email: email.trim(), password }) from @swiftgoma/auth and handle its
+    // three results. Here every sign-in is treated as needing the two-step code.
+    passwordCodeDialog.open();
   };
 
   return {

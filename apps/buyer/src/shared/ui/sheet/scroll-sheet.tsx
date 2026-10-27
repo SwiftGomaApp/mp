@@ -15,11 +15,17 @@ type ScrollSheetProps = {
   children: ReactNode;
   showDragIndicator?: boolean;
   keyboardShouldPersistTaps?: "always" | "never" | "handled";
+  /**
+   * Heights the sheet can snap to, the first one being where it opens. By default the sheet is as
+   * tall as its content. Pass for example `["medium", "large"]` for a long text: it opens at half
+   * height and the user drags it up.
+   */
+  detents?: SheetDetent[];
 };
 
 /**
  * A sheet as tall as its content (up to 92% of the screen), instead of a fixed half or full
- * screen. Until the content has been measured, it opens at half height.
+ * screen, unless `detents` is given. Until the content has been measured, it opens at half height.
  */
 export function ScrollSheet({
   isOpen,
@@ -28,16 +34,18 @@ export function ScrollSheet({
   children,
   showDragIndicator,
   keyboardShouldPersistTaps,
+  detents: fixedDetents,
 }: ScrollSheetProps) {
   const { height: windowHeight } = useWindowDimensions();
   const [headerHeight, setHeaderHeight] = useState(0);
   const [contentHeight, setContentHeight] = useState(0);
 
   const maxHeight = windowHeight * MAX_SCREEN_FRACTION;
-  const detents: SheetDetent[] =
+  const measuredDetents: SheetDetent[] =
     headerHeight > 0 && contentHeight > 0
       ? [{ height: Math.min(headerHeight + contentHeight, maxHeight) }]
       : ["medium"];
+  const detents = fixedDetents ?? measuredDetents;
 
   return (
     <AppSheet

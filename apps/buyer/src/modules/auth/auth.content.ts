@@ -34,3 +34,23 @@ export const FORGOT_CONTENT = {
   send: "Envoyer le code",
   back: "Retour à la connexion",
 } as const;
+
+export const CODE_DIALOG_CONTENT = {
+  title: "Code de vérification",
+  placeholder: "000000",
+  submit: "Vérifier",
+  email: (target: string) => `Entrez le code à 6 chiffres envoyé à ${target}.`,
+  phone: (target: string) => `Entrez le code à 6 chiffres envoyé par SMS au ${target}.`,
+  twoStepTitle: "Vérification en deux étapes",
+  twoStep: "Entrez le code à 6 chiffres de votre application d'authentification.",
+} as const;
+
+export const REGISTER_CONTENT = {
+  title: "Créez votre compte",
+  subtitle: "Quelques informations pour commencer.",
+  namePlaceholder: "Nom complet",
+  ageConfirm: "J'ai au moins 18 ans",
+  submit: "Continuer",
+  haveAccount: "Vous avez déjà un compte ?",
+  signIn: "Se connecter",
+} as const;

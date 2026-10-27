@@ -1,0 +1,20 @@
+{
+  "name": "swg-mp",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "format": "prettier --write packages",
+    "format:check": "prettier --check packages"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}

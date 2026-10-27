@@ -4,6 +4,8 @@ import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useThemeColors } from "@/core/theme";
+import { demoSheet } from "@/modules/home/demo-sheet";
+import { DemoSheet } from "@/modules/home/views/demo-sheet";
 import { Button, GlassIconButton } from "@/shared/ui/button";
 
 export default function Home() {
@@ -54,10 +56,19 @@ export default function Home() {
           </Text>
         </View>
 
-        <View className="mt-6 w-full">
+        <View className="mt-6 w-full gap-3">
           <Button label="Se connecter" size="lg" fullWidth onPress={() => router.push("/login")} />
+          <Button
+            label="Ouvrir la feuille (démo)"
+            variant="outline"
+            size="lg"
+            fullWidth
+            onPress={demoSheet.open}
+          />
         </View>
       </View>
+
+      <DemoSheet />
     </SafeAreaView>
   );
 }

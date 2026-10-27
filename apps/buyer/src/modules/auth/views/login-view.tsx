@@ -4,6 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { SymbolView } from "expo-symbols";
 import {
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -19,6 +20,8 @@ import { Button } from "@/shared/ui/button";
 import { AuthField } from "../components/auth-field";
 import { LOGIN_CONTENT } from "../auth.content";
 import { useLoginForm } from "../hooks/use-login-form";
+import { passwordSheet } from "../password-sheet";
+import { PasswordSheet } from "./password-sheet";
 
 // Deep orange at the top to bright orange behind the illustration.
 const GRADIENT_COLORS = [lightColors.chart5, lightColors.chart3, lightColors.chart2] as const;
@@ -104,6 +107,21 @@ export function LoginView() {
               onPress={() => {}}
             />
 
+            <Button
+              label={LOGIN_CONTENT.passkey}
+              variant="outline"
+              size="lg"
+              fullWidth
+              leading={
+                <SymbolView
+                  name={{ ios: "person.badge.key", android: "passkey", web: "passkey" }}
+                  size={20}
+                  tintColor={colors.foreground}
+                />
+              }
+              onPress={() => {}}
+            />
+
             {Platform.OS === "ios" ? (
               <Button
                 label={LOGIN_CONTENT.apple}
@@ -163,7 +181,14 @@ export function LoginView() {
             )}
           </View>
 
-          <Pressable hitSlop={8} className="mt-3 self-start px-1 active:opacity-70">
+          <Pressable
+            hitSlop={8}
+            onPress={() => {
+              Keyboard.dismiss();
+              passwordSheet.open();
+            }}
+            className="mt-3 self-start px-1 active:opacity-70"
+          >
             <Text className="font-sans-medium text-[13px] text-primary">
               {LOGIN_CONTENT.usePassword}
             </Text>
@@ -181,6 +206,8 @@ export function LoginView() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+      <PasswordSheet />
     </View>
   );
 }

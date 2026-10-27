@@ -15,6 +15,10 @@ export interface AuthUser {
   status: string;
 }
 
+export interface ResendResult {
+  message: string;
+}
+
 export interface CurrentUser extends AuthUser {
   emailVerified: boolean;
   phoneVerified: boolean;

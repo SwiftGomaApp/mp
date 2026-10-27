@@ -7,3 +7,5 @@ export * from "./errors";
 export * from "./memoryStore";
 export * from "./types";
 export * from "./http";
+export * from "./jwt";
+export * from "./session";

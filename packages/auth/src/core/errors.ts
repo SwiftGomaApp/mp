@@ -32,6 +32,7 @@ const MESSAGES = {
   validation: "Données invalides",
   tooManyRequests: "Trop de requêtes, veuillez réessayer plus tard",
   server: "Une erreur est survenue",
+  notAuthenticated: "Vous n'êtes pas connecté",
 } as const;
 
 export class ApiError extends Error {
@@ -74,6 +75,19 @@ export class TimeoutError extends ApiError {
     super({
       message: init.message ?? MESSAGES.timeout,
       code: ERROR_CODES.TIMEOUT,
+      status: null,
+      cause: init.cause,
+    });
+  }
+}
+
+export class NotAuthenticatedError extends ApiError {
+  override name = "NotAuthenticatedError";
+
+  constructor(init: { message?: string; cause?: unknown } = {}) {
+    super({
+      message: init.message ?? MESSAGES.notAuthenticated,
+      code: ERROR_CODES.NOT_AUTHENTICATED,
       status: null,
       cause: init.cause,
     });

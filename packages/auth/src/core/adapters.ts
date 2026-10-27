@@ -7,6 +7,7 @@ export interface SessionStore {
   load(): Promise<SessionRecord | null>;
   save(record: SessionRecord): Promise<void>;
   clear(): Promise<void>;
+  subscribe?(listener: () => void): () => void;
 }
 
 export interface AppLifecycle {

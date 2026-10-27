@@ -29,6 +29,7 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" />
+        <Stack.Screen name="home" options={{ gestureEnabled: false }} />
       </Stack>
     </>
   );

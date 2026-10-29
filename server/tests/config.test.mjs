@@ -28,6 +28,9 @@ describe("productionProblems", () => {
   const safe = {
     NODE_ENV: "production",
     SMS_DRY_RUN: false,
+    PUSH_DRY_RUN: false,
+    ONESIGNAL_APP_ID: "app-id",
+    ONESIGNAL_API_KEY: "api-key",
     PASSKEY_RP_ID: "swiftgoma.com",
     PASSKEY_ORIGINS: ["https://swiftgoma.com"],
   };
@@ -44,6 +47,13 @@ describe("productionProblems", () => {
       PASSKEY_ORIGINS: ["http://localhost:3000"],
     });
     expect(problems).toHaveLength(3);
+  });
+
+  it("refuses dry-run push and missing OneSignal keys in production", () => {
+    expect(productionProblems({ ...safe, PUSH_DRY_RUN: true })).toHaveLength(1);
+    expect(
+      productionProblems({ ...safe, ONESIGNAL_APP_ID: "", ONESIGNAL_API_KEY: "" }),
+    ).toHaveLength(1);
   });
 
   it("ignores development settings", () => {

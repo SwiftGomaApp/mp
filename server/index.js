@@ -6,11 +6,16 @@ const Sentry = require("@sentry/node");
 const { loadConfig } = require("./src/config/env.config");
 const { logger } = require("./src/core/logger/logger");
 const { createApp } = require("./src/app");
-const { setupGracefulShutdown, onShutdown } = require("./src/core/shutdown");
+const { setupGracefulShutdown, onShutdown, onShutdownStart } = require("./src/core/shutdown");
 const { connectPrisma, disconnectPrisma } = require("./src/core/db/prisma");
 const { connectRedis, disconnectRedis } = require("./src/core/cache/redis");
 const { verifyMailer, closeMailer } = require("./src/core/mail/mailer");
 const { closeQueues } = require("./src/core/queue/queues");
+const {
+  attachRealtime,
+  disconnectAllSockets,
+  closeRealtime,
+} = require("./src/core/realtime/socket");
 
 async function main() {
   const config = await loadConfig();
@@ -28,6 +33,9 @@ async function main() {
     logger.info({ port: config.port, env: config.env }, "Server started");
   });
 
+  attachRealtime(server);
+  onShutdownStart("realtime", () => disconnectAllSockets());
+
   setupGracefulShutdown(server, {
     timeoutMs: 10000,
     onError: (err) => Sentry.captureException(err),
@@ -38,6 +46,7 @@ async function main() {
   onShutdown("prisma", () => disconnectPrisma());
   onShutdown("mailer", () => closeMailer());
   onShutdown("sentry", () => Sentry.close(2000));
+  onShutdown("realtime", () => closeRealtime());
 }
 
 main().catch((err) => {

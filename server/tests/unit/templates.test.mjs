@@ -74,6 +74,28 @@ describe("code email", () => {
     expect(text.startsWith("Bonjour,")).toBe(true);
   });
 
+  it("words each email for its purpose and falls back to the generic one", () => {
+    const purposes = [
+      "signup",
+      "login",
+      "password-reset",
+      "step-up",
+      "recovery",
+      "recovery-contact",
+      "contact-verification",
+    ];
+    const subjects = purposes.map((purpose) => {
+      const { subject, html, text } = otpTemplate({ code: "123456", expiresMinutes: 10, purpose });
+      for (const body of [html, text]) expect(body).toContain("123456");
+      return subject;
+    });
+    expect(new Set(subjects).size).toBe(purposes.length);
+    expect(subjects).not.toContain("Votre code de confirmation SwiftGoma");
+
+    const unknown = otpTemplate({ code: "123456", expiresMinutes: 10, purpose: "nope" });
+    expect(unknown.subject).toBe("Votre code de confirmation SwiftGoma");
+  });
+
   it("cannot be hijacked through the name", () => {
     const { html } = otpTemplate({
       name: '<img src=x onerror="alert(1)">',

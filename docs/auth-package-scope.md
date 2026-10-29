@@ -1,285 +1,334 @@
-# @swiftgoma/auth: package scope
+# swiftgoma-mp-auth: package scope (v1)
 
 Shared authentication client for every SwiftGoma app. This file is the source of truth for what
-the package is, what it does not do, the decisions already taken, and the build plan.
+the package is, what it leaves out, the decisions already taken and the build plan.
 
-Last updated: 2026-10-26. Branch: `feat/auth-package`.
+Location: `packages/auth`. npm name: `swiftgoma-mp-auth`.
 
 ---
 
 ## 1. Purpose
 
-All SwiftGoma apps (buyer, seller and rider mobile apps, buyer web app, admin dashboard) talk to
-the same auth API (`server/`). The delicate parts (token rotation, early refresh, the 2FA login
-steps, device identity, error mapping) must be written, tested and fixed once, not once per app.
+All SwiftGoma apps (buyer, seller and rider apps in Expo, a buyer web app and the admin dashboard
+in Next.js or Vite) use the same auth API in `server/`. The delicate parts must be written, tested
+and fixed once: token rotation, early refresh, the second login step, device identity and error
+mapping.
 
-The package owns **transport, session and device**. Apps own screens and business logic.
+- **The package owns:** transport, session, device identity and the auth flows.
+- **Apps own:** screens, navigation, business logic and translations.
 
-## 2. Status
+Principles:
+- The same app code works on mobile and web, apart from the adapter.
+- A user stays signed in across a day of use without ever seeing an expired-token error.
+- A secret is never logged, and on the web no token is ever readable by JavaScript.
+- Closing the app or a tab at any moment never leaves a broken session.
 
-| # | Step | Status |
-|---|------|--------|
-| 1 | Skeleton and tooling | Done, verified |
-| 2 | Constants and errors | Done, verified |
-| 3 | Types and adapter contracts | Done, verified |
-| 4 | Axios client and interceptors | Done, verified (107 tests, typecheck, build) |
-| 5 | Session and early refresh | Code delivered in chat, **not applied yet** (see section 10) |
-| 6 | Sign-up and login | Not started |
-| 7 | Two-step verification | Not started |
-| 8 | Google and Apple, with on/off switches | Not started |
-| 9 | Mobile (Expo) adapter | Not started |
-| 10 | Web adapter | Not started |
-| 11 | Contract tests against the real server | Not started |
-| 12 | Usage docs and examples | Not started |
+## 2. Decisions taken
 
-Work one step at a time: the assistant gives the code in the chat, the owner pastes it, runs the
-checks and reports the output before the next step.
+| Topic | Decision |
+|---|---|
+| npm name | `swiftgoma-mp-auth` (unscoped; checked free on npm on 2026-10-29) |
+| Location | `packages/auth`, linked to the apps with npm workspaces during development, published to npm from there |
+| Source language | TypeScript, compiled to JavaScript |
+| Consumers | JavaScript and TypeScript projects; the package ships types, and plain JavaScript projects simply import it |
+| Module formats | Both ESM and CommonJS, with types for each |
+| Targets | Expo (Android, iOS), Next.js (App Router), Vite (single-page apps) |
+| HTTP | Axios, as a peer dependency so the app and the package share one copy |
+| Mobile tokens | Access and refresh token in secure storage |
+| Web tokens | Cookies only; no token ever reaches JavaScript |
+| Refresh | 5 minutes before expiry, configurable, with random spread (section 8) |
+| Messages | French, passed through from the server unchanged |
+| Passkeys | In v1, through a provider the app injects |
+| Account features | Same package, separate subpath entries |
+| React hooks | Yes, in a `/react` entry |
+| Forgot and reset password | In v1 |
+| Social sign-in | Off by default, switched on per app |
+| Realtime (Socket.IO) | **Not part of this package.** A separate package uses this one (section 9) |
+| Hosting | VPS, apps and API behind a reverse proxy (section 10) |
 
-## 3. Decisions already taken
+## 3. Open decisions
 
-- Name `@swiftgoma/auth`, location `packages/auth` at the repo root, next to `server/` and the
-  planned `apps/`.
-- **Delivery: npm workspaces in the monorepo** (no registry). Root `package.json` is private with
-  `"workspaces": ["packages/*"]`. Add `"apps/*"` when the first app exists. `server/` stays
-  **outside** the workspace (own `package.json` and lock file, Docker build unchanged).
-- Language: TypeScript. Tests: Vitest 5. Build: **tsdown** (tsup is no longer maintained).
-- **TypeScript is pinned to `~6.0.3`**: TypeScript 7 no longer provides the classic compiler API
-  that tsdown's type-file generator needs. Revisit later by enabling `isolatedDeclarations`.
-- Output: ESM (`.mjs`), CJS (`.cjs`) and types (`.d.mts`, `.d.cts`). Entry points: `.`, `./native`,
-  `./web`. `fixedExtension: true`, `platform: "neutral"`.
-- `axios` is a **peer dependency** (`^1.7.0`) so the app and the package share one copy.
-- Mobile apps (React Native with Expo) keep an access and a refresh token in secure storage.
-- Web apps (Next.js and Vite) use **cookies only**; no token is ever readable by JavaScript.
-- Platform and transport must agree (enforced in `resolveConfig`): `WEB` means cookie, `ANDROID`
-  and `IOS` mean bearer.
-- Plain `http` base URLs are accepted only for local and private addresses.
-- Social sign-in (Google, Apple) is **off by default** and switched on per app.
-- Messages are French only; the package passes the server's messages through unchanged.
-- Code style: Prettier from the repo root (width 100, double quotes, trailing commas).
+1. **Visibility.** An unscoped npm package is always public. The repository is marked proprietary,
+   so publishing `swiftgoma-mp-auth` publishes its code to everyone. Either accept that, or change
+   to a scoped name (for example `@swiftgoma-mp/auth`, which needs an npm organisation you own)
+   and publish it as restricted, or use GitHub Packages. Decide before the first publish; it does
+   not block building.
+2. **Build tool and TypeScript version.** Chosen in phase 0 by reading the current official
+   documentation. Candidates: tsdown, tsup, unbuild.
+3. **Domain names** for the apps and the API (section 10).
 
 ## 4. Scope
 
-### In the package
-1. **HTTP layer**: client factory, interceptors, typed API exceptions, API constants.
-2. **Sign-up**: by email, by phone, by Google, by Apple, with code confirmation, resend, role,
-   terms and age confirmation.
-3. **Login**: email code, phone code (with the "send it by email instead" channel), password,
-   Google, Apple. Every login ends in one of three results: authenticated, second code needed,
-   two-step enrollment needed.
-4. **Two-step verification**: finish a login with the app code or a backup code; first-login
-   enrollment for Support and Admin (secret and QR address, confirm, backup codes).
-5. **Session and refresh**: renew the access token about 2 minutes before it expires so users never
-   see a 401, plus a safety net on 401.
-6. **Device information**: id, platform and name sent on every sign-up and login.
-7. **Logout** (this device and all devices) and **current user** (`/auth/me`).
-8. **Social on/off switches**: `socials: { google, apple }` per app; a disabled provider throws
-   `SocialLoginDisabled` and `auth.socials.enabled` lists what the UI may show.
+**v1 (core)**
+1. HTTP layer: client factory, interceptors, typed errors, constants.
+2. Sign-up: email, phone, Google, Apple. Confirmation code, resend, role, terms and age
+   confirmation.
+3. Login: email code, phone code (with the "send it by email instead" channel), password, Google,
+   Apple, passkey. Every login ends in one of three results.
+4. Two-step verification at login (app code or backup code) and first-login enrollment for Support
+   and Admin.
+5. Step-up codes: one helper for every sensitive action.
+6. Password: create, change, remove, forgot, reset.
+7. Session and refresh: early refresh, single-flight, foreground refresh, 401 safety net.
+8. Device identity.
+9. Logout (this device or all), current user, list devices, disconnect a device.
+10. Hand-off of the access token to the realtime package.
+11. React bindings, test helpers, logging hook.
 
-### Not in the package
-Passkeys, forgot password (undecided, default out), account recovery, linking Google or Apple to
-an existing account, profile and security screens, push token registration, any UI, translations.
-React hooks (`useAuth`) are a possible later add-on.
+**Later, in the same package under separate entries (`/account`)**
+- Manage 2FA (status, set up, confirm, disable, regenerate backup codes) and manage passkeys
+  (register, list, rename, remove).
+- Link Google or Apple to an existing account.
+- Sign-in methods (list, remove) and secondary (recovery) contacts.
+- Account recovery (5 steps), account activity, security checklist.
+- Support request for suspended accounts.
 
-## 5. Layout
+**Staff entry (`/staff`), for the admin dashboard only**
+- Create a Support account, staff setup link, resend, reset a member's 2FA, list and close support
+  requests.
+
+**Out of scope:** any UI, translations, push token registration, Socket.IO and the notifications
+client, the provider libraries for Google, Apple and WebAuthn (they stay in the apps because they
+need the app's own client IDs), and profile or product features.
+
+## 5. Entry points
+
+| Import | Contents | Peer dependencies |
+|---|---|---|
+| `swiftgoma-mp-auth` | Core: `createAuth`, errors, constants, types | `axios` |
+| `swiftgoma-mp-auth/native` | Expo adapter: secure storage, device info, foreground events | `expo-secure-store` (optional: `expo-device`, `expo-application`) |
+| `swiftgoma-mp-auth/web` | Web adapter: cookies, device id, tab coordination | none |
+| `swiftgoma-mp-auth/web/server` | Next.js helper to forward the visitor's cookies in server rendering | none |
+| `swiftgoma-mp-auth/react` | `AuthProvider`, `useAuth`, `useSession`, `useCurrentUser` | `react` |
+| `swiftgoma-mp-auth/account` | The "later" account features: `createAccount(auth)` | none |
+| `swiftgoma-mp-auth/staff` | Admin dashboard operations | none |
+| `swiftgoma-mp-auth/testing` | In-memory adapter and a fake server for apps' tests | none |
+
+Output is ESM (`.mjs`) and CommonJS (`.cjs`), each with its own type declarations, an `exports`
+map and `sideEffects: false`. A JavaScript project (CommonJS `require` or ESM `import`) works
+without TypeScript installed; a TypeScript project gets the types automatically.
+
+## 6. Public API (sketch, to be finalised in phases 4 to 7)
 
 ```
-packages/auth/
-  package.json  tsconfig.json  tsdown.config.ts  vitest.config.ts
-  src/
-    core/     constants, errors, types, wire, adapters, config, memoryStore, http,
-              (step 5) jwt, session; (step 6+) flows
-    native/   Expo adapter: secure storage, device info, foreground hook
-    web/      cookie mode, device id, tab coordination (Web Locks)
-  tests/
-```
+createAuth({ baseUrl, adapter, socials?, passkeys?, refreshMarginSeconds?, requestTimeoutMs?, logger? })
 
-`core` contains no platform code. `native` and `web` each supply a `PlatformAdapter`:
-`platform`, `transport`, `store` (session store), `lifecycle` (foreground events), optional `lock`
-(one refresh at a time across tabs), optional `userAgent`, and `getDeviceInfo()`.
-
-## 6. Public API (sketch, to be finalised in steps 6 to 8)
-
-```
-createAuth({ baseUrl, adapter, socials?, refreshMarginSeconds?, requestTimeoutMs?, logger? })
-
-auth.signup.email / phone / google / apple     start, then verify / finish
-auth.login.emailCode / phoneCode               request, verify
-auth.login.password / google / apple
+auth.signup.email / phone / google / apple         start, then verify / resend
+auth.login.emailCode / phoneCode                   request, verify
+auth.login.password / google / apple / passkey
 auth.twoFactor.verify / enroll.start / enroll.confirm
+auth.stepUp.request(channel?)                      sends the code; actions take stepUpCode
+auth.password.create / change / remove / forgot / reset
+auth.session                                       state, subscribe, getAccessToken, onTokenRefreshed, refreshNow
 auth.logout() / auth.logoutAll() / auth.me()
-auth.session                                   state, subscribe
+auth.devices.list() / auth.devices.disconnect(id)
 auth.socials.enabled
-auth.api                                       configured Axios client for the app's own calls
+auth.api                                            the configured Axios client for the app's own calls
 ```
 
-`baseUrl` is the API origin only (for example `https://api.swiftgoma.com`); the package adds
-`/api/v1`.
+`baseUrl` is the API origin only; the package adds `/api/v1`. When the apps and the API share one
+origin through the reverse proxy (section 10), `baseUrl` is the app's own origin.
 
 ## 7. Behaviours
 
 **HTTP layer**
-- Base URL `<origin>/api/v1`, request timeout (default 15 s), `Accept: application/json`.
-- Bearer mode: `Authorization: Bearer <token>`, skipped for calls marked `skipAuth` (sign-up,
-  login, refresh), never overriding a header the caller set, stable `User-Agent` if provided.
-- Cookie mode: `withCredentials`, never an `Authorization` header.
+- Timeout (default 15 s), `Accept: application/json`; no `Authorization` header in cookie mode,
+  bearer token otherwise (not on sign-up, login and refresh calls).
 - Every failure becomes a typed error built from the server body
-  `{ error: { code, message, details, requestId } }`: `UnauthorizedError`, `ForbiddenError`,
-  `NotFoundError`, `ConflictError`, `ValidationError` (with `fields`), `TooManyRequestsError`
-  (with `retryAfterSeconds`), `ServerError`, `NetworkError`, `TimeoutError`,
-  `NotAuthenticatedError`. The original Axios error is kept as `cause`. Cancellations pass through
-  unchanged.
-- Response interceptors run first-in-first-out, request interceptors last-in-first-out; the 401
-  recovery hook runs before errors are converted.
+  `{ error: { code, message, details, requestId } }`: unauthorized, forbidden, not found, conflict,
+  validation (with `fields`; the server answers 422), too many requests (with retry delay), server,
+  network, timeout, not authenticated. The original Axios error stays as `cause`. The `requestId`
+  is kept so support can trace a report.
+- Cancellations pass through unchanged.
+- Phase 1 deliverable: a catalogue of every error code the server can return, extracted from the
+  server code, so the types are exact.
 
-**Login results** (the second-step token is kept inside the package, never exposed)
-- `authenticated` (user, isNewDevice)
-- `two_factor_required` (challengeExpiresIn)
-- `two_factor_enrollment_required` (challengeExpiresIn)
+**Login results.** A login ends as one of: authenticated (user, `isNewDevice`); second code needed
+(a challenge token valid 5 minutes, kept inside the package); or first-time 2FA enrollment needed
+(Support and Admin).
 
-**Session and refresh**
-- States: `unknown`, `authenticated`, `unauthenticated`, with an end reason (`logout`,
-  `session_expired`, `session_revoked`, `token_reused`, `account_suspended`).
-- Timer renews 120 s before expiry (configurable), with up to 15 s random spread, and also when
-  the app returns to the foreground.
-- One refresh at a time per app; on the web a lock coordinates tabs, and a tab that finds another
-  tab already renewed the session adopts the result without calling the server (the server treats
-  a rotated refresh token replayed after 60 s as theft).
-- 401 safety net: on `TOKEN_EXPIRED`, or `UNAUTHORIZED` while signed in (an expired cookie simply
-  vanishes), renew once and replay the request. Skipped if the session was renewed in the last
-  10 s. A second 401 is surfaced.
-- Temporary failures (offline, timeout, 5xx, 429) keep the session and retry after 5, 15, 30 and
-  then every 60 s.
-- Codes that end the session: `REFRESH_TOKEN_INVALID`, `REFRESH_TOKEN_MISSING`, `TOKEN_REUSED`,
-  `SESSION_REVOKED`, `SESSION_EXPIRED`, `SESSION_NOT_FOUND`, `ACCOUNT_SUSPENDED`.
-- `REFRESH_IN_PROGRESS` (409): wait 1 s and look again, up to twice.
-- Expiry source: server `expiresIn`, then the token's `exp` claim, then 15 minutes.
+**Transport follows the device platform.** The platform you send decides cookie or bearer: `WEB`
+gets cookies and no tokens in the body; `ANDROID` and `IOS` get tokens in the body. The package
+enforces that platform and adapter agree.
 
-**Device information** (server rules): `deviceId` 8 to 128 characters, stable per install (UUID in
-secure storage on mobile, localStorage on web), `deviceName` up to 100 characters, `platform`
-`ANDROID` | `IOS` | `WEB`.
+**Step-up codes.** A fresh code sent by `auth.stepUp.request()` is required for: creating,
+changing or removing a password; linking Google or Apple; confirming 2FA; registering a passkey;
+adding or removing a recovery contact; removing a sign-in method. The API takes it as a parameter
+and the package never stores it.
 
-**Socials**: ask the server for a nonce (`POST /auth/oauth/nonce`), the app obtains an ID token
-from the provider's own library passing that nonce, the package sends token and nonce. Provider
-libraries stay in each app (they need the app's own client IDs). Apple sign-up accepts an optional
-`name` (Apple gives it only the first time).
+**Device information.** The server reads only three fields: `deviceId` (8 to 128 characters,
+stable per install), `deviceName` (up to 100) and `platform` (`ANDROID`, `IOS`, `WEB`). Anything
+else is ignored.
+- Mobile: a UUID generated once and kept in secure storage; the name from `expo-device` when
+  available.
+- Web: a UUID in local storage; a readable name such as "Chrome on Windows".
+- A user can have up to 5 devices; the sixth login disconnects the oldest, which the package
+  reports as a session end.
 
-## 8. Server contract
+**Social sign-in.** The package asks the server for a one-time nonce, the app obtains an ID token
+from the provider's own library for that nonce, and the package sends token and nonce. Apple gives
+the name only the first time, so sign-up accepts an optional `name`. A disabled provider throws
+`SocialLoginDisabled`.
 
-Paths are relative to `<origin>/api/v1`.
+**Passkeys.** The app injects a provider (`createCredential`, `getAssertion`) built on the
+browser's WebAuthn or a native library; the package handles the server steps (options, verify).
 
-| Purpose | Method and path |
+**Logging and security.** The logger hook never receives tokens, codes or passwords. Tokens live
+only in secure storage (mobile) or HttpOnly cookies (web). Error objects redact request bodies.
+
+## 8. Session and refresh
+
+- The access token lives 15 minutes, the refresh token 7 days. The server rotates the refresh
+  token on every use and treats a replayed old one as theft.
+- Therefore: one refresh at a time per app; never retry with an old token; on the web, coordinate
+  across tabs (Web Locks), and a tab that finds another tab already refreshed adopts the result.
+- Renew 5 minutes before expiry minus a random spread of up to 30 seconds. Also renew when the app
+  returns to the foreground.
+- A one-time retry after a 401 is a safety net, skipped if the session was renewed in the last few
+  seconds.
+- Network errors, timeouts, 5xx and 429 keep the session and retry with backoff (5, 15, 30, then
+  every 60 seconds).
+- Only the server's codes for an invalid, missing, reused or revoked refresh token, an expired
+  session, or a suspended account end the session. The session exposes the reason.
+- Staff on the web are signed out after 30 minutes idle, and staff accounts without confirmed 2FA
+  are blocked from most routes.
+- Expiry source: the server's `expiresIn`, then the token's own `exp` claim on mobile, then
+  15 minutes.
+
+## 9. Realtime and notifications: a separate package
+
+Socket.IO is **not** part of this package. Reasons:
+- Different concern: auth is the session; realtime is a live channel and the notifications inbox.
+- `socket.io-client` is a heavy dependency that an app using only login should not install.
+- Different release rhythm: events and the inbox will change more often than login.
+- Auth stays small and easy to review, which matters for a security-sensitive package.
+
+The hand-off is small and stable. This package exposes `getAccessToken()` and an
+`onTokenRefreshed` event; the future package (for example `swiftgoma-mp-realtime`, name to be
+decided) lists this one as a peer dependency.
+- Mobile: the socket sends the access token in the handshake. When the server sends
+  `auth:expiring`, the app calls `auth.session.refreshNow()` and answers with `auth:refresh` and
+  the new token.
+- Web: JavaScript cannot read the token, so after a refresh the socket reconnects and the cookie
+  is sent again.
+- Server side (later): let the web socket refresh by cookie, so reconnecting is not needed.
+
+## 10. Hosting on a VPS
+
+**Recommended layout.** Put each web app and the API behind one reverse proxy (for example Nginx)
+so that the browser sees one origin per app. For instance, `app.example.com` serves the web app
+and also forwards `/api/v1` and `/socket.io` to the API. Reasons:
+- The access cookie uses the `__Host-` prefix, so it is bound to the exact host that set it. With a
+  separate API host (`api.example.com`), a server-rendered Next.js page on `app.example.com` would
+  never receive it. Same origin avoids this.
+- No cross-origin requests, so no CORS surprises and no browser blocking of third-party cookies.
+- HTTPS is mandatory (the `__Host-` cookie is Secure). Use Let's Encrypt on the VPS.
+
+**Server settings that matter**
+- `TRUST_PROXY` must be set to the number of proxies in front of the API. Without it every client
+  looks like the same IP and the rate limits stop working (the server already warns about this).
+- `CORS_ORIGINS` must list each web app origin. Cookie-based writes and refresh are refused from an
+  unlisted `Origin`.
+- For realtime later: the proxy must pass WebSocket upgrades (`Upgrade` and `Connection` headers)
+  for `/socket.io`.
+
+**Mobile apps** talk to the API's public HTTPS address and need none of this.
+
+## 11. Server contract
+
+Paths are relative to `<origin>/api/v1/auth`.
+
+| Purpose | Routes |
 |---|---|
-| Sign-up | `POST /auth/signup/email`, `/signup/phone`, `/signup/verify`, `/signup/resend`, `/signup/google`, `/signup/apple` |
-| Login | `POST /auth/login/otp/request`, `/login/otp/verify`, `/login/password`, `/login/google`, `/login/apple` |
-| Nonce | `POST /auth/oauth/nonce` returns `{ nonce }` |
-| Two-step | `POST /auth/2fa/verify`, `/2fa/enroll/setup`, `/2fa/enroll/confirm` |
-| Session | `POST /auth/refresh`, `POST /auth/logout` (204), `POST /auth/logout-all`, `GET /auth/me` |
+| Sign-up | `POST /signup/email`, `/signup/phone`, `/signup/verify`, `/signup/resend`, `/signup/google`, `/signup/apple` |
+| Login | `POST /login/otp/request`, `/login/otp/verify`, `/login/password`, `/login/google`, `/login/apple`, `/login/passkey/options`, `/login/passkey/verify` |
+| Social nonce | `POST /oauth/nonce` returns `{ nonce }` |
+| Two-step at login | `POST /2fa/verify`, `/2fa/enroll/setup`, `/2fa/enroll/confirm` |
+| Session | `POST /refresh`, `POST /logout` (204), `POST /logout-all` (204), `GET /me`, `GET /sessions`, `DELETE /sessions/:id` |
+| Step-up | `POST /step-up/otp` |
+| Password | `POST /password`, `PUT /password`, `POST /password/remove`, `POST /password/forgot`, `POST /password/reset` |
+| Account (later) | `GET /2fa`, `POST /2fa/setup`, `/2fa/confirm`, `/2fa/disable`, `/2fa/backup-codes`; `GET /passkeys`, `POST /passkeys/options`, `/passkeys/verify`, `PATCH` and `DELETE /passkeys/:id`; `POST /google/link`, `/apple/link`; `GET /methods`, `POST /methods/:method/remove`; `GET /secondary-contacts`, `POST /secondary-contacts/otp`, `/verify`, `/remove`; `POST /recovery/request`, `/verify`, `/contact`, `/complete`, `/cancel`; `GET /activity`, `GET /security`; `POST /support-request` |
+| Staff (later) | `POST /staff`, `/staff/setup`, `/staff/:id/resend-setup`, `/staff/:id/reset-2fa`; `GET /support-requests`, `POST /support-requests/:id/close` |
 
 Answers: mobile gets `{ user, accessToken, refreshToken, isNewDevice }`; web gets
-`{ user, isNewDevice }` and cookies. A 202 answer means a second step:
-`{ twoFactorRequired: true, enrollment?: true, challengeToken, expiresIn }` (valid 5 minutes).
-`/auth/refresh` returns `{ accessToken, refreshToken, expiresIn }` on mobile (token in the body)
-and `{ expiresIn }` on the web (cookie, needs an allowed `Origin`).
+`{ user, isNewDevice }` plus cookies. A 202 means a second step:
+`{ twoFactorRequired, enrollment?, challengeToken, expiresIn }`. `POST /refresh` returns
+`{ accessToken, refreshToken, expiresIn }` on mobile and `{ expiresIn }` on the web.
 
-**Server changes this package depends on**
-1. Return `expiresIn` on login, verify and enroll-confirm answers (**pending**; the web cannot read
-   its HttpOnly token, so it needs it to schedule the early refresh).
-2. `POST /auth/oauth/nonce` and `nonce` accepted by the Google validators (**done**).
-3. Optional `GET /auth/oauth/providers` returning which socials the server has configured
-   (**decision pending**); an app shows a social button only if the app enabled it and the server
-   supports it.
-4. Each web app origin in `CORS_ORIGINS`. The web app and the API must share a registrable domain
-   (cookies are `SameSite=Lax`), or the web app calls the API through its own server.
-5. For server-rendered Next.js pages, a helper that forwards the visitor's cookies to the API.
+**Server changes needed for this package**
+1. Return `expiresIn` on login, verify and enroll-confirm answers. Today only `/refresh` returns
+   it, so the web package cannot schedule the first early refresh. **Required.**
+2. Optional `GET /auth/oauth/providers`, telling an app which social providers the server has
+   configured. Recommended.
+3. Optional: let the web socket refresh by cookie (section 9).
+4. Each web app origin must be in `CORS_ORIGINS`.
 
-## 9. Environment and conventions
+## 12. Packaging and publishing
 
-- Node 24 (`.nvmrc`), npm 11. Install and checks from the repo root:
+- Dual ESM and CommonJS builds with types, an `exports` map per entry point, `sideEffects: false`
+  and a small `files` list. The root `package.json` needs `packages/*` added back to `workspaces`.
+- Peer dependencies as in section 5; optional ones marked optional.
+- Versioning with Changesets and a changelog. Stay on `0.x` until the contract tests pass, then
+  follow semver. Keep a compatibility note between package versions and the server's `/api/v1`.
+- A CI release job, a granular npm token, and 2FA on the npm account. Provenance
+  (`--provenance`) only works from a public source repository, so skip it while the repository is
+  private.
+- Checks before every release: `publint` and "are the types wrong", and a smoke install in a
+  throwaway Expo, Next.js and Vite app, from both `import` and `require`.
+- Test that Metro (Expo), Next.js (with `transpilePackages` if needed) and Vite each resolve every
+  entry point.
 
-```
-npm install
-npm run format
-npm test
-npm run typecheck
-npm run build
-```
+## 13. Testing
 
-- Deleting `node_modules` and the root `package-lock.json` and reinstalling fixes dependency
-  resolution problems.
-- `dist/` and `node_modules/` are git-ignored; commit the root `package-lock.json`.
-- Expo SDK 58 configures Metro for workspaces automatically; Metro honours `package.json`
-  `exports`. Next.js needs the package built (or `transpilePackages`).
-- ESLint is not set up for the package yet (to be added after checking compatibility with the
-  TypeScript version in use).
-- Working rules for the assistant: give code in chat, never write to the owner's disk, never run
-  git commands that change anything, read the official docs before using a new technology, add
-  nothing that was not asked for.
+- **Unit tests** (Vitest) with fake timers for refresh, rotation, backoff and multi-tab behaviour;
+  adapters tested against fakes.
+- **Contract tests against the real server**, in mobile and web modes, reusing the server's
+  integration harness (temporary PostgreSQL and Redis; the Windows runner exists). Cover sign-up,
+  every login type, the three results, step-up, early refresh, rotation and reuse detection,
+  logout, suspension and the device limit.
+- **Test helpers** exported from `/testing` for apps.
+- **Per-framework smoke apps** used only in CI.
 
-## 10. Build plan and deliverables
+## 14. Build plan
 
-**Step 5, session and early refresh (delivered, to be applied)**
-- New: `src/core/jwt.ts` (`decodeJwtExpiry`, no reliance on `atob`), `src/core/session.ts`
-  (`SessionManager`: `start`, `startSession`, `getAccessToken`, `refresh`, `refreshIfNeeded`,
-  `endSession`, `destroy`, `subscribe`, `recoverFromUnauthorized`).
-- Small edits: `constants.ts` (`NOT_AUTHENTICATED` client code, `DEFAULT_ACCESS_TOKEN_TTL_SECONDS`
-  = 900, `REFRESH_LOCK_NAME`, `REFRESH_RETRY_DELAYS_MS`), `errors.ts` (`NotAuthenticatedError`),
-  `adapters.ts` (optional `subscribe` on `SessionStore`), `core/index.ts` (export session).
-- Tests: `tests/jwt.test.ts`, `tests/session.test.ts` (fake timers; includes an integration
-  scenario with the HTTP client).
-- The manager receives a `refreshCall(refreshToken | null)` function so it does not depend on the
-  HTTP client; `createAuth` (step 6) wires them together.
+| Phase | Deliverable |
+|---|---|
+| 0 | Tooling decisions, skeleton in `packages/auth`, workspaces, CI that builds and tests |
+| 1 | Constants, error catalogue extracted from the server, typed errors, Axios client and interceptors |
+| 2 | Adapter contracts, mobile and web adapters, device identity, session store |
+| 3 | Session manager: early refresh, single-flight, tab coordination, foreground refresh, 401 safety net |
+| 4 | Sign-up and login (email, phone, password), the three results, logout, `me`, devices |
+| 5 | Two-step verification and enrollment, step-up helper, password flows |
+| 6 | Google and Apple, then passkeys through the provider |
+| 7 | React bindings, test helpers, token hand-off for the realtime package |
+| 8 | Contract tests against the real server, usage guides for Expo, Next.js and Vite, first release |
+| 9 | `/account` entry (manage 2FA and passkeys, linking, methods, contacts, recovery, activity, security) |
+| 10 | `/staff` entry for the admin dashboard |
 
-**Step 6, sign-up and login**: wire format mapping, `createAuth`, signup (email, phone, resend),
-login (email code, phone code, password), the three login results, internal challenge storage,
-`startSession` after success, logout and logout-all, `me`.
+The server change in section 11 (`expiresIn` on login) should land before phase 3 is finished.
 
-**Step 7, two-step verification**: verify with code or backup code, enrollment (setup, confirm,
-backup codes returned once).
+## 15. Definition of done (v1)
 
-**Step 8, Google and Apple**: nonce, login and sign-up for both, `socials` switches,
-`SocialLoginDisabled`, `auth.socials.enabled`, development warning when an iOS build enables
-Google without Apple (App Store guideline 4.8, check the current wording first).
-
-**Step 9, mobile adapter**: `expo-secure-store` session store, device id and name, foreground hook
-(`AppState`), stable User-Agent; verify on a real device that the User-Agent header is actually
-sent.
-
-**Step 10, web adapter**: cookie transport, device id in localStorage, session record (expiry
-only) in localStorage with the `storage` event for other tabs, Web Locks for one refresh at a time,
-helper to forward cookies in server rendering.
-
-**Step 11, contract tests**: run the package against the real server using the integration test
-harness in `server/tests/integration` (temporary PostgreSQL and Redis), in both mobile and web
-modes. Cover sign-up, every login type, the three results, Google with a stubbed verifier, early
-refresh, rotation, reuse detection, logout and suspension.
-
-**Step 12, docs**: usage guide with one example for Expo and one for Next.js and Vite.
-
-## 11. Definition of done
-
-- A user can sign up, log in with every method, finish two-step, use Google and Apple, and stay
-  signed in across a day of use without a visible 401.
+- A user can sign up, log in with every method, finish two-step verification, and use Google,
+  Apple and a passkey.
+- The user stays signed in across a day of use with no visible 401.
 - The same app code works on mobile and web apart from the adapter.
-- Closing the app or a tab at any moment never leaves a broken session or a forced logout.
-- All contract tests pass against the current server.
+- Closing the app or a tab at any moment leaves a valid session.
+- All contract tests pass against the current server, and each entry point installs and runs in an
+  Expo, a Next.js and a Vite app, from both ESM and CommonJS.
+- A first version is published under `swiftgoma-mp-auth`.
 
-## 12. Risks and open decisions
+## 16. Risks
 
-- Forgot password in the package: default **out**.
-- `GET /auth/oauth/providers`: default **yes**.
-- Server `expiresIn` change: default **yes**.
-- React hooks: **later**.
-- Apple private relay email: a user who signed up with a real email and later uses Apple's hidden
-  email gets a separate account (accounts link only on a matching verified email). Apps must
-  explain this on the sign-in screen.
-- Apple on Android and web needs Apple's web flow (Services ID and redirect page); some apps may
-  leave Apple off.
-- A wrong web origin in `CORS_ORIGINS` makes every refresh fail and the package retries every
-  60 s; the web adapter should make this failure loud.
-- tsdown is pre-1.0 (0.23.x): expect small option changes between versions.
-
-## 13. Resuming with the assistant
-
-Give it this file and say: "Continue the @swiftgoma/auth package from `docs/auth-package-scope.md`.
-Steps 1 to 4 are applied and verified. Step 5 was delivered but not applied; regenerate it from
-section 10 if I do not have it. Give code in chat only, one step at a time."
+- **Visibility and licence.** A public, unscoped package exposes the code even though the
+  repository is proprietary (section 3).
+- **Apple.** A user who signed up with a real email and later uses Apple's hidden email gets a
+  separate account; the apps must explain this. Apple sign-in on Android and the web needs Apple's
+  web flow.
+- **Cookies.** Browsers block cookies across different sites, and the `__Host-` cookie is
+  host-bound. A wrong `CORS_ORIGINS` breaks refresh. Local development over plain HTTP may need a
+  local HTTPS setup, and Safari is stricter than Chrome.
+- **Passkeys in Expo** need native modules and a development build, not Expo Go.
+- **Build tooling** moves quickly; pin versions and re-check before release.
+- **Server drift.** The package depends on the server's error codes and answers, so the contract
+  tests are the safeguard.

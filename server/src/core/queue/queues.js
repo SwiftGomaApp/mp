@@ -5,6 +5,7 @@ const { getConfig } = require("../../config/env.config");
 const QUEUES = {
   NOTIFICATIONS: "notifications",
   MAINTENANCE: "maintenance",
+  MARKETING: "marketing",
 };
 
 const DEFAULT_JOB_OPTIONS = {
@@ -22,6 +23,10 @@ const QUEUE_JOB_OPTIONS = {
   [QUEUES.MAINTENANCE]: {
     removeOnComplete: true,
     removeOnFail: { age: 86400 },
+  },
+  [QUEUES.MARKETING]: {
+    removeOnComplete: true,
+    removeOnFail: { age: 7 * 86400 },
   },
 };
 

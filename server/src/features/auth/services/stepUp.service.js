@@ -43,7 +43,13 @@ async function requestStepUpOtp({ userId, channel }, m) {
   await getRedis().set(targetKey(userId), contact.target, "EX", expiresMinutes * 60);
 
   if (contact.channel === "EMAIL") {
-    await queueOtpEmail({ to: contact.target, name: user.name, code, expiresMinutes });
+    await queueOtpEmail({
+      to: contact.target,
+      name: user.name,
+      code,
+      expiresMinutes,
+      purpose: OTP_PURPOSES.STEP_UP,
+    });
   } else {
     await queueOtpSms({ to: contact.target, code, expiresMinutes });
   }

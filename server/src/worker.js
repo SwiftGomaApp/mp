@@ -9,12 +9,17 @@ const { startWorkers } = require("./core/queue/workers");
 const { closeQueues } = require("./core/queue/queues");
 const { processors } = require("./jobs");
 const { scheduleMaintenance } = require("./jobs/maintenance.job");
+const { scheduleMarketing } = require("./jobs/marketing.job");
+const { startRealtimeClient, closeRealtime } = require("./core/realtime/socket");
 
 async function main() {
   await loadConfig();
 
+  startRealtimeClient();
+
   const closeWorkers = startWorkers(processors);
   await scheduleMaintenance();
+  await scheduleMarketing();
 
   let shuttingDown = false;
 
@@ -31,6 +36,7 @@ async function main() {
 
     try {
       await closeWorkers();
+      await closeRealtime();
       await closeQueues();
       await closeMailer();
       await disconnectPrisma();

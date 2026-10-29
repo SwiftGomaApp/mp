@@ -1,15 +1,9 @@
 const { getPrisma } = require("../../../core/db/prisma");
-const { getConfig } = require("../../../config/env.config");
 const { AppError } = require("../../../core/errors/AppError");
 const { randomToken, sha256 } = require("../../../core/crypto/crypto");
 const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
-const { logger } = require("../../../core/logger/logger");
-const {
-  queueOtpEmail,
-  queueOtpSms,
-  queueSecurityAlertEmail,
-  queueSecurityAlertSms,
-} = require("../../../core/queue/notifications");
+const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
+const { notify } = require("../../notifications/notify");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { revokeUserSessions } = require("./session.service");
@@ -69,27 +63,29 @@ function recoveryContact(user, kind) {
 
 async function sendCode({ kind, value }, name, purpose) {
   const { code, expiresMinutes } = await issueOtp({ purpose, target: value });
+  const emailPurpose = purpose === codePurpose ? OTP_PURPOSES.RECOVERY : "recovery-contact";
 
-  if (kind === "EMAIL") await queueOtpEmail({ to: value, name, code, expiresMinutes });
-  else await queueOtpSms({ to: value, code, expiresMinutes });
+  if (kind === "EMAIL") {
+    await queueOtpEmail({ to: value, name, code, expiresMinutes, purpose: emailPurpose });
+  } else {
+    await queueOtpSms({ to: value, code, expiresMinutes });
+  }
 
   return expiresMinutes;
 }
 
+// `user` is the account as it was before this step, so the warning reaches the contacts the
+// owner had, even when a completed recovery has just replaced them.
 async function notifyPrimaryContacts(user, type) {
-  const { activityUrl } = getConfig().mail;
-  const date = new Date();
-
-  try {
-    if (user.email && user.emailVerifiedAt) {
-      await queueSecurityAlertEmail({ to: user.email, name: user.name, type, date, activityUrl });
-    }
-    if (user.phone && user.phoneVerifiedAt) {
-      await queueSecurityAlertSms({ to: user.phone, type });
-    }
-  } catch (err) {
-    logger.warn({ err, userId: user.id, type }, "Failed to queue recovery alert");
-  }
+  await notify({
+    event: "security.recovery",
+    userId: user.id,
+    data: { type, date: new Date().toISOString() },
+    contacts: {
+      email: user.email && user.emailVerifiedAt ? user.email : null,
+      phone: user.phone && user.phoneVerifiedAt ? user.phone : null,
+    },
+  });
 }
 
 async function requestRecovery({ email, phone, kind }, meta) {

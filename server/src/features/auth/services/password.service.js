@@ -132,7 +132,13 @@ async function forgotPassword({ email }, m) {
       purpose: OTP_PURPOSES.PASSWORD_RESET,
       target: email,
     });
-    await queueOtpEmail({ to: email, name: user.name, code, expiresMinutes });
+    await queueOtpEmail({
+      to: email,
+      name: user.name,
+      code,
+      expiresMinutes,
+      purpose: OTP_PURPOSES.PASSWORD_RESET,
+    });
   } catch (err) {
     if (!(err instanceof AppError && ["OTP_COOLDOWN", "OTP_HOURLY_LIMIT"].includes(err.code))) {
       throw err;

@@ -81,6 +81,21 @@ const schema = z.object({
     .transform((v) => v === "true"),
   SMS_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
   SMS_DAILY_OTP_LIMIT: z.coerce.number().int().min(0).default(2000),
+  SMS_DAILY_ALERT_LIMIT: z.coerce.number().int().min(0).default(5000),
+  AT_WEBHOOK_SECRET: optional,
+
+  MARKETING_LINK_SECRET: optional,
+  MARKETING_MAIL_FROM: optional,
+  MARKETING_EMAILS_PER_MINUTE: z.coerce.number().int().min(1).max(5000).default(120),
+  MARKETING_MAX_RECIPIENTS: z.coerce.number().int().min(1).max(1_000_000).default(50000),
+  MARKETING_SMTP_HOST: optional,
+  MARKETING_SMTP_PORT: z.coerce.number().int().positive().default(465),
+  MARKETING_SMTP_SECURE: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  MARKETING_SMTP_USER: optional,
+  MARKETING_SMTP_PASS: optional,
 
   JWT_ACCESS_SECRET: z.string().min(32),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().min(60).default(900),
@@ -111,6 +126,14 @@ const schema = z.object({
   IPINFO_TOKEN: optional,
   GOOGLE_CLIENT_IDS: z.string().trim().default(""),
   APPLE_CLIENT_IDS: z.string().trim().default(""),
+
+  ONESIGNAL_APP_ID: optional,
+  ONESIGNAL_API_KEY: optional,
+  ONESIGNAL_TIMEOUT_MS: z.coerce.number().int().min(1000).default(10000),
+  PUSH_DRY_RUN: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((v) => v === "true"),
 });
 
 let config = null;
@@ -125,6 +148,11 @@ function productionProblems(env) {
   }
   if (env.PASSKEY_ORIGINS.some((origin) => origin.includes("localhost"))) {
     problems.push("PASSKEY_ORIGINS must not contain localhost in production");
+  }
+
+  if (env.PUSH_DRY_RUN) problems.push("PUSH_DRY_RUN must be false in production");
+  if (!env.ONESIGNAL_APP_ID || !env.ONESIGNAL_API_KEY) {
+    problems.push("ONESIGNAL_APP_ID and ONESIGNAL_API_KEY are required in production");
   }
   return problems;
 }
@@ -239,6 +267,23 @@ async function loadConfig() {
       dryRun: env.SMS_DRY_RUN,
       timeoutMs: env.SMS_TIMEOUT_MS,
       dailyOtpLimit: env.SMS_DAILY_OTP_LIMIT,
+      dailyAlertLimit: env.SMS_DAILY_ALERT_LIMIT,
+      webhookSecret: env.AT_WEBHOOK_SECRET,
+    },
+    marketing: {
+      linkSecret: env.MARKETING_LINK_SECRET,
+      from: env.MARKETING_MAIL_FROM,
+      perMinute: env.MARKETING_EMAILS_PER_MINUTE,
+      maxRecipients: env.MARKETING_MAX_RECIPIENTS,
+      smtp: env.MARKETING_SMTP_HOST
+        ? {
+            host: env.MARKETING_SMTP_HOST,
+            port: env.MARKETING_SMTP_PORT,
+            secure: env.MARKETING_SMTP_SECURE,
+            user: env.MARKETING_SMTP_USER,
+            pass: env.MARKETING_SMTP_PASS,
+          }
+        : null,
     },
     geo: {
       ipinfoToken: env.IPINFO_TOKEN,
@@ -269,6 +314,14 @@ async function loadConfig() {
       clientIds: env.APPLE_CLIENT_IDS.split(",")
         .map((id) => id.trim())
         .filter(Boolean),
+    },
+
+    push: {
+      appId: env.ONESIGNAL_APP_ID,
+      apiKey: env.ONESIGNAL_API_KEY,
+      timeoutMs: env.ONESIGNAL_TIMEOUT_MS,
+      dryRun: env.PUSH_DRY_RUN,
+      baseUrl: "https://api.onesignal.com",
     },
   });
 

@@ -14,85 +14,32 @@ beforeEach(() => {
 });
 
 describe("security notifications", () => {
-  const queueSecurityAlertEmail = vi.fn(async () => undefined);
-  const queueSecurityAlertSms = vi.fn(async () => undefined);
-  let found;
+  const notify = vi.fn(async () => []);
 
   const { notifySecurityChange } = loadWithMocks(
     "features/auth/services/securityNotice.service.js",
-    {
-      "core/db/prisma.js": { getPrisma: () => ({ user: { findUnique: async () => found } }) },
-      "config/env.config.js": {
-        getConfig: () => ({ mail: { activityUrl: "https://x.test/activite" } }),
-      },
-      "core/queue/notifications.js": { queueSecurityAlertEmail, queueSecurityAlertSms },
-    },
+    { "features/notifications/notify.js": { notify } },
   );
 
-  beforeEach(() => {
-    queueSecurityAlertEmail.mockClear();
-    queueSecurityAlertSms.mockClear();
-  });
+  beforeEach(() => notify.mockClear());
 
-  it("warns by email when the email is verified", async () => {
-    await notifySecurityChange(
-      {
-        email: "a@example.com",
-        emailVerifiedAt: new Date(),
-        phone: "+243891234567",
-        phoneVerifiedAt: new Date(),
-        name: "A",
-      },
-      "PASSWORD_SET",
-    );
-    expect(queueSecurityAlertEmail).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "a@example.com",
-        type: "PASSWORD_SET",
-        activityUrl: "https://x.test/activite",
-      }),
-    );
-    expect(queueSecurityAlertSms).not.toHaveBeenCalled();
-  });
-
-  it("falls back to SMS when only the phone is verified", async () => {
-    await notifySecurityChange(
-      {
-        email: "a@example.com",
-        emailVerifiedAt: null,
-        phone: "+243891234567",
-        phoneVerifiedAt: new Date(),
-      },
-      "PASSWORD_SET",
-    );
-    expect(queueSecurityAlertSms).toHaveBeenCalledWith({
-      to: "+243891234567",
-      type: "PASSWORD_SET",
+  it("raises a security alert for a user id", async () => {
+    await notifySecurityChange("user-1", "PASSWORD_SET");
+    expect(notify).toHaveBeenCalledWith({
+      event: "security.alert",
+      userId: "user-1",
+      data: { type: "PASSWORD_SET", date: expect.any(String) },
     });
-    expect(queueSecurityAlertEmail).not.toHaveBeenCalled();
   });
 
-  it("sends nothing when no contact is verified", async () => {
-    await notifySecurityChange({ email: "a@example.com", emailVerifiedAt: null }, "PASSWORD_SET");
-    expect(queueSecurityAlertEmail).not.toHaveBeenCalled();
-    expect(queueSecurityAlertSms).not.toHaveBeenCalled();
-  });
-
-  it("loads the user when given an id", async () => {
-    found = { email: "b@example.com", emailVerifiedAt: new Date(), name: "B" };
-    await notifySecurityChange("user-1", "LOGIN_METHOD_ADDED");
-    expect(queueSecurityAlertEmail).toHaveBeenCalledWith(
-      expect.objectContaining({ to: "b@example.com" }),
-    );
+  it("accepts a user object", async () => {
+    await notifySecurityChange({ id: "user-2" }, "PASSWORD_CHANGED");
+    expect(notify).toHaveBeenCalledWith(expect.objectContaining({ userId: "user-2" }));
   });
 
   it("never lets a failed alert break the action that triggered it", async () => {
-    queueSecurityAlertEmail.mockRejectedValueOnce(new Error("redis down"));
-    await expect(
-      notifySecurityChange({ email: "a@example.com", emailVerifiedAt: new Date() }, "X"),
-    ).resolves.toBeUndefined();
-    found = null;
-    await expect(notifySecurityChange("missing", "X")).resolves.toBeUndefined();
+    notify.mockRejectedValueOnce(new Error("boom"));
+    await expect(notifySecurityChange("user-1", "X")).resolves.toBeUndefined();
   });
 });
 

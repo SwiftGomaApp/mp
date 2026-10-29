@@ -18,7 +18,16 @@ export function RegisterView() {
   const form = useRegisterForm();
 
   return (
-    <AuthScreenLayout overlays={<RegisterCodeDialog mode={form.mode} target={form.target} />}>
+    <AuthScreenLayout
+      overlays={
+        <RegisterCodeDialog
+          mode={form.mode}
+          target={form.target}
+          error={form.codeError}
+          onSubmit={form.verifyCode}
+        />
+      }
+    >
       <Text className="font-sans-bold text-[24px] text-foreground">{REGISTER_CONTENT.title}</Text>
       <Text className="mt-1 font-sans text-[14px] text-muted-foreground">
         {REGISTER_CONTENT.subtitle}
@@ -43,11 +52,24 @@ export function RegisterView() {
         autoComplete="name"
         textContentType="name"
         returnKeyType="next"
+        maxLength={100}
       />
 
       <View className="mt-3">
-        <ContactField contact={form} onSubmit={form.submit} showSwitch={false} />
+        <ContactField contact={form} onSubmit={form.submit} showSwitch={false} error={form.error} />
       </View>
+
+      {form.accountExists ? (
+        <Pressable
+          hitSlop={8}
+          onPress={() => router.replace("/login")}
+          className="mt-2 self-start px-1 active:opacity-70"
+        >
+          <Text className="font-sans-semibold text-[13px] text-primary">
+            {REGISTER_CONTENT.signIn}
+          </Text>
+        </Pressable>
+      ) : null}
 
       <View className="mt-3 flex-row items-center justify-between px-1">
         <View className="flex-1 pr-3">
@@ -66,6 +88,7 @@ export function RegisterView() {
           size="lg"
           fullWidth
           disabled={!form.isValid}
+          loading={form.busy}
           onPress={form.submit}
         />
       </View>

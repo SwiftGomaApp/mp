@@ -31,6 +31,8 @@ type ContactFieldProps = {
    * `ContactSwitchLink` somewhere else.
    */
   showSwitch?: boolean;
+  /** An error message shown under the field, which also turns its border red. */
+  error?: string;
 };
 
 /** The e-mail or phone number field, with the link to switch between them above it. */
@@ -39,6 +41,7 @@ export function ContactField({
   onSubmit,
   accessory,
   showSwitch = true,
+  error,
 }: ContactFieldProps) {
   return (
     <View>
@@ -63,6 +66,7 @@ export function ContactField({
           returnKeyType="go"
           onSubmitEditing={onSubmit}
           accessory={accessory}
+          error={error}
         />
       ) : (
         <AuthField
@@ -76,6 +80,7 @@ export function ContactField({
           autoComplete="tel"
           textContentType="telephoneNumber"
           accessory={accessory}
+          error={error}
         />
       )}
     </View>

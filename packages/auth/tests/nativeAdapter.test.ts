@@ -25,7 +25,7 @@ function makeSecureStore(initial: Record<string, string> = {}) {
   };
 }
 
-function makeAppState(initial = "active") {
+function makeAppState(initial: string | null = "active") {
   const listeners = new Set<(state: string) => void>();
   const removed = vi.fn();
   return {
@@ -260,6 +260,21 @@ describe("device info", () => {
 });
 
 describe("foreground hook", () => {
+  it("works when React Native does not know the current state yet", () => {
+    const appState = makeAppState(null);
+    const adapter = createNativeAdapter({
+      secureStore: makeSecureStore(),
+      appState,
+      os: "android",
+      randomUUID: () => "00000000-0000-4000-8000-000000000001",
+    });
+    const listener = vi.fn();
+    adapter.lifecycle.onForeground(listener);
+
+    appState.emit("active");
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
   it("fires when the app comes back from the background", () => {
     const { adapter, appState } = setup();
     const listener = vi.fn();

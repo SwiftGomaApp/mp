@@ -19,7 +19,8 @@ export function useContactInput() {
     mode,
     switchMode: () => setMode((current) => (current === "email" ? "phone" : "email")),
     email,
-    setEmail,
+    // A plain function (not React's setter type), so screens can wrap it with their own.
+    setEmail: (value: string) => setEmail(value),
     phone: localPhone,
     setPhone: (raw: string) => setLocalPhone(toLocalDigits(raw)),
     countryCode: COUNTRY_CODE,

@@ -2,6 +2,7 @@ import * as Network from "expo-network";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useSession } from "@/core/auth/use-session";
 import {
   hasInternet,
   isInternetAvailable,
@@ -14,12 +15,15 @@ import { SPLASH_ANIMATION_MS, SPLASH_HOLD_AFTER_ANIMATION_MS } from "../constant
 export type SplashScreen = "splash" | "offline" | "server-unreachable";
 
 const AUTO_RETRY_COOLDOWN_MS = 5_000;
+const SESSION_WAIT_MS = 8_000;
 
 export function useSplashRedirect() {
   const router = useRouter();
   const [status, setStatus] = useState<ConnectivityStatus>("checking");
   const [animationDone, setAnimationDone] = useState(false);
   const [run, setRun] = useState(0);
+  const session = useSession();
+  const [sessionTimedOut, setSessionTimedOut] = useState(false);
 
   const statusRef = useRef<ConnectivityStatus>("checking");
   useEffect(() => {
@@ -34,6 +38,11 @@ export function useSplashRedirect() {
     setAnimationDone(false);
     setRun((n) => n + 1);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSessionTimedOut(true), SESSION_WAIT_MS);
+    return () => clearTimeout(timer);
+  }, [run]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,9 +86,11 @@ export function useSplashRedirect() {
     return () => clearTimeout(timer);
   }, [run]);
 
+  const sessionKnown = session.status !== "unknown" || sessionTimedOut;
+
   useEffect(() => {
-    if (animationDone && status === "online") router.replace("/home");
-  }, [animationDone, status, router]);
+    if (animationDone && status === "online" && sessionKnown) router.replace("/home");
+  }, [animationDone, status, sessionKnown, router]);
 
   const screen: SplashScreen =
     animationDone && (status === "offline" || status === "server-unreachable") ? status : "splash";

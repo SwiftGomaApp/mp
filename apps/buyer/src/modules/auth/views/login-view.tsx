@@ -20,7 +20,12 @@ export function LoginView() {
       overlays={
         <>
           <PasswordSheet />
-          <LoginCodeDialog mode={form.mode} target={form.target} />
+          <LoginCodeDialog
+            mode={form.mode}
+            target={form.target}
+            error={form.codeError}
+            onSubmit={form.verifyCode}
+          />
         </>
       }
     >
@@ -42,8 +47,21 @@ export function LoginView() {
       <ContactField
         contact={form}
         onSubmit={form.submit}
-        accessory={form.isValid ? <SubmitArrow onPress={form.submit} /> : null}
+        error={form.error}
+        accessory={form.isValid ? <SubmitArrow onPress={form.submit} loading={form.busy} /> : null}
       />
+
+      {form.accountMissing ? (
+        <Pressable
+          hitSlop={8}
+          onPress={() => router.replace("/create-account")}
+          className="mt-2 self-start px-1 active:opacity-70"
+        >
+          <Text className="font-sans-semibold text-[13px] text-primary">
+            {LOGIN_CONTENT.createAccount}
+          </Text>
+        </Pressable>
+      ) : null}
 
       <Pressable
         hitSlop={8}

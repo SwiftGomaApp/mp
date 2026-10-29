@@ -13,6 +13,7 @@ export const LOGIN_CONTENT = {
   apple: "Continuer avec Apple",
   noAccount: "Pas encore de compte ?",
   signUp: "S'inscrire",
+  createAccount: "Créer un compte",
 } as const;
 
 export const PASSWORD_CONTENT = {

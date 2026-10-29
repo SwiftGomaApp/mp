@@ -38,7 +38,8 @@
             "image": "./assets/images/splash-blank.png"
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

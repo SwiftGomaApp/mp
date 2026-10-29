@@ -5,8 +5,8 @@ const { welcomeTemplate } = require("./templates/welcome.template");
 const { securityAlertTemplate } = require("./templates/securityAlert.template");
 const { staffSetupTemplate } = require("./templates/staffSetup.template");
 
-async function sendOtpEmail({ to, name, code, expiresMinutes }) {
-  const { subject, html, text } = otpTemplate({ name, code, expiresMinutes });
+async function sendOtpEmail({ to, name, code, expiresMinutes, purpose }) {
+  const { subject, html, text } = otpTemplate({ name, code, expiresMinutes, purpose });
   return sendMail({ to, subject, html, text });
 }
 

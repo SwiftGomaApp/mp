@@ -126,8 +126,19 @@ describe("loadConfig", () => {
       PASSKEY_RP_ID: "swiftgoma.com",
       PASSKEY_ORIGINS: "https://swiftgoma.com",
     });
+    await expect(freshConfigModule().loadConfig()).rejects.toThrow(/ONESIGNAL_APP_ID/);
+
+    Object.assign(process.env, {
+      ONESIGNAL_APP_ID: "app-id",
+      ONESIGNAL_API_KEY: "api-key",
+      PUSH_DRY_RUN: "true",
+    });
+    await expect(freshConfigModule().loadConfig()).rejects.toThrow(/PUSH_DRY_RUN/);
+
+    Object.assign(process.env, { PUSH_DRY_RUN: "false" });
     const config = await freshConfigModule().loadConfig();
     expect(config.isProd).toBe(true);
+    expect(config.push.appId).toBe("app-id");
   });
 
   it("parses the social login client ids", async () => {

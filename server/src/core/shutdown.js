@@ -3,6 +3,12 @@ const { logger } = require("./logger/logger");
 const hooks = [];
 let shuttingDown = false;
 
+const startHooks = [];
+
+function onShutdownStart(name, fn) {
+  startHooks.push({ name, fn });
+}
+
 function onShutdown(name, fn) {
   hooks.push({ name, fn });
 }
@@ -22,6 +28,14 @@ function setupGracefulShutdown(server, { timeoutMs = 10000, onError } = {}) {
       process.exit(1);
     }, timeoutMs);
     timer.unref();
+
+    for (const { name, fn } of startHooks) {
+      try {
+        await fn();
+      } catch (err) {
+        logger.error({ err, resource: name }, "Error before closing");
+      }
+    }
 
     server.close(async () => {
       for (const { name, fn } of [...hooks].reverse()) {
@@ -55,4 +69,4 @@ function setupGracefulShutdown(server, { timeoutMs = 10000, onError } = {}) {
   });
 }
 
-module.exports = { setupGracefulShutdown, onShutdown, isShuttingDown };
+module.exports = { setupGracefulShutdown, onShutdown, isShuttingDown, onShutdownStart };

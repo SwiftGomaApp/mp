@@ -118,6 +118,39 @@ enum OAuthProvider {
   APPLE
 }
 
+enum NotificationChannel {
+  IN_APP
+  PUSH
+  SMS
+  EMAIL
+}
+
+enum NotificationContext {
+  SECURITY
+  PURCHASE
+  SALE
+  DELIVERY
+  SUPPORT
+  ADMIN
+  ANNOUNCEMENT
+  MARKETING
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  SKIPPED
+}
+
 // ======================================================= MODELS ===========================================
 
 // ---------------------- user model -------------------------
@@ -147,14 +180,18 @@ model User {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  sessions         Session[]
-  passkeys         Passkey[]
-  totp             TotpCredential?
-  backupCodes      BackupCode[]
-  activityLogs     ActivityLog[]
-  recoveryRequests AccountRecoveryRequest[]
-  oauthAccounts    OAuthAccount[]
-  supportRequests  SupportRequest[]
+  sessions                Session[]
+  passkeys                Passkey[]
+  totp                    TotpCredential?
+  backupCodes             BackupCode[]
+  activityLogs            ActivityLog[]
+  recoveryRequests        AccountRecoveryRequest[]
+  oauthAccounts           OAuthAccount[]
+  supportRequests         SupportRequest[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  notificationSettings    NotificationSettings?
+  deviceRegistrations     DeviceRegistration[]
 
   @@index([status, createdAt])
   @@map("users")
@@ -340,4 +377,305 @@ model SupportRequest {
   @@index([userId, status])
   @@index([status, createdAt])
   @@map("support_requests")
+}
+
+// ---------------------- notification model -------------------------
+
+model Notification {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type     String
+  context  NotificationContext
+  priority NotificationPriority @default(NORMAL)
+
+  title String
+  body  String
+  data  Json?
+
+  dedupeKey String?
+
+  readAt         DateTime?
+  acknowledgedAt DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  deliveries NotificationDelivery[]
+
+  @@unique([userId, dedupeKey])
+  @@index([userId, readAt, createdAt])
+  @@index([userId, context, createdAt])
+  @@index([type, createdAt])
+  @@index([expiresAt])
+  @@map("notifications")
+}
+
+// ---------------------- notification delivery model -------------------------
+
+model NotificationDelivery {
+  id             String       @id @default(uuid())
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  channel NotificationChannel
+  status  DeliveryStatus      @default(PENDING)
+  target  String?
+
+  provider    String?
+  providerRef String?
+  error       String?
+  skipReason  String?
+  attempts    Int     @default(0)
+
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  failedAt    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([notificationId, channel])
+  @@index([channel, status, createdAt])
+  @@index([providerRef])
+  @@map("notification_deliveries")
+}
+
+// ---------------------- notification preference model -------------------------
+
+model NotificationPreference {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  context NotificationContext
+  channel NotificationChannel
+  enabled Boolean             @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, context, channel])
+  @@map("notification_preferences")
+}
+
+// ---------------------- notification settings model -------------------------
+
+model NotificationSettings {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  timezone          String  @default("Africa/Lubumbashi")
+  quietHoursEnabled Boolean @default(false)
+  quietHoursStart   Int?
+  quietHoursEnd     Int?
+
+  marketingEmailOptIn   Boolean   @default(false)
+  marketingEmailOptedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_settings")
+}
+
+// ---------------------- device registration model -------------------------
+
+model DeviceRegistration {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider       String         @default("onesignal")
+  subscriptionId String         @unique
+  deviceId       String
+  platform       DevicePlatform
+  sessionId      String?
+
+  lastSeenAt DateTime  @default(now())
+  disabledAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, disabledAt])
+  @@index([userId, deviceId])
+  @@map("device_registrations")
+}
+
+// ======================================================= MARKETING ===========================================
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+enum CampaignRecipientStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum TrackingEventType {
+  OPEN
+  CLICK
+  UNSUBSCRIBE
+}
+
+enum SuppressionReason {
+  UNSUBSCRIBED
+  BOUNCED
+  COMPLAINED
+}
+
+// ---------------------- email template models -------------------------
+
+model EmailTemplate {
+  id          String  @id @default(uuid())
+  key         String  @unique
+  name        String
+  description String?
+
+  currentVersion Int @default(1)
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  versions EmailTemplateVersion[]
+
+  @@map("email_templates")
+}
+
+model EmailTemplateVersion {
+  id         String        @id @default(uuid())
+  templateId String
+  template   EmailTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  version   Int
+  subject   String
+  preheader String?
+  html      String
+  text      String?
+
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@unique([templateId, version])
+  @@map("email_template_versions")
+}
+
+// ---------------------- segment model -------------------------
+
+model Segment {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  rules       Json
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaigns Campaign[]
+
+  @@index([createdAt])
+  @@map("segments")
+}
+
+// ---------------------- campaign models -------------------------
+
+model Campaign {
+  id     String         @id @default(uuid())
+  name   String
+  status CampaignStatus @default(DRAFT)
+
+  segmentId String?
+  segment   Segment? @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+
+  templateKey     String?
+  templateVersion Int?
+
+  subject   String
+  preheader String?
+  html      String
+  text      String?
+
+  scheduledAt   DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+  failureReason String?
+
+  recipientCount Int @default(0)
+  sentCount      Int @default(0)
+  failedCount    Int @default(0)
+  skippedCount   Int @default(0)
+
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipients     CampaignRecipient[]
+  trackingEvents TrackingEvent[]
+
+  @@index([status, scheduledAt])
+  @@index([createdAt])
+  @@map("campaigns")
+}
+
+model CampaignRecipient {
+  id         String   @id @default(uuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  userId String
+  email  String
+  name   String?
+
+  status      CampaignRecipientStatus @default(PENDING)
+  skipReason  String?
+  providerRef String?
+  error       String?
+  sentAt      DateTime?
+  createdAt   DateTime                @default(now())
+
+  trackingEvents TrackingEvent[]
+
+  @@unique([campaignId, userId])
+  @@index([campaignId, status])
+  @@map("campaign_recipients")
+}
+
+// ---------------------- suppression and tracking models -------------------------
+
+model EmailSuppression {
+  id        String            @id @default(uuid())
+  email     String            @unique
+  userId    String?
+  reason    SuppressionReason
+  source    String?
+  createdAt DateTime          @default(now())
+
+  @@index([reason, createdAt])
+  @@map("email_suppressions")
+}
+
+model TrackingEvent {
+  id          String             @id @default(uuid())
+  campaignId  String
+  campaign    Campaign           @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  recipientId String?
+  recipient   CampaignRecipient? @relation(fields: [recipientId], references: [id], onDelete: SetNull)
+
+  type      TrackingEventType
+  url       String?
+  userAgent String?
+  createdAt DateTime          @default(now())
+
+  @@index([campaignId, type, createdAt])
+  @@index([recipientId, type])
+  @@map("tracking_events")
 }

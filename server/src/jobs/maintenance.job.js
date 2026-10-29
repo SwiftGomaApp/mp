@@ -3,10 +3,12 @@ const { getPrisma } = require("../core/db/prisma");
 const { getQueue, QUEUES } = require("../core/queue/queues");
 const { logger } = require("../core/logger/logger");
 const { authConfig } = require("../features/auth/config/auth.config");
+const { cleanNotifications } = require("../features/notifications/services/cleanup.service");
 
 const MAINTENANCE_JOBS = {
   CLEAN_UNCONFIRMED_SIGNUPS: "cleanup.unconfirmed-signups",
   CLEAN_EXPIRED_DATA: "cleanup.expired-data",
+  CLEAN_NOTIFICATIONS: "cleanup.notifications",
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -59,6 +61,7 @@ async function cleanExpiredData() {
 const handlers = {
   [MAINTENANCE_JOBS.CLEAN_UNCONFIRMED_SIGNUPS]: cleanUnconfirmedSignups,
   [MAINTENANCE_JOBS.CLEAN_EXPIRED_DATA]: cleanExpiredData,
+  [MAINTENANCE_JOBS.CLEAN_NOTIFICATIONS]: cleanNotifications,
 };
 
 async function processMaintenance(job) {
@@ -79,6 +82,11 @@ async function scheduleMaintenance() {
     "cleanup-expired-data",
     { every: DAY },
     { name: MAINTENANCE_JOBS.CLEAN_EXPIRED_DATA },
+  );
+  await queue.upsertJobScheduler(
+    "cleanup-notifications",
+    { every: DAY },
+    { name: MAINTENANCE_JOBS.CLEAN_NOTIFICATIONS },
   );
 }
 

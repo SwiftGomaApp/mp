@@ -114,6 +114,7 @@ async function requestSecondaryContactOtp({ userId, kind, value, stepUpCode }, m
       name: user.name,
       code,
       expiresMinutes,
+      purpose: "contact-verification",
     });
   } else {
     await queueOtpSms({

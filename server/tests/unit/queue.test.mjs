@@ -130,7 +130,7 @@ describe("notification handlers", () => {
 });
 
 describe("maintenance schedule", () => {
-  it("registers the hourly signup cleanup and the daily data cleanup", async () => {
+  it("registers the hourly signup cleanup and the daily data and notification cleanups", async () => {
     const maintenance = loadWithMocks("jobs/maintenance.job.js", {
       "core/queue/queues.js": queues,
       "core/db/prisma.js": { getPrisma: () => ({}) },
@@ -138,7 +138,12 @@ describe("maintenance schedule", () => {
     await maintenance.scheduleMaintenance();
 
     expect(queues.getQueue).toHaveBeenCalledWith("maintenance");
-    expect(upsertJobScheduler).toHaveBeenCalledTimes(2);
+    expect(upsertJobScheduler).toHaveBeenCalledTimes(3);
+    expect(upsertJobScheduler).toHaveBeenCalledWith(
+      "cleanup-notifications",
+      { every: 24 * 60 * 60 * 1000 },
+      { name: "cleanup.notifications" },
+    );
     expect(upsertJobScheduler).toHaveBeenCalledWith(
       "cleanup-unconfirmed-signups",
       { every: 60 * 60 * 1000 },

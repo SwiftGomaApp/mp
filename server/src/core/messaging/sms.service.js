@@ -34,7 +34,15 @@ async function sendSecurityAlertSms({ to, type }) {
   return sendSms({ to, message: securityAlertMessage({ type }) });
 }
 
+const SMS_MAX_LENGTH = 160;
+
+async function sendNotificationSms({ to, title, body }) {
+  const message = `SwiftGoma : ${title}. ${body}`;
+  return sendSms({ to, message: message.slice(0, SMS_MAX_LENGTH) });
+}
+
 module.exports = {
+  sendNotificationSms,
   sendOtpSms,
   sendLoginAlertSms,
   otpMessage,

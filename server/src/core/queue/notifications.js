@@ -1,6 +1,7 @@
 const { QUEUES, getQueue } = require("./queues");
 const { assertSmsBudget } = require("../messaging/smsBudget");
 
+
 const NOTIFICATION_JOBS = {
   EMAIL_OTP: "email.otp",
   EMAIL_LOGIN_ALERT: "email.login-alert",
@@ -11,10 +12,39 @@ const NOTIFICATION_JOBS = {
   EMAIL_SECURITY_ALERT: "email.security-alert",
   SMS_SECURITY_ALERT: "sms.security-alert",
   EMAIL_STAFF_SETUP: "email.staff-setup",
+  PUSH: "push.send",
+  PUSH_DELIVERY: "push.delivery",
+  EMAIL_DELIVERY: "email.delivery",
+  SMS_DELIVERY: "sms.delivery",
+  ESCALATE: "notification.escalate",
 };
 
-function enqueue(name, data) {
-  return getQueue(QUEUES.NOTIFICATIONS).add(name, data);
+function enqueue(name, data, options) {
+  const queue = getQueue(QUEUES.NOTIFICATIONS);
+  return options ? queue.add(name, data, options) : queue.add(name, data);
+}
+
+function queueEscalation(data, delayMs) {
+  return enqueue(NOTIFICATION_JOBS.ESCALATE, data, {
+    delay: delayMs,
+    jobId: `escalate-${data.notificationId}`,
+  });
+}
+
+function queuePushDelivery(data) {
+  return enqueue(NOTIFICATION_JOBS.PUSH_DELIVERY, data);
+}
+
+function queueEmailDelivery(data) {
+  return enqueue(NOTIFICATION_JOBS.EMAIL_DELIVERY, data);
+}
+
+function queueSmsDelivery(data) {
+  return enqueue(NOTIFICATION_JOBS.SMS_DELIVERY, data);
+}
+
+function queuePush(data) {
+  return enqueue(NOTIFICATION_JOBS.PUSH, data);
 }
 
 function queueOtpEmail(data) {
@@ -71,4 +101,9 @@ module.exports = {
   queueSecurityAlertEmail,
   queueSecurityAlertSms,
   queueStaffSetupEmail,
+  queuePush,
+  queuePushDelivery,
+  queueEmailDelivery,
+  queueSmsDelivery,
+  queueEscalation,
 };

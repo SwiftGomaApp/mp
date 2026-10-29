@@ -97,11 +97,52 @@ export async function outbox() {
     .map((job) => ({ name: job.name, data: job.data }));
 }
 
+// These messages are raised through the notification dispatcher: they show up as deliveries
+// on a notification row instead of as queued "email.*" / "sms.*" jobs.
+const DISPATCHED = {
+  "email.login-alert": { channel: "EMAIL", types: ["security.login.new"] },
+  "sms.login-alert": { channel: "SMS", types: ["security.login.new"] },
+  "email.welcome": { channel: "EMAIL", types: ["account.welcome"] },
+  "sms.welcome": { channel: "SMS", types: ["account.welcome"] },
+  "email.security-alert": { channel: "EMAIL", types: ["security.alert", "security.recovery"] },
+  "sms.security-alert": { channel: "SMS", types: ["security.alert", "security.recovery"] },
+};
+
+async function dispatchedFor(to, names) {
+  const wanted = names ? [].concat(names) : Object.keys(DISPATCHED);
+  const kinds = wanted.filter((name) => DISPATCHED[name]);
+  if (!kinds.length) return [];
+
+  const found = [];
+  for (const name of kinds) {
+    const { channel, types } = DISPATCHED[name];
+    const deliveries = await prisma().notificationDelivery.findMany({
+      where: {
+        channel,
+        target: to,
+        status: { not: "SKIPPED" },
+        notification: { type: { in: types } },
+      },
+      include: { notification: true },
+      orderBy: { createdAt: "asc" },
+    });
+    for (const delivery of deliveries) {
+      found.push({
+        name,
+        data: { to, ...(delivery.notification.data ?? {}) },
+        createdAt: delivery.createdAt,
+      });
+    }
+  }
+  return found.sort((a, b) => a.createdAt - b.createdAt).map(({ name, data }) => ({ name, data }));
+}
+
 export async function jobsFor(to, names) {
   const items = await outbox();
-  return items.filter(
+  const queued = items.filter(
     (item) => item.data.to === to && (!names || [].concat(names).includes(item.name)),
   );
+  return [...queued, ...(await dispatchedFor(to, names))];
 }
 
 export async function lastCode(to) {

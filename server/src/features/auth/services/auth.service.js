@@ -11,19 +11,12 @@ const {
   decryptSecret,
 } = require("../../../core/auth/totp");
 const { generateBackupCodes, hashBackupCode } = require("../../../core/auth/backupCodes");
-const {
-  queueOtpEmail,
-  queueOtpSms,
-  queueWelcomeEmail,
-  queueWelcomeSms,
-  queueLoginAlertEmail,
-  queueLoginAlertSms,
-} = require("../../../core/queue/notifications");
+const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
+const { notify } = require("../../notifications/notify");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { createSession } = require("./session.service");
 const { logger } = require("../../../core/logger/logger");
-const { getConfig } = require("../../../config/env.config");
 const { lookupIp } = require("../../../core/geo/geo");
 const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
@@ -153,7 +146,15 @@ async function sendSignupOtp(user) {
 
   const { code, expiresMinutes } = await issueOtp({ purpose: OTP_PURPOSES.SIGNUP, target });
 
-  if (isEmail) await queueOtpEmail({ to: target, name: user.name, code, expiresMinutes });
+  if (isEmail) {
+    await queueOtpEmail({
+      to: target,
+      name: user.name,
+      code,
+      expiresMinutes,
+      purpose: OTP_PURPOSES.SIGNUP,
+    });
+  }
   else await queueOtpSms({ to: target, code, expiresMinutes });
 
   return { target, expiresMinutes };
@@ -261,12 +262,7 @@ async function verifySignUp({ email, phone, code, device }, meta) {
     logger.warn({ err, userId: user.id }, "Failed to queue signup login alert");
   }
 
-  try {
-    if (isEmail) await queueWelcomeEmail({ to: user.email, name: user.name, role: user.role });
-    else await queueWelcomeSms({ to: user.phone, name: user.name, role: user.role });
-  } catch (err) {
-    logger.warn({ err, userId: user.id }, "Failed to queue welcome message");
-  }
+  await notify({ event: "account.welcome", userId: user.id, data: { role: user.role } });
 
   return {
     user: publicUser(user),
@@ -303,8 +299,9 @@ async function requestLoginOtp({ email, phone, channel }, meta) {
 
   const { code, expiresMinutes } = await issueOtp({ purpose: OTP_PURPOSES.LOGIN, target });
 
-  if (email) await queueOtpEmail({ to: target, name: user.name, code, expiresMinutes });
-  else if (viaEmail) await queueOtpEmail({ to: user.email, name: user.name, code, expiresMinutes });
+  const loginMail = { name: user.name, code, expiresMinutes, purpose: OTP_PURPOSES.LOGIN };
+  if (email) await queueOtpEmail({ to: target, ...loginMail });
+  else if (viaEmail) await queueOtpEmail({ to: user.email, ...loginMail });
   else await queueOtpSms({ to: target, code, expiresMinutes });
 
   await logActivity({
@@ -326,22 +323,16 @@ async function requestLoginOtp({ email, phone, channel }, meta) {
 }
 
 async function notifyNewDevice({ user, device, now, geo }) {
-  const deviceName = device.deviceName || PLATFORM_LABELS[device.platform];
-  const location = geo.city || geo.country || UNKNOWN;
-
-  if (user.email && user.emailVerifiedAt) {
-    await queueLoginAlertEmail({
-      to: user.email,
-      name: user.name,
-      deviceName,
-      location,
-      country: geo.country,
-      date: now,
-      activityUrl: getConfig().mail.activityUrl,
-    });
-  } else if (user.phone && user.phoneVerifiedAt) {
-    await queueLoginAlertSms({ to: user.phone, deviceName, location });
-  }
+  await notify({
+    event: "security.login.new",
+    userId: user.id,
+    data: {
+      deviceName: device.deviceName || PLATFORM_LABELS[device.platform],
+      location: geo.city || geo.country || UNKNOWN,
+      country: geo.country || UNKNOWN,
+      date: now.toISOString(),
+    },
+  });
 }
 
 async function finishLogin({ user, method, device, meta }) {

@@ -1,8 +1,15 @@
 const { UnrecoverableError } = require("bullmq");
 const mail = require("../core/mail/mail.service");
 const sms = require("../core/messaging/sms.service");
+const onesignal = require("../features/notifications/providers/onesignal.provider");
 const { NOTIFICATION_JOBS } = require("../core/queue/notifications");
 const { AppError } = require("../core/errors/AppError");
+const {
+  deliverPush,
+  deliverEmail,
+  deliverSms,
+} = require("../features/notifications/services/delivery.service");
+const { runEscalation } = require("../features/notifications/services/escalation.service");
 
 const defaultHandlers = {
   [NOTIFICATION_JOBS.EMAIL_OTP]: (data) => mail.sendOtpEmail(data),
@@ -16,6 +23,11 @@ const defaultHandlers = {
     mail.sendSecurityAlertEmail({ ...data, date: new Date(data.date) }),
   [NOTIFICATION_JOBS.SMS_SECURITY_ALERT]: (data) => sms.sendSecurityAlertSms(data),
   [NOTIFICATION_JOBS.EMAIL_STAFF_SETUP]: (data) => mail.sendStaffSetupEmail(data),
+  [NOTIFICATION_JOBS.PUSH]: (data) => onesignal.sendPush(data),
+  [NOTIFICATION_JOBS.PUSH_DELIVERY]: (data, job) => deliverPush(data, job),
+  [NOTIFICATION_JOBS.EMAIL_DELIVERY]: (data, job) => deliverEmail(data, job),
+  [NOTIFICATION_JOBS.SMS_DELIVERY]: (data, job) => deliverSms(data, job),
+  [NOTIFICATION_JOBS.ESCALATE]: (data) => runEscalation(data),
 };
 
 function isPermanentFailure(err) {
@@ -28,7 +40,7 @@ function createNotificationProcessor(handlers) {
     if (!handler) throw new UnrecoverableError(`Unknown notification job: ${job.name}`);
 
     try {
-      await handler(job.data);
+      await handler(job.data, job);
     } catch (err) {
       if (isPermanentFailure(err)) {
         throw new UnrecoverableError(`${err.code}: ${err.message}`);

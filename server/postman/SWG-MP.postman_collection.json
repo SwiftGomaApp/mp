@@ -16,8 +16,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         }
@@ -33,7 +37,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201));"
+                ]
               }
             }
           ],
@@ -47,8 +53,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/email",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "email"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "email"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -63,7 +75,9 @@
               "listen": "test",
               "script": {
                 "type": "text/javascript",
-                "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+                "exec": [
+                  "pm.test('201', () => pm.response.to.have.status(201));"
+                ]
               }
             }
           ],
@@ -77,8 +91,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/phone",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "phone"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "phone"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -112,8 +132,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -147,8 +173,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -182,8 +214,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -203,8 +241,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/resend",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "resend"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "resend"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -224,8 +268,14 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/signup/resend",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "signup", "resend"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "signup",
+                "resend"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -257,8 +307,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/request",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "request"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "request"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -290,8 +347,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/request",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "request"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "request"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -326,8 +390,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -362,8 +433,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -398,8 +476,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -432,8 +517,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/otp/verify",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login", "otp", "verify"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                "otp",
+                "verify"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -467,8 +559,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
             }
           }
         },
@@ -504,8 +601,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -545,8 +647,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -579,8 +686,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -618,8 +730,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/sessions",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "sessions"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "sessions"
+                  ]
                 }
               }
             },
@@ -647,8 +764,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/sessions/{{targetSessionId}}",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "sessions", "{{targetSessionId}}"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "sessions",
+                    "{{targetSessionId}}"
+                  ]
                 }
               }
             },
@@ -659,7 +782,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('204', () => pm.response.to.have.status(204));"]
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
                   }
                 }
               ],
@@ -673,8 +798,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/logout",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "logout"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout"
+                  ]
                 }
               }
             },
@@ -702,8 +832,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/logout-all",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "logout-all"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "logout-all"
+                  ]
                 }
               }
             },
@@ -731,8 +866,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/me",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "me"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "me"
+                  ]
                 }
               }
             }
@@ -805,8 +945,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa"
+                  ]
                 }
               }
             },
@@ -840,8 +985,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/setup",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "setup"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "setup"
+                  ]
                 }
               }
             },
@@ -875,13 +1026,20 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/confirm",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "confirm"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "confirm"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"code\": \"{{totpCode}}\"\n}"
-                }
+                  "raw": "{\n  \"code\": \"{{totpCode}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             },
             {
@@ -914,8 +1072,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/backup-codes",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "backup-codes"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "backup-codes"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -951,8 +1115,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/disable",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "disable"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "disable"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -988,8 +1158,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/disable",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "disable"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "disable"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1026,8 +1202,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/otp/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "otp", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "otp",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1062,8 +1245,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1097,8 +1286,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1143,8 +1338,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/otp/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "otp", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "otp",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1182,8 +1384,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/enroll/setup",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "enroll", "setup"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "enroll",
+                    "setup"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1224,8 +1433,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "enroll", "confirm"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "enroll",
+                    "confirm"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1256,8 +1472,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/2fa/enroll/confirm",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "2fa", "enroll", "confirm"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "2fa",
+                    "enroll",
+                    "confirm"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1300,8 +1523,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/otp/request",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "otp", "request"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "otp",
+                    "request"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1316,7 +1546,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('201', () => pm.response.to.have.status(201));"]
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));"
+                    ]
                   }
                 }
               ],
@@ -1334,8 +1566,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1350,7 +1587,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('409', () => pm.response.to.have.status(409));"]
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));"
+                    ]
                   }
                 }
               ],
@@ -1368,8 +1607,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1384,7 +1628,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
                   }
                 }
               ],
@@ -1402,8 +1648,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/otp/request",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "otp", "request"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "otp",
+                    "request"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1440,8 +1693,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1477,8 +1735,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1513,8 +1776,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1549,8 +1818,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1583,8 +1858,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1616,8 +1897,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/forgot",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "forgot"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "forgot"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1632,7 +1919,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
                   }
                 }
               ],
@@ -1646,8 +1935,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/forgot",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "forgot"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "forgot"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1679,8 +1974,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/reset",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "reset"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "reset"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1712,8 +2013,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/reset",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "reset"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "reset"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1728,7 +2035,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
                   }
                 }
               ],
@@ -1746,8 +2055,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/otp/request",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "otp", "request"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "otp",
+                    "request"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1762,7 +2078,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('200', () => pm.response.to.have.status(200));"]
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
                   }
                 }
               ],
@@ -1780,8 +2098,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/password/remove",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "password", "remove"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "password",
+                    "remove"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1796,7 +2120,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('401', () => pm.response.to.have.status(401));"]
+                    "exec": [
+                      "pm.test('401', () => pm.response.to.have.status(401));"
+                    ]
                   }
                 }
               ],
@@ -1810,8 +2136,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/password",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "password"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "password"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1851,8 +2183,15 @@
                 "header": [],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/passkey/options",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "passkey", "options"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "passkey",
+                    "options"
+                  ]
                 }
               }
             },
@@ -1884,8 +2223,15 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/passkey/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "passkey", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "passkey",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -1917,8 +2263,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/passkeys",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "passkeys"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "passkeys"
+                  ]
                 }
               }
             },
@@ -1952,8 +2303,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/passkeys/options",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "passkeys", "options"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "passkeys",
+                    "options"
+                  ]
                 }
               }
             },
@@ -1985,13 +2342,20 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/passkeys/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "passkeys", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "passkeys",
+                    "verify"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"{{passkeyName}}\",\n  \"deviceId\": \"{{deviceId}}\",\n  \"response\": {{passkeyRegistrationResponse}}\n}"
-                }
+                  "raw": "{\n  \"name\": \"{{passkeyName}}\",\n  \"deviceId\": \"{{deviceId}}\",\n  \"response\": {{passkeyRegistrationResponse}},\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             },
             {
@@ -2021,8 +2385,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "passkeys",
+                    "{{passkeyId}}"
+                  ]
                 },
                 "body": {
                   "mode": "raw",
@@ -2037,7 +2407,9 @@
                   "listen": "test",
                   "script": {
                     "type": "text/javascript",
-                    "exec": ["pm.test('204', () => pm.response.to.have.status(204));"]
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
                   }
                 }
               ],
@@ -2051,8 +2423,14 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/passkeys/{{passkeyId}}",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "passkeys", "{{passkeyId}}"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "passkeys",
+                    "{{passkeyId}}"
+                  ]
                 }
               }
             }
@@ -2061,6 +2439,40 @@
         {
           "name": "Google OAuth",
           "item": [
+            {
+              "name": "OAuth nonce",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const { nonce } = pm.response.json();",
+                      "pm.test('A nonce is returned', () => pm.expect(nonce).to.be.a('string').with.length.above(31));",
+                      "pm.environment.set('oauthNonce', nonce);",
+                      "pm.environment.set('appleNonce', nonce);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/oauth/nonce",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "oauth",
+                    "nonce"
+                  ]
+                },
+                "description": "Issues a single-use nonce. Request it before every Google or Apple sign-in, then ask the provider for a token for this nonce. Stored in {{oauthNonce}} and {{appleNonce}}."
+              }
+            },
             {
               "name": "Google - Login",
               "request": {
@@ -2073,14 +2485,20 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"nonce\": \"{{oauthNonce}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/google",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "google"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "google"
+                  ]
                 },
-                "description": "Connecte un utilisateur existant avec un Google ID token vérifié par le serveur. Une vérification 2FA peut être nécessaire."
+                "description": "Connecte un utilisateur existant avec un Google ID token vérifié par le serveur. Une vérification 2FA peut être nécessaire.\n\nNeeds a server nonce. Run 'OAuth nonce' first: it stores it in {{oauthNonce}}, and the Google token must be issued for that nonce."
               }
             },
             {
@@ -2095,14 +2513,20 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\",\n    \"userAgent\": \"Postman\"\n  }\n}"
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"nonce\": \"{{oauthNonce}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"ANDROID\",\n    \"deviceName\": \"Postman Android\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/signup/google",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "signup", "google"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "signup",
+                    "google"
+                  ]
                 },
-                "description": "Crée un compte à partir d'une identité Google vérifiée. Le rôle BUYER est utilisé comme valeur de test ; les rôles privilégiés doivent être refusés côté serveur."
+                "description": "Crée un compte à partir d'une identité Google vérifiée. Le rôle BUYER est utilisé comme valeur de test ; les rôles privilégiés doivent être refusés côté serveur.\n\nNeeds a server nonce. Run 'OAuth nonce' first: it stores it in {{oauthNonce}}, and the Google token must be issued for that nonce."
               }
             },
             {
@@ -2121,19 +2545,24 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\"\n}"
+                  "raw": "{\n  \"idToken\": \"{{googleIdToken}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/google/link",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "google", "link"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "google",
+                    "link"
+                  ]
                 },
-                "description": "Associe un compte Google vérifié au compte SwiftGoma actuellement authentifié. Le serveur doit empêcher les associations avec une identité déjà liée à un autre utilisateur."
+                "description": "Associe un compte Google vérifié au compte SwiftGoma actuellement authentifié. Le serveur doit empêcher les associations avec une identité déjà liée à un autre utilisateur.\n\nNeeds a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             }
           ]
         },
-
         {
           "name": "Apple OAuth",
           "item": [
@@ -2149,12 +2578,18 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/login/apple",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "login", "apple"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login",
+                    "apple"
+                  ]
                 }
               }
             },
@@ -2170,12 +2605,18 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"name\": \"SwiftGoma User\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\",\n    \"userAgent\": \"SwiftGoma iOS\"\n  }\n}"
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"role\": \"BUYER\",\n  \"acceptTerms\": true,\n  \"confirmAge\": true,\n  \"name\": \"SwiftGoma User\",\n  \"device\": {\n    \"deviceId\": \"{{deviceId}}\",\n    \"platform\": \"IOS\",\n    \"deviceName\": \"iPhone\"\n  }\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/signup/apple",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "signup", "apple"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "signup",
+                    "apple"
+                  ]
                 }
               }
             },
@@ -2195,18 +2636,24 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\"\n}"
+                  "raw": "{\n  \"idToken\": \"{{appleIdToken}}\",\n  \"nonce\": \"{{appleNonce}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/apple/link",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "apple", "link"]
-                }
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "apple",
+                    "link"
+                  ]
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             }
           ]
         },
-
         {
           "name": "Secondary Contacts",
           "item": [
@@ -2222,8 +2669,13 @@
                 ],
                 "url": {
                   "raw": "{{baseUrl}}/auth/secondary-contacts",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "secondary-contacts"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts"
+                  ]
                 }
               }
             },
@@ -2243,13 +2695,20 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{secondaryEmail}}\"\n}"
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{secondaryEmail}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/secondary-contacts/otp",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "secondary-contacts", "otp"]
-                }
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts",
+                    "otp"
+                  ]
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             },
             {
@@ -2272,8 +2731,14 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/secondary-contacts/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "secondary-contacts", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts",
+                    "verify"
+                  ]
                 }
               }
             },
@@ -2293,13 +2758,20 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{secondaryPhone}}\"\n}"
+                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{secondaryPhone}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/secondary-contacts/otp",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "secondary-contacts", "otp"]
-                }
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts",
+                    "otp"
+                  ]
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
               }
             },
             {
@@ -2322,9 +2794,835 @@
                 },
                 "url": {
                   "raw": "{{baseUrl}}/auth/secondary-contacts/verify",
-                  "host": ["{{baseUrl}}"],
-                  "path": ["auth", "secondary-contacts", "verify"]
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts",
+                    "verify"
+                  ]
                 }
+              }
+            },
+            {
+              "name": "Secondary Contacts - Remove",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/secondary-contacts/remove",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "secondary-contacts",
+                    "remove"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Step-up code",
+          "item": [
+            {
+              "name": "Request step-up code (email)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Channel and expiry returned', () => { pm.expect(b.channel).to.eql('EMAIL'); pm.expect(b.expiresMinutes).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/step-up/otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "step-up",
+                    "otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"EMAIL\"\n}"
+                },
+                "description": "Sends a code for sensitive actions that ask for 'stepUpCode': 2FA confirm, registering a passkey, linking Google or Apple, and adding or removing a secondary contact. Paste the code into {{otpCode}}."
+              }
+            },
+            {
+              "name": "Request step-up code (phone)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/step-up/otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "step-up",
+                    "otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"channel\": \"PHONE\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activity and security",
+          "item": [
+            {
+              "name": "Account activity",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('A page of events', () => { pm.expect(b.items).to.be.an('array'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/activity?page=1&limit=20&category=LOGIN",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "activity"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "category",
+                      "value": "LOGIN"
+                    }
+                  ]
+                },
+                "description": "category is optional: LOGIN, DEVICE or SECURITY."
+              }
+            },
+            {
+              "name": "Security checklist",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/security",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "security"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Account recovery",
+          "description": "Run steps 1 to 4 in order, pasting each emailed code into {{otpCode}}. Set {{newContactEmail}} first.",
+          "item": [
+            {
+              "name": "1. Request recovery (email)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Generic message', () => pm.expect(pm.response.json().message).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/recovery/request",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "recovery",
+                    "request"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"kind\": \"EMAIL\"\n}"
+                },
+                "description": "Sends a code to the account's verified recovery contact. The answer is the same whether or not the account exists."
+              }
+            },
+            {
+              "name": "2. Verify the code",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Token and wait returned', () => { pm.expect(b.recoveryToken).to.be.a('string'); pm.expect(b.availableAt).to.be.a('string'); });",
+                      "pm.environment.set('recoveryToken', b.recoveryToken);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/recovery/verify",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "recovery",
+                    "verify"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"kind\": \"EMAIL\",\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Opens the recovery and a 24-hour waiting period. The owner is warned on every primary contact."
+              }
+            },
+            {
+              "name": "3. Choose the new contact",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200 once the wait is over, 403 before', () => pm.expect(pm.response.code).to.be.oneOf([200, 403]));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/recovery/contact",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "recovery",
+                    "contact"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{recoveryToken}}\",\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{newContactEmail}}\"\n}"
+                },
+                "description": "Answers 403 RECOVERY_WAITING until the waiting period is over, then sends a code to the new contact."
+              }
+            },
+            {
+              "name": "4. Complete the recovery",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Recovered', () => pm.expect(pm.response.json().recovered).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/recovery/complete",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "recovery",
+                    "complete"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{recoveryToken}}\",\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{newContactEmail}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Accounts with two-step verification must also send 'backupCode'. Closes every session and removes the password."
+              }
+            },
+            {
+              "name": "Cancel a pending recovery (owner)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/recovery/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "recovery",
+                    "cancel"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sign-in methods",
+          "item": [
+            {
+              "name": "List sign-in methods",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/methods",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "methods"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Remove a sign-in method",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/methods/{{methodToRemove}}/remove",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "methods",
+                    "{{methodToRemove}}",
+                    "remove"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "description": "{{methodToRemove}} is EMAIL, PHONE, GOOGLE or APPLE. Needs a step-up code; the last way to sign in can never be removed."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Support requests",
+          "description": "The list and close requests need a Support or Admin session in {{accessToken}}.",
+          "item": [
+            {
+              "name": "Write to Support (suspended account)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('202', () => pm.response.to.have.status(202));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/support-request",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "support-request"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"{{email}}\",\n  \"message\": \"Mon compte a été suspendu, pouvez-vous m'aider à le récupérer ?\"\n}"
+                },
+                "description": "Public. Always answers the same way, so it never reveals whether an account exists."
+              }
+            },
+            {
+              "name": "List open requests (Support or Admin)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('A page of requests', () => pm.expect(b.items).to.be.an('array'));",
+                      "if (b.items.length) pm.environment.set('supportRequestId', b.items[0].id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/support-requests?status=OPEN&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "support-requests"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "OPEN"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Close a request (Admin)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/support-requests/{{supportRequestId}}/close",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "support-requests",
+                    "{{supportRequestId}}",
+                    "close"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"note\": \"Dossier traité\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff accounts (Admin)",
+          "description": "Sign in as the Admin before running these.",
+          "item": [
+            {
+              "name": "Create a Support account",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "pm.test('Account returned', () => { pm.expect(b.id).to.be.a('string'); pm.expect(b.role).to.eql('SUPPORT'); });",
+                      "pm.environment.set('staffId', b.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/staff",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "staff"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Agent Support\",\n  \"email\": \"{{staffEmail}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Admin only. Needs a step-up code. Emails the setup link to the new member."
+              }
+            },
+            {
+              "name": "Choose a password from the setup link",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/staff/setup",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "staff",
+                    "setup"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"token\": \"{{staffSetupToken}}\",\n  \"newPassword\": \"{{newPassword}}\"\n}"
+                },
+                "description": "Public. {{staffSetupToken}} comes from the link in the email."
+              }
+            },
+            {
+              "name": "Resend the setup link",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/staff/{{staffId}}/resend-setup",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "staff",
+                    "{{staffId}}",
+                    "resend-setup"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Reset a member's 2FA",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/auth/staff/{{staffId}}/reset-2fa",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "staff",
+                    "{{staffId}}",
+                    "reset-2fa"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{otpCode}}\",\n  \"reason\": \"Téléphone perdu par le membre\"\n}"
+                },
+                "description": "Admin only. Uses the Admin's own step-up code and closes the member's sessions."
               }
             }
           ]
@@ -2362,8 +3660,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/suspend",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "{{targetUserId}}", "suspend"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{targetUserId}}",
+                "suspend"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -2399,8 +3704,15 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/ban",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "{{targetUserId}}", "ban"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{targetUserId}}",
+                "ban"
+              ]
             },
             "body": {
               "mode": "raw",
@@ -2436,14 +3748,2184 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reactivate",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "users", "{{targetUserId}}", "reactivate"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{targetUserId}}",
+                "reactivate"
+              ]
             },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"reason\": \"Vérification terminée, compte rétabli\"\n}"
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "description": "Inbox, preferences and push devices for the signed-in user. Realtime events (notification:new, notification:read, notification:deleted) arrive over Socket.IO and are not part of this collection.",
+      "item": [
+        {
+          "name": "Inbox",
+          "item": [
+            {
+              "name": "List notifications",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Items and unread count', () => { pm.expect(b.items).to.be.an('array'); pm.expect(b.unreadCount).to.be.a('number'); });",
+                      "if (b.items.length) pm.environment.set('notificationId', b.items[0].id);",
+                      "pm.environment.set('notificationCursor', b.nextCursor || '');"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications?limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "context",
+                      "value": "PURCHASE",
+                      "disabled": true
+                    },
+                    {
+                      "key": "unread",
+                      "value": "true",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Newest first. context (SECURITY, PURCHASE, SALE, DELIVERY, SUPPORT, ADMIN, ANNOUNCEMENT) and unread are optional filters. Stores the first id in {{notificationId}} and the next-page cursor in {{notificationCursor}}."
+              }
+            },
+            {
+              "name": "List notifications - next page",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Items and unread count', () => { pm.expect(b.items).to.be.an('array'); pm.expect(b.unreadCount).to.be.a('number'); });",
+                      "if (b.items.length) pm.environment.set('notificationId', b.items[0].id);",
+                      "pm.environment.set('notificationCursor', b.nextCursor || '');"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications?cursor={{notificationCursor}}&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications"
+                  ],
+                  "query": [
+                    {
+                      "key": "cursor",
+                      "value": "{{notificationCursor}}"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Unread count",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Total and per context', () => { pm.expect(b.unreadCount).to.be.a('number'); pm.expect(b.byContext).to.be.an('object'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/unread-count",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "unread-count"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Mark one as read",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Unread count returned', () => pm.expect(pm.response.json().unreadCount).to.be.a('number'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "{{notificationId}}",
+                    "read"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Acknowledge (accept an urgent notification)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/{{notificationId}}/ack",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "{{notificationId}}",
+                    "ack"
+                  ]
+                },
+                "description": "For urgent notifications such as a rider assignment. Also marks it read and stops the SMS reminder."
+              }
+            },
+            {
+              "name": "Mark all as read",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Counts returned', () => { const b = pm.response.json(); pm.expect(b.updated).to.be.a('number'); pm.expect(b.unreadCount).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/read-all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "read-all"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "description": "Send {\"context\": \"PURCHASE\"} to mark only one category."
+              }
+            },
+            {
+              "name": "Delete a notification",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "{{notificationId}}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preferences",
+          "item": [
+            {
+              "name": "Get preferences",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Categories and settings', () => { pm.expect(b.categories).to.be.an('array'); pm.expect(b.settings).to.have.property('timezone'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "preferences"
+                  ]
+                },
+                "description": "Categories and channels for this user's role. locked means the user cannot turn it off."
+              }
+            },
+            {
+              "name": "Turn push off for purchases",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferences\": [\n    {\n      \"context\": \"PURCHASE\",\n      \"channel\": \"PUSH\",\n      \"enabled\": false\n    }\n  ]\n}"
+                },
+                "description": "Channels: PUSH, SMS, EMAIL. SECURITY cannot be switched off (403 PREFERENCE_LOCKED); a category the role does not have answers 400 PREFERENCE_UNAVAILABLE."
+              }
+            },
+            {
+              "name": "Turn push back on for purchases",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"preferences\": [\n    {\n      \"context\": \"PURCHASE\",\n      \"channel\": \"PUSH\",\n      \"enabled\": true\n    }\n  ]\n}"
+                }
+              }
+            },
+            {
+              "name": "Set quiet hours",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Saved', () => pm.expect(pm.response.json().quietHoursEnabled).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "settings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"timezone\": \"Africa/Lubumbashi\",\n  \"quietHoursEnabled\": true,\n  \"quietHoursStart\": 1320,\n  \"quietHoursEnd\": 360\n}"
+                },
+                "description": "Minutes from midnight in the chosen time zone: 1320 = 22:00, 360 = 06:00. Only holds back non-critical push."
+              }
+            },
+            {
+              "name": "Turn quiet hours off",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "settings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"quietHoursEnabled\": false\n}"
+                }
+              }
+            },
+            {
+              "name": "Accept marketing emails",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Opted in', () => pm.expect(pm.response.json().marketingEmailOptIn).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "settings"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"marketingEmailOptIn\": true\n}"
+                },
+                "description": "Off by default. Marketing is email only and never sent without this."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Devices",
+          "item": [
+            {
+              "name": "Register a push device",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "pm.test('Registration id', () => pm.expect(pm.response.json().id).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/devices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "devices"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"subscriptionId\": \"{{onesignalSubscriptionId}}\",\n  \"deviceId\": \"{{deviceId}}\",\n  \"platform\": \"ANDROID\"\n}"
+                },
+                "description": "Call after the app signs in, with the OneSignal subscription id (at least 8 characters)."
+              }
+            },
+            {
+              "name": "Remove a push device (on logout)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Removed count', () => pm.expect(pm.response.json().removed).to.be.a('number'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/devices/{{onesignalSubscriptionId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "devices",
+                    "{{onesignalSubscriptionId}}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin and Support",
+          "description": "Needs an Admin or Support session in {{accessToken}}.",
+          "item": [
+            {
+              "name": "Delivery results by channel (Admin)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Channels and SMS usage', () => { pm.expect(b.channels).to.be.an('object'); pm.expect(b.smsToday).to.be.an('object'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/admin/analytics?days=7",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "admin",
+                    "analytics"
+                  ],
+                  "query": [
+                    {
+                      "key": "days",
+                      "value": "7"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Did this person get it? - by email (Support or Admin)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('User and notifications', () => { pm.expect(b.user).to.be.an('object'); pm.expect(b.notifications).to.be.an('array'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/admin/deliveries?email={{email}}&limit=30",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "admin",
+                    "deliveries"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "{{email}}"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "30"
+                    }
+                  ]
+                },
+                "description": "Titles and delivery results only, never message bodies. Use either email or userId."
+              }
+            },
+            {
+              "name": "Did this person get it? - by user id (Support or Admin)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/admin/deliveries?userId={{targetUserId}}&limit=30",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "admin",
+                    "deliveries"
+                  ],
+                  "query": [
+                    {
+                      "key": "userId",
+                      "value": "{{targetUserId}}"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "30"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "SMS delivery report - delivered (Africa's Talking)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/sms?key={{atWebhookSecret}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "sms"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{atWebhookSecret}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "id",
+                  "value": "{{smsMessageId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "Success",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "{{phone}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "description": "Called by Africa's Talking, not by the app. {{atWebhookSecret}} must equal AT_WEBHOOK_SECRET on the server. 503 means the secret is not set, 401 a wrong key."
+          }
+        },
+        {
+          "name": "SMS delivery report - failed (Africa's Talking)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/sms?key={{atWebhookSecret}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "sms"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "{{atWebhookSecret}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "id",
+                  "value": "{{smsMessageId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "Failed",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "{{phone}}",
+                  "type": "text"
+                },
+                {
+                  "key": "failureReason",
+                  "value": "InsufficientCredit",
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Marketing",
+      "description": "Admin only, email only. Segments and templates feed campaigns; the suppression list keeps unsubscribed and bounced addresses out.",
+      "item": [
+        {
+          "name": "Segments",
+          "item": [
+            {
+              "name": "List segments",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('A page', () => pm.expect(pm.response.json().items).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Preview an audience",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Count and sample', () => { pm.expect(b.count).to.be.a('number'); pm.expect(b.sample).to.be.an('array'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments/preview",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments",
+                    "preview"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"rules\": {\n    \"roles\": [\n      \"BUYER\"\n    ],\n    \"cities\": [\n      \"Goma\"\n    ],\n    \"lastLoginWithinDays\": 30\n  }\n}"
+                },
+                "description": "Counts who would receive it. Only active customers with a verified email who accepted marketing are ever included, whatever the rules say. Rules: roles, platforms, cities, lastLoginWithinDays, inactiveForDays, signedUpWithinDays, verificationStatuses."
+              }
+            },
+            {
+              "name": "Create a segment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "pm.test('Segment returned', () => pm.expect(b.id).to.be.a('string'));",
+                      "pm.environment.set('segmentId', b.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acheteurs actifs à Goma\",\n  \"description\": \"Connectés ces 30 derniers jours\",\n  \"rules\": {\n    \"roles\": [\n      \"BUYER\"\n    ],\n    \"cities\": [\n      \"Goma\"\n    ],\n    \"lastLoginWithinDays\": 30\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Get a segment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments/{{segmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments",
+                    "{{segmentId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update a segment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments/{{segmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments",
+                    "{{segmentId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Acheteurs actifs à Goma (60 jours)\",\n  \"rules\": {\n    \"roles\": [\n      \"BUYER\"\n    ],\n    \"cities\": [\n      \"Goma\"\n    ],\n    \"lastLoginWithinDays\": 60\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete a segment",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/segments/{{segmentId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "segments",
+                    "{{segmentId}}"
+                  ]
+                },
+                "description": "409 SEGMENT_IN_USE while a scheduled or sending campaign uses it."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Email templates",
+          "item": [
+            {
+              "name": "List templates",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/templates?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "templates"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create a template",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "if (!pm.environment.get('templateKey')) pm.environment.set('templateKey', 'newsletter-' + Date.now());"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "pm.test('Version 1 created', () => pm.expect(pm.response.json().versions).to.have.lengthOf(1));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/templates",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "templates"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"key\": \"{{templateKey}}\",\n  \"name\": \"Nouveautés de la semaine\",\n  \"description\": \"Newsletter hebdomadaire\",\n  \"subject\": \"Bonjour {{firstName}}, les nouveautés SwiftGoma\",\n  \"preheader\": \"Les offres de la semaine à Goma\",\n  \"html\": \"<h1>Bonjour {{firstName}} !</h1><p>Découvrez les nouveautés des boutiques de Goma.</p><p><a href=\\\"https://swiftgoma.com\\\">Voir les offres</a></p>\",\n  \"text\": \"Bonjour {{firstName}}, découvrez les nouveautés sur swiftgoma.com\"\n}"
+                },
+                "description": "key: lowercase letters, digits, '.', '_' or '-'. The server fills {{firstName}} (and {{name}}) per recipient. Postman replaces {{name}} with your environment variable called name before sending, so these examples use {{firstName}}."
+              }
+            },
+            {
+              "name": "Get a template (all versions)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Versions', () => pm.expect(pm.response.json().versions).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/templates/{{templateKey}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "templates",
+                    "{{templateKey}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update a template (creates a new version)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Version advanced', () => pm.expect(pm.response.json().currentVersion).to.be.above(1));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/templates/{{templateKey}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "templates",
+                    "{{templateKey}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"subject\": \"Bonjour {{firstName}}, nos nouveautés de la semaine\"\n}"
+                },
+                "description": "Campaigns keep the version they were created from."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Campaigns",
+          "description": "Admin only. Run Segments, then Email templates, then these in order. Sign in as the Admin first.",
+          "item": [
+            {
+              "name": "List campaigns",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns?status=DRAFT&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "DRAFT"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create a campaign (own content)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "pm.test('Draft created', () => pm.expect(b.status).to.eql('DRAFT'));",
+                      "pm.environment.set('campaignId', b.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Newsletter de la semaine\",\n  \"segmentId\": \"{{segmentId}}\",\n  \"subject\": \"Bonjour {{firstName}}, les nouveautés SwiftGoma\",\n  \"preheader\": \"Les offres de la semaine à Goma\",\n  \"html\": \"<h1>Bonjour {{firstName}} !</h1><p>Découvrez les nouveautés des boutiques de Goma.</p><p><a href=\\\"https://swiftgoma.com\\\">Voir les offres</a></p>\"\n}"
+                },
+                "description": "Leave segmentId out (or null) to target every customer who accepted marketing."
+              }
+            },
+            {
+              "name": "Create a campaign (from a template)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "pm.test('Template version recorded', () => pm.expect(b.templateVersion).to.be.a('number'));",
+                      "pm.environment.set('campaignId', b.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Newsletter depuis le modèle\",\n  \"segmentId\": \"{{segmentId}}\",\n  \"templateKey\": \"{{templateKey}}\"\n}"
+                },
+                "description": "Copies the template's current version into the campaign."
+              }
+            },
+            {
+              "name": "Get a campaign",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update a draft",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Newsletter de la semaine (v2)\",\n  \"preheader\": \"Nouveau : livraison plus rapide\"\n}"
+                },
+                "description": "Only a DRAFT can be edited (409 CAMPAIGN_NOT_EDITABLE otherwise)."
+              }
+            },
+            {
+              "name": "Send a test to myself",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Masked address', () => pm.expect(pm.response.json().sentTo).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/test",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "test"
+                  ]
+                },
+                "description": "Sends the campaign, marked [TEST], to the signed-in admin's own verified email. No tracking."
+              }
+            },
+            {
+              "name": "Schedule",
+              "event": [
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.environment.set('scheduledAt', new Date(Date.now() + 60 * 60 * 1000).toISOString());"
+                    ]
+                  }
+                },
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Scheduled for a known audience', () => { pm.expect(b.status).to.eql('SCHEDULED'); pm.expect(b.audience).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/schedule",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "schedule"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"scheduledAt\": \"{{scheduledAt}}\"\n}"
+                },
+                "description": "scheduledAt is an ISO date at least one minute ahead. The pre-request script sets it to one hour from now."
+              }
+            },
+            {
+              "name": "Send now",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Scheduled to start', () => pm.expect(pm.response.json().status).to.eql('SCHEDULED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/send",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "send"
+                  ]
+                },
+                "description": "Starts sending straight away at the configured pace. 400 EMPTY_AUDIENCE or AUDIENCE_TOO_LARGE if the audience is not valid. Sends real email."
+              }
+            },
+            {
+              "name": "Cancel",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Cancelled', () => pm.expect(pm.response.json().status).to.eql('CANCELLED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "cancel"
+                  ]
+                },
+                "description": "Works while the campaign is scheduled or sending. Messages not yet sent are skipped."
+              }
+            },
+            {
+              "name": "Campaign results",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Recipients and engagement', () => { pm.expect(b.recipients).to.be.an('object'); pm.expect(b.engagement).to.have.property('openRate'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/stats",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "stats"
+                  ]
+                },
+                "description": "Opens are an estimate: some mail apps load images for everyone. 'sent' means the mail server accepted the message."
+              }
+            },
+            {
+              "name": "Campaign recipients",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}/recipients?status=SENT&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}",
+                    "recipients"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "SENT"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete a draft or cancelled campaign",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/campaigns/{{campaignId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "{{campaignId}}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Suppression list",
+          "item": [
+            {
+              "name": "List suppressed addresses",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/suppressions?reason=BOUNCED&search=example&page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "suppressions"
+                  ],
+                  "query": [
+                    {
+                      "key": "reason",
+                      "value": "BOUNCED"
+                    },
+                    {
+                      "key": "search",
+                      "value": "example"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "description": "reason: UNSUBSCRIBED, BOUNCED or COMPLAINED. Both filters are optional."
+              }
+            },
+            {
+              "name": "Record a bounce or complaint",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const b = pm.response.json();",
+                      "pm.test('Recorded', () => pm.expect(b.reason).to.eql('BOUNCED'));",
+                      "pm.environment.set('suppressionId', b.id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/suppressions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "suppressions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"boite-pleine@example.com\",\n  \"reason\": \"BOUNCED\"\n}"
+                },
+                "description": "Plain email gives no automatic bounce feed, so an admin records them here. reason is BOUNCED or COMPLAINED."
+              }
+            },
+            {
+              "name": "Lift a bounce",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/suppressions/{{suppressionId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "suppressions",
+                    "{{suppressionId}}"
+                  ]
+                },
+                "description": "Only a BOUNCED address can be lifted (409 SUPPRESSION_LOCKED for unsubscribes and complaints, which people must reverse themselves)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Marketing overview",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('Overview', () => { pm.expect(b.campaigns).to.be.an('object'); pm.expect(b.totals).to.have.property('sent'); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/marketing/analytics?days=30",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "marketing",
+                "analytics"
+              ],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Links inside emails (public)",
+          "description": "No login needed. The tokens come from the links inside a campaign email.",
+          "item": [
+            {
+              "name": "Open pixel",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Is an image', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('image/gif'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/p/o/{{trackingToken}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "p",
+                    "o",
+                    "{{trackingToken}}"
+                  ]
+                },
+                "description": "A signed token copied from an email. Always answers with a 1x1 GIF."
+              }
+            },
+            {
+              "name": "Tracked link",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('302 redirect or 404', () => pm.expect(pm.response.code).to.be.oneOf([302, 404]));"
+                    ]
+                  }
+                }
+              ],
+              "protocolProfileBehavior": {
+                "followRedirects": false
+              },
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/p/c/{{trackingToken}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "p",
+                    "c",
+                    "{{trackingToken}}"
+                  ]
+                },
+                "description": "Paste a tracked link from an email into {{trackingToken}}. Redirects (302) to the real address; a forged token answers 404."
+              }
+            },
+            {
+              "name": "Unsubscribe page",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Offers to unsubscribe', () => pm.expect(pm.response.text()).to.include('Se désabonner'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/p/u/{{unsubscribeToken}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "p",
+                    "u",
+                    "{{unsubscribeToken}}"
+                  ]
+                },
+                "description": "Shows the confirmation page. Nothing changes until it is confirmed."
+              }
+            },
+            {
+              "name": "Confirm unsubscribe",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Confirmed', () => pm.expect(pm.response.text()).to.include('Désabonnement confirmé'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/marketing/p/u/{{unsubscribeToken}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "p",
+                    "u",
+                    "{{unsubscribeToken}}"
+                  ]
+                },
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "List-Unsubscribe",
+                      "value": "One-Click",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "Really unsubscribes the address in the token. It is also the one-click address used by mail apps."
+              }
+            }
+          ]
         }
       ]
     }

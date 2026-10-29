@@ -28,6 +28,7 @@ describe("login with an email code", () => {
     expect(login.body.user.id).toBe(user.id);
     expect(login.body.isNewDevice).toBe(true);
     expect(login.body.accessToken).toEqual(expect.any(String));
+    expect(login.body.expiresIn).toBe(900);
 
     expect(await jobsFor(user.email, "email.login-alert")).toHaveLength(1);
     const events = await prisma().activityLog.findMany({ where: { userId: user.id } });

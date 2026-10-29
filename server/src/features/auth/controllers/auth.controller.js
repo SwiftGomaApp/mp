@@ -1,5 +1,10 @@
 const service = require("../services/auth.service");
-const { setAuthCookies, clearAuthCookies, REFRESH_COOKIE } = require("../../../core/auth/cookies");
+const {
+  setAuthCookies,
+  clearAuthCookies,
+  accessExpiresIn,
+  REFRESH_COOKIE,
+} = require("../../../core/auth/cookies");
 const sessionService = require("../services/session.service");
 const { assertTrustedOrigin } = require("../../../core/middlewares/auth.middleware");
 const { AppError } = require("../../../core/errors/AppError");
@@ -32,9 +37,9 @@ async function verify(req, res, next) {
 
     if (req.body.device.platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
-      return res.json({ user });
+      return res.json({ user, expiresIn: accessExpiresIn() });
     }
-    res.json({ user, accessToken, refreshToken });
+    res.json({ user, accessToken, refreshToken, expiresIn: accessExpiresIn() });
   } catch (err) {
     next(err);
   }
@@ -65,9 +70,9 @@ async function verifyOtp(req, res, next) {
 
     if (req.body.device.platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
-      return res.json({ user, isNewDevice });
+      return res.json({ user, isNewDevice, expiresIn: accessExpiresIn() });
     }
-    res.json({ user, accessToken, refreshToken, isNewDevice });
+    res.json({ user, accessToken, refreshToken, isNewDevice, expiresIn: accessExpiresIn() });
   } catch (err) {
     next(err);
   }
@@ -180,9 +185,9 @@ async function verifyLogin(req, res, next) {
 
     if (platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
-      return res.json({ user, isNewDevice });
+      return res.json({ user, isNewDevice, expiresIn: accessExpiresIn() });
     }
-    res.json({ user, accessToken, refreshToken, isNewDevice });
+    res.json({ user, accessToken, refreshToken, isNewDevice, expiresIn: accessExpiresIn() });
   } catch (err) {
     next(err);
   }
@@ -205,9 +210,16 @@ async function enrollConfirm(req, res, next) {
 
     if (platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
-      return res.json({ user, isNewDevice, backupCodes });
+      return res.json({ user, isNewDevice, backupCodes, expiresIn: accessExpiresIn() });
     }
-    res.json({ user, accessToken, refreshToken, isNewDevice, backupCodes });
+    res.json({
+      user,
+      accessToken,
+      refreshToken,
+      isNewDevice,
+      backupCodes,
+      expiresIn: accessExpiresIn(),
+    });
   } catch (err) {
     next(err);
   }
@@ -326,9 +338,9 @@ async function passkeyLoginVerify(req, res, next) {
     const { user, accessToken, refreshToken, isNewDevice, platform } = result;
     if (platform === "WEB") {
       setAuthCookies(res, { accessToken, refreshToken });
-      return res.json({ user, isNewDevice });
+      return res.json({ user, isNewDevice, expiresIn: accessExpiresIn() });
     }
-    res.json({ user, accessToken, refreshToken, isNewDevice });
+    res.json({ user, accessToken, refreshToken, isNewDevice, expiresIn: accessExpiresIn() });
   } catch (err) {
     next(err);
   }

@@ -5,11 +5,13 @@ on:
     branches: [dev, main]
     paths:
       - "packages/auth/**"
+      - "server/src/**"
       - ".github/workflows/ci-auth.yml"
   push:
     branches: [dev, main]
     paths:
       - "packages/auth/**"
+      - "server/src/**"
       - ".github/workflows/ci-auth.yml"
 
 concurrency:

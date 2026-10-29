@@ -23,7 +23,8 @@ export interface SecureStoreLike {
 }
 
 export interface AppStateLike {
-  readonly currentState: string;
+  /** React Native reports null or undefined until the system has told it the state. */
+  readonly currentState: string | null | undefined;
   addEventListener(type: "change", listener: (state: string) => void): { remove(): void };
 }
 

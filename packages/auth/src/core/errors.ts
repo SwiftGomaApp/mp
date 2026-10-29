@@ -38,6 +38,8 @@ const DEFAULT_MESSAGES = {
   NETWORK_ERROR: "Impossible de joindre le serveur. Vérifiez votre connexion.",
   TIMEOUT: "Le serveur met trop de temps à répondre. Veuillez réessayer.",
   NOT_AUTHENTICATED: "Vous devez vous connecter pour continuer.",
+  SOCIAL_LOGIN_DISABLED: "Cette méthode de connexion n'est pas disponible.",
+  PASSKEYS_DISABLED: "Les clés d'accès ne sont pas disponibles sur cet appareil.",
   UNKNOWN_ERROR: "Une erreur est survenue",
 } as const;
 
@@ -104,6 +106,16 @@ export class TimeoutError extends ApiError {
 
 export class NotAuthenticatedError extends ApiError {
   override name: string = "NotAuthenticatedError";
+}
+
+/** The app did not give the package a Google or Apple provider. */
+export class SocialLoginDisabledError extends ApiError {
+  override name: string = "SocialLoginDisabledError";
+}
+
+/** The app did not give the package a passkey provider. */
+export class PasskeysDisabledError extends ApiError {
+  override name: string = "PasskeysDisabledError";
 }
 
 export class ValidationError extends ApiError {
@@ -249,6 +261,21 @@ export function createNotAuthenticatedError(): NotAuthenticatedError {
   return new NotAuthenticatedError({
     code: CLIENT_ERROR_CODES.NOT_AUTHENTICATED,
     message: DEFAULT_MESSAGES.NOT_AUTHENTICATED,
+  });
+}
+
+export function createSocialLoginDisabledError(provider: string): SocialLoginDisabledError {
+  return new SocialLoginDisabledError({
+    code: CLIENT_ERROR_CODES.SOCIAL_LOGIN_DISABLED,
+    message: DEFAULT_MESSAGES.SOCIAL_LOGIN_DISABLED,
+    details: { provider },
+  });
+}
+
+export function createPasskeysDisabledError(): PasskeysDisabledError {
+  return new PasskeysDisabledError({
+    code: CLIENT_ERROR_CODES.PASSKEYS_DISABLED,
+    message: DEFAULT_MESSAGES.PASSKEYS_DISABLED,
   });
 }
 

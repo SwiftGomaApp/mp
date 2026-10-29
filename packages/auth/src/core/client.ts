@@ -13,7 +13,7 @@ export interface HttpClientOptions {
 }
 
 export function resolveBaseUrl(baseUrl: string): string {
-  const origin = baseUrl.trim().replace(/\/+$/, "");
+  const origin = (typeof baseUrl === "string" ? baseUrl : "").trim().replace(/\/+$/, "");
   if (!origin) throw new TypeError("swiftgoma-mp-auth: baseUrl is required");
   return origin.endsWith(API_PREFIX) ? origin : `${origin}${API_PREFIX}`;
 }

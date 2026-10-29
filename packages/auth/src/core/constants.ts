@@ -1,6 +1,9 @@
 export const API_PREFIX = "/api/v1";
 
 export const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
+
+/** How long an access token lives when neither the server nor the token says. */
+export const DEFAULT_ACCESS_TTL_SECONDS = 900;
 export const REQUEST_ID_HEADER = "x-request-id";
 export const PLATFORMS = ["ANDROID", "IOS", "WEB"] as const;
 export type Platform = (typeof PLATFORMS)[number];

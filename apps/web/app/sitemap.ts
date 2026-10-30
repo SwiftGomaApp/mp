@@ -8,5 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${siteConfig.url}/auth/sign-up`,
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
   ];
 }

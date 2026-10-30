@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { type SignUpRole, requestSignUp, signUpWithGoogle } from "@/lib/auth-actions";
 import { authErrorMessage } from "@/lib/auth-errors";
-import { saveVerificationTarget } from "@/lib/auth-flow";
+import { saveVerificationTarget, POST_LOGIN_PATH } from "@/lib/auth-flow";
 
 const MIN_NAME_LENGTH = 2;
 
@@ -111,7 +111,7 @@ export function SignUpView() {
     setError(null);
     try {
       const outcome = await signUpWithGoogle(role);
-      if (outcome === "authenticated") router.push("/");
+      if (outcome === "authenticated") router.push(POST_LOGIN_PATH);
     } catch (err) {
       setError(authErrorMessage(err));
     } finally {

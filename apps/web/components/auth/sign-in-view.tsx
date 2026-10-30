@@ -14,7 +14,7 @@ import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { saveVerificationTarget } from "@/lib/auth-flow";
+import { saveVerificationTarget, POST_LOGIN_PATH } from "@/lib/auth-flow";
 import {
   type SignInOutcome,
   requestSignInCode,
@@ -36,7 +36,7 @@ export function SignInView() {
     setError(null);
     try {
       const outcome = await action();
-      if (outcome === "authenticated") router.push("/");
+      if (outcome === "authenticated") router.push(POST_LOGIN_PATH);
       else if (outcome === "twoFactor") setTwoFactorOpen(true);
       else {
         setError(
@@ -120,7 +120,7 @@ export function SignInView() {
       <TwoFactorDialog
         open={twoFactorOpen}
         onOpenChange={setTwoFactorOpen}
-        onVerified={() => router.push("/")}
+        onVerified={() => router.push(POST_LOGIN_PATH)}
       />
     </AuthSplitLayout>
   );

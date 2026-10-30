@@ -1,5 +1,8 @@
 import { parseDrcPhone } from "@/lib/phone";
 
+/** Where the user lands after every successful sign-in or sign-up. */
+export const POST_LOGIN_PATH = "/dashboard";
+
 export type VerificationMethod = "email" | "phone";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

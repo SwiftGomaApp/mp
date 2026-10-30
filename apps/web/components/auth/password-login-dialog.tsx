@@ -25,7 +25,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
 import { authErrorMessage } from "@/lib/auth-errors";
-import { isValidEmail } from "@/lib/auth-flow";
+import { isValidEmail, POST_LOGIN_PATH } from "@/lib/auth-flow";
 
 export function PasswordLoginDialog() {
   const router = useRouter();
@@ -61,7 +61,7 @@ export function PasswordLoginDialog() {
       setPassword("");
       if (result.status === "authenticated") {
         setOpen(false);
-        router.push("/");
+        router.push(POST_LOGIN_PATH);
       } else if (result.status === "twoFactorRequired") {
         setOpen(false);
         setTwoFactorOpen(true);
@@ -181,10 +181,7 @@ export function PasswordLoginDialog() {
               </Field>
 
               {error && (
-                <p
-                  role="alert"
-                  className="flex items-start gap-1.5 text-xs text-destructive"
-                >
+                <p role="alert" className="flex items-start gap-1.5 text-xs text-destructive">
                   <TriangleAlert className="mt-px size-3.5 shrink-0" />
                   {error}
                 </p>
@@ -222,7 +219,7 @@ export function PasswordLoginDialog() {
       <TwoFactorDialog
         open={twoFactorOpen}
         onOpenChange={setTwoFactorOpen}
-        onVerified={() => router.push("/")}
+        onVerified={() => router.push(POST_LOGIN_PATH)}
       />
     </>
   );

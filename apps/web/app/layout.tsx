@@ -6,6 +6,7 @@ import { siteConfig } from "@/lib/site";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { RestoreSession } from "@/components/auth/restore-session";
 import { AuthProvider } from "@/providers/auth-provider";
+import { SecurityCheck } from "@/components/security/security-check";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -116,6 +117,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           <AuthProvider>
             <RestoreSession />
+            <SecurityCheck />
             <TooltipProvider>{children}</TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

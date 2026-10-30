@@ -21,6 +21,7 @@ import {
   readStoredVerificationTarget,
   readVerificationTarget,
   startResendCooldown,
+  POST_LOGIN_PATH,
 } from "@/lib/auth-flow";
 import {
   requestSignInCode,
@@ -76,7 +77,7 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
 
   function finish() {
     clearVerificationTarget();
-    router.push("/");
+    router.push(POST_LOGIN_PATH);
   }
 
   async function handleVerify(value: string) {

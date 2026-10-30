@@ -10,22 +10,26 @@ const slides = [
   {
     tab: "Acheter",
     title: "Les boutiques de Goma sur votre téléphone",
-    description: "Parcourez les boutiques de votre ville, choisissez vos produits et commandez en quelques clics.",
+    description:
+      "Parcourez les boutiques de votre ville, choisissez vos produits et commandez en quelques clics.",
   },
   {
     tab: "Vendre",
     title: "Ouvrez votre boutique, touchez plus d’acheteurs",
-    description: "Présentez vos produits, recevez vos commandes et gérez votre boutique au même endroit.",
+    description:
+      "Présentez vos produits, recevez vos commandes et gérez votre boutique au même endroit.",
   },
   {
     tab: "Livrer",
     title: "Livrez et gagnez à votre rythme",
-    description: "Rejoignez les livreurs indépendants vérifiés et soyez payé pour chaque livraison réussie.",
+    description:
+      "Rejoignez les livreurs indépendants vérifiés et soyez payé pour chaque livraison réussie.",
   },
   {
     tab: "Payer",
     title: "Payez en toute sécurité avec Mobile Money",
-    description: "Votre argent reste protégé jusqu’à ce que vous confirmiez votre commande avec un code QR.",
+    description:
+      "Votre argent reste protégé jusqu’à ce que vous confirmiez votre commande avec un code QR.",
   },
 ] as const;
 
@@ -35,12 +39,19 @@ export function AuthShowcase() {
 
   return (
     <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/85 via-black/50 to-transparent p-6 pt-20 text-white">
-      <div key={active} className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-1000 motion-safe:ease-out">
+      <div
+        key={active}
+        className="motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-1000 motion-safe:ease-out"
+      >
         <h2 className="text-xl font-semibold tracking-tight">{slide.title}</h2>
         <p className="mt-2 max-w-md text-xs text-white/85">{slide.description}</p>
       </div>
 
-      <div role="tablist" aria-label="Ce que vous pouvez faire avec SwiftGoma" className="mt-5 flex gap-5">
+      <div
+        role="tablist"
+        aria-label="Ce que vous pouvez faire avec SwiftGoma"
+        className="mt-5 flex gap-5"
+      >
         {slides.map((item, index) => (
           <button
             key={item.tab}
@@ -53,7 +64,7 @@ export function AuthShowcase() {
             <span
               className={cn(
                 "text-[0.65rem] font-semibold tracking-wide uppercase transition-colors group-focus-visible:underline",
-                index === active ? "text-white" : "text-white/60 group-hover:text-white/90"
+                index === active ? "text-white" : "text-white/60 group-hover:text-white/90",
               )}
             >
               {item.tab}
@@ -65,8 +76,7 @@ export function AuthShowcase() {
                   "block h-full rounded-full bg-white",
                   index < active && "w-full",
                   index > active && "w-0",
-                  index === active &&
-                    "w-full motion-safe:w-0 motion-safe:animate-progress-fill"
+                  index === active && "w-full motion-safe:w-0 motion-safe:animate-progress-fill",
                 )}
                 style={{ "--slide-duration": `${SLIDE_DURATION_MS}ms` } as React.CSSProperties}
                 onAnimationEnd={() => {

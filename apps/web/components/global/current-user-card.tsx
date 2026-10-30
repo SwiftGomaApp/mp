@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
-import { useAuth, useSession } from "swiftgoma-mp-auth/react";
+import { useSession } from "swiftgoma-mp-auth/react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@/components/ui/spinner";
+import { POST_LOGIN_PATH } from "@/lib/auth-flow";
 
 const ROLE_LABELS: Record<string, string> = {
   BUYER: "Acheteur",
@@ -28,18 +27,7 @@ const initialsOf = (name: string) =>
     .join("") || "?";
 
 export function CurrentUserCard() {
-  const auth = useAuth();
   const { status, user } = useSession();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  async function handleLogout() {
-    setIsLoggingOut(true);
-    try {
-      await auth.logout();
-    } finally {
-      setIsLoggingOut(false);
-    }
-  }
 
   if (status === "unknown") {
     return (
@@ -110,9 +98,8 @@ export function CurrentUserCard() {
           )}
         </ul>
 
-        <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut}>
-          {isLoggingOut && <Spinner data-icon="inline-start" />}
-          Se déconnecter
+        <Button nativeButton={false} render={<Link href={POST_LOGIN_PATH} />}>
+          Aller au tableau de bord
         </Button>
       </CardContent>
     </Card>

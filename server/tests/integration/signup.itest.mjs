@@ -33,6 +33,7 @@ describe("signup by email", () => {
     expect(response.status).toBe(200);
     expect(tokens.user).toMatchObject({ email, role: "SELLER", status: "ACTIVE" });
     expect(tokens.accessToken).toEqual(expect.any(String));
+    expect(tokens.expiresIn).toBe(900);
     expect(tokens.refreshToken).toEqual(expect.any(String));
 
     const user = await prisma().user.findUnique({ where: { email } });

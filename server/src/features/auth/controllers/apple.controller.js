@@ -1,5 +1,5 @@
 const service = require("../services/apple.service");
-const { setAuthCookies } = require("../../../core/auth/cookies");
+const { setAuthCookies, accessExpiresIn } = require("../../../core/auth/cookies");
 const { clientMeta } = require("../../../core/http/clientMeta");
 
 function sendLoginResult(req, res, result) {
@@ -11,7 +11,7 @@ function sendLoginResult(req, res, result) {
 
   if (req.body.device.platform === "WEB") {
     setAuthCookies(res, { accessToken, refreshToken });
-    return res.json({ user, isNewDevice });
+    return res.json({ user, isNewDevice, expiresIn: accessExpiresIn() });
   }
 
   return res.json({
@@ -19,6 +19,7 @@ function sendLoginResult(req, res, result) {
     accessToken,
     refreshToken,
     isNewDevice,
+    expiresIn: accessExpiresIn(),
   });
 }
 

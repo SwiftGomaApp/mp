@@ -24,6 +24,11 @@ function setAuthCookies(res, { accessToken, refreshToken }) {
   });
 }
 
+// How long the access token lives, in seconds: sent with every answer that opens a session.
+function accessExpiresIn() {
+  return getConfig().auth.accessTtlSeconds;
+}
+
 function clearAuthCookies(res) {
   res.clearCookie(ACCESS_COOKIE, { ...baseOptions(), secure: true, path: "/" });
   res.clearCookie(REFRESH_COOKIE, { ...baseOptions(), path: REFRESH_COOKIE_PATH });
@@ -35,4 +40,5 @@ module.exports = {
   REFRESH_COOKIE_PATH,
   setAuthCookies,
   clearAuthCookies,
+  accessExpiresIn,
 };

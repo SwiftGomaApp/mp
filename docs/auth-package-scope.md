@@ -28,7 +28,7 @@ Principles:
 | Topic | Decision |
 |---|---|
 | npm name | `swiftgoma-mp-auth` (unscoped; checked free on npm on 2026-10-29) |
-| Location | `packages/auth`, linked to the apps with npm workspaces during development, published to npm from there |
+| Location | `packages/auth`, an independent npm package (not part of a workspace); the apps install it from npm |
 | Source language | TypeScript, compiled to JavaScript |
 | Consumers | JavaScript and TypeScript projects; the package ships types, and plain JavaScript projects simply import it |
 | Module formats | Both ESM and CommonJS, with types for each |
@@ -96,7 +96,7 @@ need the app's own client IDs), and profile or product features.
 | Import | Contents | Peer dependencies |
 |---|---|---|
 | `swiftgoma-mp-auth` | Core: `createAuth`, errors, constants, types | `axios` |
-| `swiftgoma-mp-auth/native` | Expo adapter: secure storage, device info, foreground events | `expo-secure-store` (optional: `expo-device`, `expo-application`) |
+| `swiftgoma-mp-auth/native` | Expo adapter: secure storage, device info, foreground events | none: the app passes `expo-secure-store` (and optionally `expo-device`, `AppState`) in |
 | `swiftgoma-mp-auth/web` | Web adapter: cookies, device id, tab coordination | none |
 | `swiftgoma-mp-auth/web/server` | Next.js helper to forward the visitor's cookies in server rendering | none |
 | `swiftgoma-mp-auth/react` | `AuthProvider`, `useAuth`, `useSession`, `useCurrentUser` | `react` |
@@ -104,7 +104,7 @@ need the app's own client IDs), and profile or product features.
 | `swiftgoma-mp-auth/staff` | Admin dashboard operations | none |
 | `swiftgoma-mp-auth/testing` | In-memory adapter and a fake server for apps' tests | none |
 
-Output is ESM (`.mjs`) and CommonJS (`.cjs`), each with its own type declarations, an `exports`
+Output is ESM (`.js`) and CommonJS (`.cjs`), each with its own type declarations, an `exports`
 map and `sideEffects: false`. A JavaScript project (CommonJS `require` or ESM `import`) works
 without TypeScript installed; a TypeScript project gets the types automatically.
 
@@ -257,7 +257,8 @@ Answers: mobile gets `{ user, accessToken, refreshToken, isNewDevice }`; web get
 
 **Server changes needed for this package**
 1. Return `expiresIn` on login, verify and enroll-confirm answers. Today only `/refresh` returns
-   it, so the web package cannot schedule the first early refresh. **Required.**
+   it, so the web package cannot schedule the first early refresh. **Required. Done:** all answers
+   that open a session now carry `expiresIn`.
 2. Optional `GET /auth/oauth/providers`, telling an app which social providers the server has
    configured. Recommended.
 3. Optional: let the web socket refresh by cookie (section 9).
@@ -266,7 +267,7 @@ Answers: mobile gets `{ user, accessToken, refreshToken, isNewDevice }`; web get
 ## 12. Packaging and publishing
 
 - Dual ESM and CommonJS builds with types, an `exports` map per entry point, `sideEffects: false`
-  and a small `files` list. The root `package.json` needs `packages/*` added back to `workspaces`.
+  and a small `files` list. The package is independent of any workspace: it is installed from npm.
 - Peer dependencies as in section 5; optional ones marked optional.
 - Versioning with Changesets and a changelog. Stay on `0.x` until the contract tests pass, then
   follow semver. Keep a compatibility note between package versions and the server's `/api/v1`.

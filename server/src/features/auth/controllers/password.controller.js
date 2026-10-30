@@ -1,5 +1,5 @@
 const service = require("../services/password.service");
-const { setAuthCookies } = require("../../../core/auth/cookies");
+const { setAuthCookies, accessExpiresIn } = require("../../../core/auth/cookies");
 const { clientMeta } = require("../../../core/http/clientMeta");
 
 function handler(fn) {
@@ -47,9 +47,9 @@ const login = handler(async (req, res) => {
   const { user, accessToken, refreshToken, isNewDevice } = result;
   if (req.body.device.platform === "WEB") {
     setAuthCookies(res, { accessToken, refreshToken });
-    return res.json({ user, isNewDevice });
+    return res.json({ user, isNewDevice, expiresIn: accessExpiresIn() });
   }
-  res.json({ user, accessToken, refreshToken, isNewDevice });
+  res.json({ user, accessToken, refreshToken, isNewDevice, expiresIn: accessExpiresIn() });
 });
 
 const remove = handler(async (req, res) => {

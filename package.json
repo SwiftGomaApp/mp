@@ -1,13 +1,7 @@
 {
   "name": "swg-mp",
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
   "engines": {
     "node": ">=24"
-  },
-  "devDependencies": {
-    "prettier": "^3.9.10"
   }
 }

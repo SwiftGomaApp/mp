@@ -228,6 +228,7 @@ describe("mandatory for the team", () => {
     });
     expect(confirm.status).toBe(200);
     expect(confirm.body.accessToken).toEqual(expect.any(String));
+    expect(confirm.body.expiresIn).toBe(900);
     expect(confirm.body.backupCodes).toHaveLength(10);
 
     const status = await login.client.get("/2fa", { token: confirm.body.accessToken });

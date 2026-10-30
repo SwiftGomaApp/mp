@@ -431,6 +431,7 @@ model NotificationDelivery {
   sentAt      DateTime?
   deliveredAt DateTime?
   failedAt    DateTime?
+  openedAt    DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

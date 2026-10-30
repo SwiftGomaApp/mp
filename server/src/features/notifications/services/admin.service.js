@@ -19,7 +19,7 @@ async function deliveryAnalytics({ days }) {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   const where = { createdAt: { gte: since } };
 
-  const [byChannel, skipReasons, failures, byContext, sms] = await Promise.all([
+  const [byChannel, skipReasons, failures, byContext, sms, pushOpened] = await Promise.all([
     prisma.notificationDelivery.groupBy({
       by: ["channel", "status"],
       where,
@@ -41,6 +41,9 @@ async function deliveryAnalytics({ days }) {
     }),
     prisma.notification.groupBy({ by: ["context"], where, _count: { _all: true } }),
     budgetUsage(),
+    prisma.notificationDelivery.count({
+      where: { ...where, channel: "PUSH", openedAt: { not: null } },
+    }),
   ]);
 
   const channels = {};
@@ -60,6 +63,7 @@ async function deliveryAnalytics({ days }) {
     })),
     topFailures: failures.map((r) => ({ channel: r.channel, error: r.error, count: r._count._all })),
     smsToday: sms,
+    pushOpened,
   };
 }
 
@@ -98,6 +102,7 @@ async function lookupDeliveries({ userId, email, limit }) {
           sentAt: true,
           deliveredAt: true,
           failedAt: true,
+          openedAt: true,
         },
       },
     },

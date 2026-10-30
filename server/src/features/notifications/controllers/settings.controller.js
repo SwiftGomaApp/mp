@@ -1,4 +1,5 @@
 const service = require("../services/settings.service");
+const { listCatalog } = require("../services/catalog.service");
 
 async function getPreferences(req, res, next) {
   try {
@@ -24,4 +25,8 @@ async function updateSettings(req, res, next) {
   }
 }
 
-module.exports = { getPreferences, updatePreferences, updateSettings };
+function catalog(req, res) {
+  res.json(listCatalog(req.auth.role));
+}
+
+module.exports = { getPreferences, updatePreferences, updateSettings, catalog };

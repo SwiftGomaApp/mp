@@ -110,8 +110,10 @@ emits through the same adapter.
 |---|---|
 | `GET /notifications` | Inbox page (cursor, `limit`, `context`, `unread`) |
 | `GET /notifications/unread-count` | Badge total and per context |
+| `GET /notifications/catalog` | Event types the signed-in role can receive (context, priority, mandatory, channels, escalation) |
 | `PATCH /notifications/:id/read` | Mark one as read |
 | `POST /notifications/:id/ack` | Acknowledge (also marks read, stops escalation) |
+| `POST /notifications/:id/opened` | The app was opened from a push; recorded once per sent push, shown as `pushOpened` in the admin analytics |
 | `POST /notifications/read-all` | Mark all, or one context, as read |
 | `DELETE /notifications/:id` | Delete one |
 | `GET /notifications/preferences` | Categories and channels for the user's role |
@@ -159,7 +161,7 @@ The Postman collection in `server/postman` covers all of these.
 `EmailTemplateVersion`, `Segment`, `Campaign`, `CampaignRecipient`, `EmailSuppression`,
 `TrackingEvent`.
 
-Migrations: `add_notifications`, `add_marketing`, `add_delivery_target`.
+Migrations: `add_notifications`, `add_marketing`, `add_delivery_target`, `add_delivery_opened`.
 
 ## 10. Configuration
 
@@ -192,7 +194,7 @@ Redis. The reverse proxy must pass WebSocket upgrades for `/socket.io`.
 - The admin web app and every client app (inbox, preferences, push registration, socket client).
 - Wiring: only the auth flows call `notify()`. Orders, payments, deliveries, payouts, disputes,
   support tickets and admin alerts have no server modules yet.
-- OneSignal delivery and click feedback, and automatic cleanup of dead push subscriptions.
+- OneSignal delivery receipts (the app already reports push opens), and automatic cleanup of dead push subscriptions.
 - Automatic email bounce handling (needs a provider with webhooks).
 - Segments or conversions based on order history (needs an orders model).
 - Chat message notifications.

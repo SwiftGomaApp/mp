@@ -32,6 +32,14 @@ async function ack(req, res, next) {
   }
 }
 
+async function opened(req, res, next) {
+  try {
+    res.json(await service.markOpened(req.auth.userId, req.params.id));
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function readAll(req, res, next) {
   try {
     res.json(await service.markAllRead(req.auth.userId, req.body));
@@ -48,4 +56,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, unreadCount, read, ack, readAll, remove };
+module.exports = { list, unreadCount, read, ack, opened, readAll, remove };

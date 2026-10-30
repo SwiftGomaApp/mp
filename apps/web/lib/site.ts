@@ -1,0 +1,27 @@
+export const siteConfig = {
+  name: "SwiftGoma MarketPlace",
+  shortName: "SwiftGoma",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  locale: "fr_CD",
+  title: "SwiftGoma MarketPlace – La place de marché de Goma",
+  description:
+    "Découvrez les boutiques de Goma, commandez depuis votre téléphone, payez avec Mobile Money ou carte bancaire, et faites-vous livrer ou retirez en boutique. Paiement sécurisé par code QR.",
+  keywords: [
+    "SwiftGoma",
+    "marketplace Goma",
+    "place de marché Goma",
+    "boutiques Goma",
+    "achat en ligne RDC",
+    "livraison Goma",
+    "Mobile Money",
+    "M-Pesa",
+    "Airtel Money",
+    "Orange Money",
+    "vendre en ligne Goma",
+    "devenir livreur Goma",
+    "Nord-Kivu",
+    "République démocratique du Congo",
+  ],
+  logo: "/logo-icon.png",
+  themeColor: "#c2410c",
+} as const;

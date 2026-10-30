@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "swiftgoma-mp-auth/react";
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { ModeToggle } from "@/components/global/theme-button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -30,9 +29,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-12 items-center justify-between gap-2 px-4 md:hidden">
-          <SidebarTrigger />
-          <ModeToggle />
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
         </header>
         <div className="flex-1 overflow-y-auto">{children}</div>
       </SidebarInset>

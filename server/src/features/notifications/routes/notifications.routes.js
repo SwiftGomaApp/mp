@@ -34,6 +34,8 @@ router.get("/", validate({ query: listQuery }), inbox.list);
 router.get("/unread-count", inbox.unreadCount);
 router.post("/read-all", validate({ body: readAllBody }), writeLimiter, inbox.readAll);
 
+router.get("/catalog", settings.catalog);
+
 router.get("/preferences", settings.getPreferences);
 router.patch(
   "/preferences",
@@ -66,6 +68,7 @@ router.get(
 
 router.patch("/:id/read", validate({ params: idParams }), writeLimiter, inbox.read);
 router.post("/:id/ack", validate({ params: idParams }), writeLimiter, inbox.ack);
+router.post("/:id/opened", validate({ params: idParams }), writeLimiter, inbox.opened);
 router.delete("/:id", validate({ params: idParams }), writeLimiter, inbox.remove);
 
 module.exports = router;

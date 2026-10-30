@@ -3908,6 +3908,41 @@
               }
             },
             {
+              "name": "Event catalog (for the signed-in role)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('events listed', () => pm.expect(pm.response.json().events).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/catalog",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "catalog"
+                  ]
+                },
+                "description": "Every notification type the signed-in role can receive: context, priority, mandatory, channels and escalation."
+              }
+            },
+            {
               "name": "Mark one as read",
               "event": [
                 {
@@ -3975,6 +4010,42 @@
                   ]
                 },
                 "description": "For urgent notifications such as a rider assignment. Also marks it read and stops the SMS reminder."
+              }
+            },
+            {
+              "name": "Push opened (report a tap on a push)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('recorded flag', () => pm.expect(pm.response.json().recorded).to.be.a('boolean'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/notifications/{{notificationId}}/opened",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "notifications",
+                    "{{notificationId}}",
+                    "opened"
+                  ]
+                },
+                "description": "The app calls this when the user opens it from a push. recorded is true only the first time and only if a push was actually sent. Feeds pushOpened in the admin analytics."
               }
             },
             {

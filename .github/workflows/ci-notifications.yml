@@ -1,0 +1,53 @@
+name: CI - Notifications package
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "packages/notifications/**"
+      - "packages/auth/**"
+      - "server/src/**"
+      - "server/prisma/schema.prisma"
+      - ".github/workflows/ci-notifications.yml"
+  push:
+    branches: [dev, main]
+    paths:
+      - "packages/notifications/**"
+      - "packages/auth/**"
+      - "server/src/**"
+      - "server/prisma/schema.prisma"
+      - ".github/workflows/ci-notifications.yml"
+
+concurrency:
+  group: ci-notifications-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            packages/auth/package-lock.json
+            packages/notifications/package-lock.json
+
+      - name: Build the auth package this one depends on
+        working-directory: packages/auth
+        run: |
+          npm ci
+          npm run build
+
+      - name: Check the notifications package
+        working-directory: packages/notifications
+        run: |
+          npm ci
+          npm run format:check
+          npm run typecheck
+          npm test
+          npm run check:package

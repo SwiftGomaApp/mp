@@ -125,6 +125,26 @@ async function acknowledge(userId, id) {
   return { id, acknowledgedAt: existing.acknowledgedAt ?? now, unreadCount };
 }
 
+/** The person opened the app from the push. Only a push that was sent counts, and only once. */
+async function markOpened(userId, id) {
+  const prisma = getPrisma();
+  const owned = await prisma.notification.findFirst({ where: { id, userId }, select: { id: true } });
+  if (!owned) throw AppError.notFound("Notification introuvable", "NOTIFICATION_NOT_FOUND");
+
+  const openedAt = new Date();
+  const { count } = await prisma.notificationDelivery.updateMany({
+    where: {
+      notificationId: id,
+      channel: "PUSH",
+      status: { in: ["SENT", "DELIVERED"] },
+      openedAt: null,
+    },
+    data: { openedAt },
+  });
+
+  return { id, recorded: count > 0 };
+}
+
 async function markAllRead(userId, { context } = {}) {
   const { count } = await getPrisma().notification.updateMany({
     where: { userId, readAt: null, ...(context ? { context } : {}) },
@@ -153,6 +173,7 @@ module.exports = {
   listNotifications,
   markRead,
   acknowledge,
+  markOpened,
   markAllRead,
   removeNotification,
 };

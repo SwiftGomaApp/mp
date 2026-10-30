@@ -23,7 +23,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { devRequiresTwoFactor, isValidEmail } from "@/lib/auth-flow";
+import { auth } from "@/lib/auth";
+import { authErrorMessage } from "@/lib/auth-errors";
+import { isValidEmail } from "@/lib/auth-flow";
 
 export function PasswordLoginDialog() {
   const router = useRouter();
@@ -34,6 +36,7 @@ export function PasswordLoginDialog() {
   const [capsLock, setCapsLock] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const isValid = isValidEmail(email) && password.length > 0;
 
@@ -44,6 +47,7 @@ export function PasswordLoginDialog() {
       setPassword("");
       setShowPassword(false);
       setCapsLock(false);
+      setError(null);
     }
   }
 
@@ -51,16 +55,24 @@ export function PasswordLoginDialog() {
     event.preventDefault();
     if (isLoading || !isValid) return;
     setIsLoading(true);
+    setError(null);
     try {
-      // TODO: replace with the real email + password sign-in call from the auth package.
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setOpen(false);
+      const result = await auth.login.password({ email: email.trim(), password });
       setPassword("");
-      if (devRequiresTwoFactor(email)) {
+      if (result.status === "authenticated") {
+        setOpen(false);
+        router.push("/");
+      } else if (result.status === "twoFactorRequired") {
+        setOpen(false);
         setTwoFactorOpen(true);
-        return;
+      } else {
+        setError(
+          "Votre compte doit activer la double vérification avant de continuer. Cette étape arrive bientôt.",
+        );
       }
-      router.push("/");
+    } catch (err) {
+      setError(authErrorMessage(err));
+      setPassword("");
     } finally {
       setIsLoading(false);
     }
@@ -167,6 +179,16 @@ export function PasswordLoginDialog() {
                   </p>
                 )}
               </Field>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="flex items-start gap-1.5 text-xs text-destructive"
+                >
+                  <TriangleAlert className="mt-px size-3.5 shrink-0" />
+                  {error}
+                </p>
+              )}
 
               <Button
                 type="submit"

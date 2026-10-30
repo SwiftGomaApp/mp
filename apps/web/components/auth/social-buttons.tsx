@@ -1,6 +1,9 @@
+"use client";
+
 import { Fingerprint } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
 
 function GoogleIcon() {
   return (
@@ -37,21 +40,39 @@ interface SocialButtonsProps {
   verb: string;
   disabled?: boolean;
   withPasskey?: boolean;
+  onGoogle: () => void;
+  onApple?: () => void;
+  onPasskey?: () => void;
 }
 
-export function SocialButtons({ verb, disabled, withPasskey }: SocialButtonsProps) {
+export function SocialButtons({
+  verb,
+  disabled,
+  withPasskey,
+  onGoogle,
+  onApple,
+  onPasskey,
+}: SocialButtonsProps) {
   return (
     <div className="grid w-full gap-3">
-      <Button variant="secondary" size="lg" type="button" disabled={disabled}>
+      <Button
+        variant="secondary"
+        size="lg"
+        type="button"
+        disabled={disabled || !auth.socials.enabled.google}
+        onClick={onGoogle}
+      >
         <GoogleIcon />
         {verb} avec Google
       </Button>
-      <Button variant="secondary" size="lg" type="button" disabled={disabled}>
-        <AppleIcon />
-        {verb} avec Apple
-      </Button>
+      {auth.socials.enabled.apple && (
+        <Button variant="secondary" size="lg" type="button" disabled={disabled} onClick={onApple}>
+          <AppleIcon />
+          {verb} avec Apple
+        </Button>
+      )}
       {withPasskey && (
-        <Button variant="secondary" size="lg" type="button" disabled={disabled}>
+        <Button variant="secondary" size="lg" type="button" disabled={disabled} onClick={onPasskey}>
           <Fingerprint />
           {verb} avec une clé d’accès
         </Button>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
+import { LegalNotice } from "@/components/auth/legal-links";
 import { OTP_CODE_LENGTH, OtpCodeInput } from "@/components/auth/otp-code-input";
 import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
 import { Button } from "@/components/ui/button";
@@ -13,14 +14,21 @@ import {
   type AuthFlow,
   type VerificationMethod,
   clearVerificationTarget,
-  devRequiresTwoFactor,
   maskVerificationTarget,
   parseVerificationTarget,
+  RESEND_DELAY_SECONDS,
+  readResendSecondsLeft,
   readStoredVerificationTarget,
   readVerificationTarget,
+  startResendCooldown,
 } from "@/lib/auth-flow";
-
-const RESEND_DELAY_SECONDS = 60;
+import {
+  requestSignInCode,
+  resendSignUpCode,
+  verifySignInCode,
+  verifySignUpCode,
+} from "@/lib/auth-actions";
+import { authErrorMessage } from "@/lib/auth-errors";
 
 const subscribe = () => () => {};
 const getServerTarget = () => null;
@@ -47,6 +55,7 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
   const [isResending, setIsResending] = useState(false);
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_DELAY_SECONDS);
+  const [error, setError] = useState<string | null>(null);
 
   const target = parseVerificationTarget(
     useSyncExternalStore(subscribe, readStoredVerificationTarget, getServerTarget),
@@ -57,43 +66,54 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
     if (readVerificationTarget()?.flow !== flow) router.replace(copy.startPath);
   }, [router, flow, copy.startPath]);
 
+  // The deadline lives in sessionStorage, so the countdown survives a refresh.
   useEffect(() => {
-    if (secondsLeft <= 0) return;
-    const timer = setTimeout(() => setSecondsLeft((current) => current - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [secondsLeft]);
+    const tick = () => setSecondsLeft(readResendSecondsLeft());
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   function finish() {
     clearVerificationTarget();
     router.push("/");
   }
 
-  async function handleVerify(event: React.FormEvent) {
-    event.preventDefault();
-    if (isLoading || !isComplete) return;
+  async function handleVerify(value: string) {
+    if (isLoading || value.length !== OTP_CODE_LENGTH || !target) return;
     setIsLoading(true);
+    setError(null);
     try {
-      // TODO: replace with the real code verification call from the auth package.
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      if (flow === "sign-in" && target && devRequiresTwoFactor(target.value)) {
-        setIsLoading(false);
-        setTwoFactorOpen(true);
-        return;
+      if (flow === "sign-up") {
+        await verifySignUpCode(target, value);
+        return finish();
       }
-      finish();
-    } catch {
+      const outcome = await verifySignInCode(target, value);
+      if (outcome === "authenticated") return finish();
+      if (outcome === "twoFactor") return setTwoFactorOpen(true);
+      setError(
+        "Votre compte doit activer la double vérification avant de continuer. Cette étape arrive bientôt.",
+      );
+    } catch (err) {
+      setError(authErrorMessage(err));
+      setCode("");
+    } finally {
       setIsLoading(false);
     }
   }
 
   async function handleResend() {
-    if (secondsLeft > 0 || isResending) return;
+    if (secondsLeft > 0 || !target) return;
+    setError(null);
     setIsResending(true);
     try {
-      // TODO: replace with the real "send a new code" call from the auth package.
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setCode("");
+      if (flow === "sign-up") await resendSignUpCode(target);
+      else await requestSignInCode(target);
+      startResendCooldown();
       setSecondsLeft(RESEND_DELAY_SECONDS);
+      setCode("");
+    } catch (err) {
+      setError(authErrorMessage(err));
     } finally {
       setIsResending(false);
     }
@@ -101,7 +121,13 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
 
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
-      <form onSubmit={handleVerify} className="flex w-full max-w-sm flex-col items-center gap-6">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleVerify(code);
+        }}
+        className="flex w-full max-w-sm flex-col items-center gap-6"
+      >
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-bold tracking-tight">
             {copy.title(target?.method ?? "email")}
@@ -122,11 +148,21 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
 
         <OtpCodeInput
           value={code}
-          onChange={setCode}
+          onChange={(value) => {
+            setCode(value);
+            setError(null);
+            if (value.length === OTP_CODE_LENGTH) void handleVerify(value);
+          }}
           disabled={isLoading}
           autoFocus
           aria-label="Code de vérification"
         />
+
+        {error && (
+          <p role="alert" className="-mt-2 text-center text-xs text-destructive">
+            {error}
+          </p>
+        )}
 
         <div className="flex w-full flex-col items-center gap-4">
           <Button
@@ -161,6 +197,8 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
             {copy.backLabel}
           </Link>
         </div>
+
+        <LegalNotice role={flow === "sign-up" ? target?.role : undefined} />
       </form>
 
       <TwoFactorDialog open={twoFactorOpen} onOpenChange={setTwoFactorOpen} onVerified={finish} />

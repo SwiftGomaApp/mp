@@ -4,14 +4,13 @@ export type VerificationMethod = "email" | "phone";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// TODO: remove once the server tells us whether the account has two-step verification turned on.
-export function devRequiresTwoFactor(contact: string) {
-  return process.env.NODE_ENV !== "production" && contact.trim().toLowerCase().startsWith("2fa");
-}
-
 export function isValidEmail(email: string) {
   return EMAIL_PATTERN.test(email.trim());
 }
+
+export type SignUpRole = "BUYER" | "SELLER" | "RIDER";
+
+const SIGN_UP_ROLES: readonly string[] = ["BUYER", "SELLER", "RIDER"];
 
 export type AuthFlow = "sign-in" | "sign-up";
 
@@ -20,14 +19,38 @@ export interface VerificationTarget {
   method: VerificationMethod;
   value: string;
   fullName?: string;
+  role?: SignUpRole;
 }
 
 const STORAGE_KEY = "swiftgoma:verification-target";
 
+const RESEND_AT_KEY = "swiftgoma:resend-at";
+
+export const RESEND_DELAY_SECONDS = 60;
+
+/** Starts the resend cooldown; it is stored so a page refresh does not restart it. */
+export function startResendCooldown() {
+  try {
+    sessionStorage.setItem(RESEND_AT_KEY, String(Date.now() + RESEND_DELAY_SECONDS * 1000));
+  } catch {}
+}
+
+export function readResendSecondsLeft(): number {
+  try {
+    const resendAt = Number(sessionStorage.getItem(RESEND_AT_KEY));
+    if (!Number.isFinite(resendAt)) return 0;
+    return Math.min(RESEND_DELAY_SECONDS, Math.max(0, Math.ceil((resendAt - Date.now()) / 1000)));
+  } catch {
+    return 0;
+  }
+}
+
+/** Call right after a code was sent: stores the target and starts the cooldown. */
 export function saveVerificationTarget(target: VerificationTarget) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(target));
   } catch {}
+  startResendCooldown();
 }
 
 export function readStoredVerificationTarget(): string | null {
@@ -45,6 +68,7 @@ export function readVerificationTarget(): VerificationTarget | null {
 export function clearVerificationTarget() {
   try {
     sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(RESEND_AT_KEY);
   } catch {}
 }
 
@@ -63,6 +87,7 @@ export function parseVerificationTarget(raw: string | null): VerificationTarget 
         method: target.method,
         value: target.value,
         fullName: typeof target.fullName === "string" ? target.fullName : undefined,
+        role: SIGN_UP_ROLES.includes(target.role ?? "") ? target.role : undefined,
       };
     }
   } catch {}

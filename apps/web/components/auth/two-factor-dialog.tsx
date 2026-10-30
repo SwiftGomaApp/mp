@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { auth } from "@/lib/auth";
+import { authErrorMessage, isTwoFactorExpired } from "@/lib/auth-errors";
 
 type Mode = "app" | "backup";
 
@@ -65,15 +67,19 @@ export function TwoFactorDialog({ open, onOpenChange, onVerified }: TwoFactorDia
     setIsLoading(true);
     setError(null);
     try {
-      // TODO: replace with the real two-step verification call from the auth package.
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      if (!isBackup && code === "000000") {
-        setError("Code incorrect ou expiré. Réessayez avec le code actuel de votre application.");
-        setCode("");
-        return;
-      }
+      await auth.twoFactor.verify(
+        isBackup ? { backupCode: toBackupCodeDigits(backupCode) } : { code },
+      );
       reset();
       onVerified();
+    } catch (err) {
+      setError(authErrorMessage(err));
+      setCode("");
+      setBackupCode("");
+      if (isTwoFactorExpired(err)) {
+        // The challenge is gone: the user has to start the sign-in again.
+        window.setTimeout(() => handleOpenChange(false), 2500);
+      }
     } finally {
       setIsLoading(false);
     }

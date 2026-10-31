@@ -70,7 +70,7 @@
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
     "prisma": "^7.10.1",
-    "rate-limit-redis": "^6.0.1",
+    "rate-limit-redis": "^6.0.2",
     "socket.io": "^4.8.4",
     "zod": "^4.6.7"
   },

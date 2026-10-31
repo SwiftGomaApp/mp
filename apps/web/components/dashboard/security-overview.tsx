@@ -3,21 +3,26 @@
 import { useState } from "react";
 import { Check } from "lucide-react";
 
+import { LinkedAccounts } from "@/components/dashboard/linked-accounts";
+import { RecoveryContactsDialog } from "@/components/security/recovery-contacts-dialog";
 import { getSecurityLevel, ProgressRing, TASK_COPY } from "@/components/security/security-prompt";
+import { TwoFactorManageDialog } from "@/components/security/two-factor-manage-dialog";
+import { TwoFactorSetupDialog } from "@/components/security/two-factor-setup-dialog";
 import { useSecurityTasks } from "@/components/security/use-security-tasks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { LinkedAccounts } from "@/components/dashboard/linked-accounts";
-import { TwoFactorManageDialog } from "@/components/security/two-factor-manage-dialog";
-import { TwoFactorSetupDialog } from "@/components/security/two-factor-setup-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { configureSecurityTask, type SecurityTaskKey } from "@/lib/security";
 import { cn } from "cn";
+
+/** A done task of these kinds opens a dialog to manage it when its card is clicked. */
+const MANAGEABLE_TASKS: SecurityTaskKey[] = ["TWO_FACTOR", "RECOVERY_CONTACT"];
 
 export function SecurityOverview() {
   const { tasks, refresh } = useSecurityTasks();
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
+  const [contactsOpen, setContactsOpen] = useState(false);
 
   /** Whatever the dialog did, the list is refetched when it closes. */
   function closeAndRefresh(open: boolean, setOpen: (open: boolean) => void) {
@@ -25,9 +30,17 @@ export function SecurityOverview() {
     if (!open) refresh();
   }
 
+  /** Setup for a task that is not done yet. */
   function configure(key: SecurityTaskKey) {
     if (key === "TWO_FACTOR") setTwoFactorOpen(true);
+    else if (key === "RECOVERY_CONTACT") setContactsOpen(true);
     else configureSecurityTask(key);
+  }
+
+  /** Settings for a task that is already done. */
+  function manage(key: SecurityTaskKey) {
+    if (key === "TWO_FACTOR") setManageOpen(true);
+    else if (key === "RECOVERY_CONTACT") setContactsOpen(true);
   }
 
   if (!tasks) {
@@ -65,7 +78,7 @@ export function SecurityOverview() {
       <ul className="grid gap-3">
         {tasks.map((task) => {
           const { title, description, icon: Icon } = TASK_COPY[task.key];
-          const manageable = task.done && task.key === "TWO_FACTOR";
+          const manageable = task.done && MANAGEABLE_TASKS.includes(task.key);
 
           return (
             <li
@@ -78,11 +91,11 @@ export function SecurityOverview() {
               {...(manageable && {
                 role: "button",
                 tabIndex: 0,
-                onClick: () => setManageOpen(true),
+                onClick: () => manage(task.key),
                 onKeyDown: (event: React.KeyboardEvent) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    setManageOpen(true);
+                    manage(task.key);
                   }
                 },
               })}
@@ -114,17 +127,22 @@ export function SecurityOverview() {
           );
         })}
       </ul>
+
       <LinkedAccounts />
 
+      <TwoFactorSetupDialog
+        open={twoFactorOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setTwoFactorOpen)}
+        onDone={refresh}
+      />
       <TwoFactorManageDialog
         open={manageOpen}
         onOpenChange={(open) => closeAndRefresh(open, setManageOpen)}
         onDisabled={refresh}
       />
-      <TwoFactorSetupDialog
-        open={twoFactorOpen}
-        onOpenChange={(open) => closeAndRefresh(open, setTwoFactorOpen)}
-        onDone={refresh}
+      <RecoveryContactsDialog
+        open={contactsOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setContactsOpen)}
       />
     </div>
   );

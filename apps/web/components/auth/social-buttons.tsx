@@ -5,7 +5,7 @@ import { Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 
-function GoogleIcon() {
+export function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
@@ -28,7 +28,7 @@ function GoogleIcon() {
   );
 }
 
-function AppleIcon() {
+export function AppleIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
       <path d="M16.37 12.63c-.03-2.74 2.24-4.06 2.34-4.12-1.27-1.86-3.25-2.12-3.96-2.15-1.69-.17-3.29.99-4.14.99-.86 0-2.17-.97-3.57-.94-1.84.03-3.53 1.07-4.48 2.71-1.91 3.31-.49 8.22 1.37 10.9.91 1.31 2 2.78 3.42 2.73 1.37-.05 1.89-.89 3.55-.89 1.65 0 2.12.89 3.57.86 1.47-.03 2.41-1.34 3.31-2.66 1.04-1.52 1.47-3 1.5-3.07-.03-.01-2.88-1.1-2.91-4.36ZM13.65 4.6c.75-.91 1.26-2.18 1.12-3.44-1.08.04-2.39.72-3.17 1.63-.7.81-1.31 2.09-1.15 3.33 1.21.09 2.45-.62 3.2-1.52Z" />

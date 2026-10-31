@@ -1,17 +1,34 @@
 "use client";
 
+import { useState } from "react";
 import { Check } from "lucide-react";
 
 import { getSecurityLevel, ProgressRing, TASK_COPY } from "@/components/security/security-prompt";
 import { useSecurityTasks } from "@/components/security/use-security-tasks";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LinkedAccounts } from "@/components/dashboard/linked-accounts";
+import { TwoFactorManageDialog } from "@/components/security/two-factor-manage-dialog";
+import { TwoFactorSetupDialog } from "@/components/security/two-factor-setup-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { configureSecurityTask } from "@/lib/security";
+import { configureSecurityTask, type SecurityTaskKey } from "@/lib/security";
 import { cn } from "cn";
 
 export function SecurityOverview() {
-  const { tasks } = useSecurityTasks();
+  const { tasks, refresh } = useSecurityTasks();
+  const [twoFactorOpen, setTwoFactorOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+
+  /** Whatever the dialog did, the list is refetched when it closes. */
+  function closeAndRefresh(open: boolean, setOpen: (open: boolean) => void) {
+    setOpen(open);
+    if (!open) refresh();
+  }
+
+  function configure(key: SecurityTaskKey) {
+    if (key === "TWO_FACTOR") setTwoFactorOpen(true);
+    else configureSecurityTask(key);
+  }
 
   if (!tasks) {
     return (
@@ -48,9 +65,28 @@ export function SecurityOverview() {
       <ul className="grid gap-3">
         {tasks.map((task) => {
           const { title, description, icon: Icon } = TASK_COPY[task.key];
+          const manageable = task.done && task.key === "TWO_FACTOR";
 
           return (
-            <li key={task.key} className="flex items-center gap-4 rounded-xl border bg-card p-4">
+            <li
+              key={task.key}
+              className={cn(
+                "flex items-center gap-4 rounded-xl border bg-card p-4",
+                manageable &&
+                  "cursor-pointer transition-colors outline-none hover:bg-muted/50 focus-visible:ring-3 focus-visible:ring-ring/50",
+              )}
+              {...(manageable && {
+                role: "button",
+                tabIndex: 0,
+                onClick: () => setManageOpen(true),
+                onKeyDown: (event: React.KeyboardEvent) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setManageOpen(true);
+                  }
+                },
+              })}
+            >
               <span
                 className={cn(
                   "flex size-10 shrink-0 items-center justify-center rounded-lg",
@@ -67,10 +103,10 @@ export function SecurityOverview() {
               </div>
               {task.done ? (
                 <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                  Activé
+                  {manageable ? "Gérer" : "Activé"}
                 </span>
               ) : (
-                <Button size="sm" onClick={() => configureSecurityTask(task.key)}>
+                <Button size="sm" onClick={() => configure(task.key)}>
                   Configurer
                 </Button>
               )}
@@ -78,6 +114,18 @@ export function SecurityOverview() {
           );
         })}
       </ul>
+      <LinkedAccounts />
+
+      <TwoFactorManageDialog
+        open={manageOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setManageOpen)}
+        onDisabled={refresh}
+      />
+      <TwoFactorSetupDialog
+        open={twoFactorOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setTwoFactorOpen)}
+        onDone={refresh}
+      />
     </div>
   );
 }

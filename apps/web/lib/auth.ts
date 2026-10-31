@@ -10,10 +10,12 @@ if (!baseUrl) {
   throw new Error("NEXT_PUBLIC_API_ORIGIN is not set (see apps/web/.env.local)");
 }
 
+// Apple is intentionally left out: the package then reports it as disabled.
+export const socials = googleClientId ? { google: createGoogleProvider(googleClientId) } : {};
+
 export const auth = createAuth({
   baseUrl,
   adapter: createWebAdapter(),
-  // Apple is intentionally left out: the package then reports it as disabled.
-  socials: googleClientId ? { google: createGoogleProvider(googleClientId) } : {},
+  socials,
   passkeys: browserPasskeys,
 });

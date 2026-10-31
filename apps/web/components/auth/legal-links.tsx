@@ -36,3 +36,20 @@ export function LegalNotice({ role }: { role?: SignUpRole }) {
     </p>
   );
 }
+
+/** The two legal links over the sign-in image, in white. */
+export function LegalImageLinks() {
+  const className =
+    "text-[0.65rem] font-medium text-white/70 underline-offset-4 transition-colors outline-none hover:text-white hover:underline focus-visible:text-white focus-visible:underline";
+
+  return (
+    <nav aria-label="Informations légales" className="flex gap-4">
+      <Link href="/legale/terms" target="_blank" rel="noopener noreferrer" className={className}>
+        Conditions d’utilisation
+      </Link>
+      <Link href="/legale/privacy" target="_blank" rel="noopener noreferrer" className={className}>
+        Confidentialité
+      </Link>
+    </nav>
+  );
+}

@@ -152,7 +152,13 @@ export function SignUpView() {
         <StepProgress step={step} />
 
         <div className="flex flex-col items-center gap-3 text-center">
-          <Image src="/logo-icon.png" alt="SwiftGoma" width={48} height={48} priority />
+          <Link
+            href="/"
+            aria-label="Retour à l’accueil SwiftGoma"
+            className="rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <Image src="/logo-icon.png" alt="SwiftGoma" width={48} height={48} priority />
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight">{copy.title}</h1>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             {copy.subtitle}

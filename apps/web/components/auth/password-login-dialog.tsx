@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, KeyRound, Lock, Mail, TriangleAlert } from "lucide-react";
 
+import { SupportHint } from "@/components/auth/support-hint";
 import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -134,9 +136,17 @@ export function PasswordLoginDialog() {
               </Field>
 
               <Field className="gap-1.5">
-                <FieldLabel htmlFor="password-login-password" className="text-xs">
-                  Mot de passe
-                </FieldLabel>
+                <div className="flex items-center justify-between gap-2">
+                  <FieldLabel htmlFor="password-login-password" className="text-xs">
+                    Mot de passe
+                  </FieldLabel>
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-xs text-muted-foreground underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:underline"
+                  >
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
                 <InputGroup className="h-10">
                   <InputGroupAddon>
                     <Lock />
@@ -186,6 +196,7 @@ export function PasswordLoginDialog() {
                   {error}
                 </p>
               )}
+              <SupportHint error={error} />
 
               <Button
                 type="submit"

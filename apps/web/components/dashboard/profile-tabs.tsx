@@ -8,6 +8,8 @@ import { cn } from "cn";
 const TABS = [
   { href: "/profile", label: "Informations du profil" },
   { href: "/profile/security", label: "Sécurité" },
+  { href: "/profile/devices", label: "Appareils" },
+  { href: "/profile/activity", label: "Activité" },
 ];
 
 export function ProfileTabs() {

@@ -17,6 +17,10 @@ function isCancelled(error: unknown): boolean {
   );
 }
 
+/** Shown when the account is suspended; the sign-in screens also offer the way to the Support. */
+export const SUSPENDED_MESSAGE =
+  "Ce compte est suspendu. Contactez le Support pour en savoir plus.";
+
 export function authErrorMessage(error: unknown): string {
   if (isCancelled(error)) return "Connexion annulée.";
   if (error instanceof SocialLoginDisabledError) {
@@ -25,6 +29,7 @@ export function authErrorMessage(error: unknown): string {
   if (error instanceof PasskeysDisabledError) {
     return "Les clés d’accès ne sont pas disponibles sur cet appareil.";
   }
+  if (hasErrorCode(error, "ACCOUNT_SUSPENDED")) return SUSPENDED_MESSAGE;
   if (hasErrorCode(error, "ACCOUNT_NOT_FOUND")) {
     return "Aucun compte trouvé. Inscrivez-vous d’abord.";
   }
@@ -45,6 +50,24 @@ export function authErrorMessage(error: unknown): string {
   }
   if (hasErrorCode(error, "OTP_HOURLY_LIMIT")) {
     return "Limite de codes atteinte. Réessayez dans une heure.";
+  }
+  if (hasErrorCode(error, ["GOOGLE_ACCOUNT_ALREADY_LINKED", "APPLE_ACCOUNT_ALREADY_LINKED"])) {
+    return "Ce compte est déjà associé à un autre compte SwiftGoma. Choisissez-en un autre.";
+  }
+  if (hasErrorCode(error, ["GOOGLE_METHOD_ALREADY_LINKED", "APPLE_METHOD_ALREADY_LINKED"])) {
+    return "Un compte de ce type est déjà lié à votre compte SwiftGoma.";
+  }
+  if (hasErrorCode(error, "RECOVERY_INVALID")) {
+    return "Cette demande de récupération a expiré ou n’est plus valide. Recommencez.";
+  }
+  if (hasErrorCode(error, "RECOVERY_WAITING")) {
+    return "Le délai de sécurité n’est pas encore terminé. Revenez un peu plus tard.";
+  }
+  if (hasErrorCode(error, "RECOVERY_BACKUP_CODE_REQUIRED")) {
+    return "La double vérification est activée sur ce compte : saisissez aussi l’un de vos codes de récupération.";
+  }
+  if (hasErrorCode(error, "RECOVERY_NOT_FOUND")) {
+    return "Aucune récupération en cours sur ce compte.";
   }
   if (hasErrorCode(error, ["ACCOUNT_EXISTS", "ALREADY_EXISTS"])) {
     return "Un compte existe déjà avec ces informations. Connectez-vous.";

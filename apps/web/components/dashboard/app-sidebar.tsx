@@ -26,6 +26,8 @@ const NAV_MAIN: NavMainItem[] = [
     items: [
       { title: "Informations du profil", url: "/profile" },
       { title: "Sécurité", url: "/profile/security" },
+      { title: "Appareils", url: "/profile/devices" },
+      { title: "Activité", url: "/profile/activity" },
     ],
   },
 ];

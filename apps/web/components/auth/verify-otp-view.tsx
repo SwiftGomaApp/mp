@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
+import { SupportHint } from "@/components/auth/support-hint";
 import { LegalNotice } from "@/components/auth/legal-links";
 import { OTP_CODE_LENGTH, OtpCodeInput } from "@/components/auth/otp-code-input";
 import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
@@ -164,6 +165,7 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
             {error}
           </p>
         )}
+        <SupportHint error={error} />
 
         <div className="flex w-full flex-col items-center gap-4">
           <Button

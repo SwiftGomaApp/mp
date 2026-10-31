@@ -8,6 +8,10 @@ export const metadata = pageMetadata({
   index: false,
 });
 
+// The shell shows a spinner until the session is known, so no page below it can be part of an
+// instant navigation: the whole signed-in area opts out of that validation.
+export const instant = false;
+
 export default function DashboardLayout({ children }: LayoutProps<"/">) {
   return <DashboardShell>{children}</DashboardShell>;
 }

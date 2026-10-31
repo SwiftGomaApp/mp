@@ -33,7 +33,12 @@ const slides = [
   },
 ] as const;
 
-export function AuthShowcase() {
+interface AuthShowcaseProps {
+  /** Shown on the right of the tab row, level with it. */
+  legal?: React.ReactNode;
+}
+
+export function AuthShowcase({ legal }: AuthShowcaseProps) {
   const [active, setActive] = useState(0);
   const slide = slides[active];
 
@@ -47,45 +52,48 @@ export function AuthShowcase() {
         <p className="mt-2 max-w-md text-xs text-white/85">{slide.description}</p>
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Ce que vous pouvez faire avec SwiftGoma"
-        className="mt-5 flex gap-5"
-      >
-        {slides.map((item, index) => (
-          <button
-            key={item.tab}
-            type="button"
-            role="tab"
-            aria-selected={index === active}
-            onClick={() => setActive(index)}
-            className="group flex w-16 flex-col gap-1.5 text-left outline-none"
-          >
-            <span
-              className={cn(
-                "text-[0.65rem] font-semibold tracking-wide uppercase transition-colors group-focus-visible:underline",
-                index === active ? "text-white" : "text-white/60 group-hover:text-white/90",
-              )}
+      <div className="mt-5 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div
+          role="tablist"
+          aria-label="Ce que vous pouvez faire avec SwiftGoma"
+          className="flex gap-5"
+        >
+          {slides.map((item, index) => (
+            <button
+              key={item.tab}
+              type="button"
+              role="tab"
+              aria-selected={index === active}
+              onClick={() => setActive(index)}
+              className="group flex w-16 flex-col gap-1.5 text-left outline-none"
             >
-              {item.tab}
-            </span>
-            <span className="h-1 w-full overflow-hidden rounded-full bg-white/25">
               <span
-                key={index === active ? `active-${active}` : "idle"}
                 className={cn(
-                  "block h-full rounded-full bg-white",
-                  index < active && "w-full",
-                  index > active && "w-0",
-                  index === active && "w-full motion-safe:w-0 motion-safe:animate-progress-fill",
+                  "text-[0.65rem] font-semibold tracking-wide uppercase transition-colors group-focus-visible:underline",
+                  index === active ? "text-white" : "text-white/60 group-hover:text-white/90",
                 )}
-                style={{ "--slide-duration": `${SLIDE_DURATION_MS}ms` } as React.CSSProperties}
-                onAnimationEnd={() => {
-                  if (index === active) setActive((current) => (current + 1) % slides.length);
-                }}
-              />
-            </span>
-          </button>
-        ))}
+              >
+                {item.tab}
+              </span>
+              <span className="h-1 w-full overflow-hidden rounded-full bg-white/25">
+                <span
+                  key={index === active ? `active-${active}` : "idle"}
+                  className={cn(
+                    "block h-full rounded-full bg-white",
+                    index < active && "w-full",
+                    index > active && "w-0",
+                    index === active && "w-full motion-safe:w-0 motion-safe:animate-progress-fill",
+                  )}
+                  style={{ "--slide-duration": `${SLIDE_DURATION_MS}ms` } as React.CSSProperties}
+                  onAnimationEnd={() => {
+                    if (index === active) setActive((current) => (current + 1) % slides.length);
+                  }}
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+        {legal}
       </div>
     </div>
   );

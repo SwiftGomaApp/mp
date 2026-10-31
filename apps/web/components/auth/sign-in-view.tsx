@@ -5,9 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { SupportHint } from "@/components/auth/support-hint";
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { ContactField, useContactField } from "@/components/auth/contact-field";
-import { LegalNotice } from "@/components/auth/legal-links";
+import { LegalImageLinks } from "@/components/auth/legal-links";
 import { PasswordLoginDialog } from "@/components/auth/password-login-dialog";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
@@ -68,11 +69,33 @@ export function SignInView() {
   }
 
   return (
-    <AuthSplitLayout topRight={<PasswordLoginDialog />}>
+    <AuthSplitLayout
+      topRight={<PasswordLoginDialog />}
+      imageFooter={<LegalImageLinks />}
+      footer={
+        <>
+          <p className="text-center text-xs text-muted-foreground">
+            Plus accès à votre e-mail ni à votre téléphone ?{" "}
+            <Link
+              href="/auth/recover"
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Récupérer mon compte
+            </Link>
+          </p>
+        </>
+      }
+    >
       <form className="w-full max-w-sm" onSubmit={handleSubmit}>
         <FieldGroup className="items-center">
           <div className="flex flex-col items-center gap-3 text-center">
-            <Image src="/logo-icon.png" alt="SwiftGoma" width={48} height={48} priority />
+            <Link
+              href="/"
+              aria-label="Retour à l’accueil SwiftGoma"
+              className="rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            >
+              <Image src="/logo-icon.png" alt="SwiftGoma" width={48} height={48} priority />
+            </Link>
             <h1 className="text-2xl font-bold tracking-tight">Bienvenue sur SwiftGoma</h1>
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
               Choisissez une option pour vous
@@ -96,6 +119,7 @@ export function SignInView() {
               {error}
             </p>
           )}
+          <SupportHint error={error} />
 
           <Field>
             <Button
@@ -112,8 +136,6 @@ export function SignInView() {
               Vous n&apos;avez pas de compte ? <Link href="/auth/sign-up">Inscrivez-vous</Link>
             </FieldDescription>
           </Field>
-
-          <LegalNotice />
         </FieldGroup>
       </form>
 

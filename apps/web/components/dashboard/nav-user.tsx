@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ChevronsUpDown, LogOut, ShieldCheck, User } from "lucide-react";
-import { useAuth, useSession } from "swiftgoma-mp-auth/react";
+import { useSession } from "swiftgoma-mp-auth/react";
 
+import { useLogout } from "@/components/auth/logout-screen";
 import { initialsOf, ROLE_LABELS } from "@/components/dashboard/user-display";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -43,20 +42,9 @@ function UserSummary({ name, role }: { name: string; role: string }) {
 }
 
 export function NavUser() {
-  const router = useRouter();
-  const auth = useAuth();
   const { user } = useSession();
   const { isMobile } = useSidebar();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  async function handleLogout() {
-    setIsLoggingOut(true);
-    try {
-      await auth.logout();
-    } finally {
-      router.replace("/auth/sign-in");
-    }
-  }
+  const { logout, isLoggingOut } = useLogout();
 
   if (!user) {
     return (
@@ -109,7 +97,7 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+            <DropdownMenuItem onClick={logout} disabled={isLoggingOut}>
               {isLoggingOut ? <Spinner /> : <LogOut />}
               Se déconnecter
             </DropdownMenuItem>

@@ -57,20 +57,30 @@ interface ContactFieldProps {
   disabled?: boolean;
   webauthn?: boolean;
   switcher?: "link" | "tabs";
+  /** The "Ou continuer avec" line above the field. */
+  showSeparator?: boolean;
 }
 
-export function ContactField({ state, disabled, webauthn, switcher = "link" }: ContactFieldProps) {
+export function ContactField({
+  state,
+  disabled,
+  webauthn,
+  switcher = "link",
+  showSeparator = true,
+}: ContactFieldProps) {
   const { method, setMethod, email, setEmail, phone, handlePhoneChange } = state;
 
   return (
     <>
-      <FieldSeparator className="w-full">
-        {switcher === "tabs"
-          ? "Ou continuer avec"
-          : method === "email"
-            ? "Ou continuer avec votre e-mail"
-            : "Ou continuer avec votre numéro"}
-      </FieldSeparator>
+      {showSeparator && (
+        <FieldSeparator className="w-full">
+          {switcher === "tabs"
+            ? "Ou continuer avec"
+            : method === "email"
+              ? "Ou continuer avec votre e-mail"
+              : "Ou continuer avec votre numéro"}
+        </FieldSeparator>
+      )}
 
       {switcher === "tabs" && (
         <Tabs

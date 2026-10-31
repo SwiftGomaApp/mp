@@ -1,5 +1,7 @@
 import { ProfileTabs } from "@/components/dashboard/profile-tabs";
 
+export const instant = false;
+
 export default function ProfileLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col">

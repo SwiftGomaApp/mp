@@ -14,33 +14,44 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { configureSecurityTask, type SecurityTaskKey } from "@/lib/security";
 import { cn } from "cn";
+import { PasswordDialog } from "@/components/security/password-dialog";
+import { PasskeyManageDialog } from "@/components/security/passkey-manage-dialog";
+import { PasskeySetupDialog } from "@/components/security/passkey-setup-dialog";
 
-/** A done task of these kinds opens a dialog to manage it when its card is clicked. */
-const MANAGEABLE_TASKS: SecurityTaskKey[] = ["TWO_FACTOR", "RECOVERY_CONTACT"];
+const MANAGEABLE_TASKS: SecurityTaskKey[] = [
+  "TWO_FACTOR",
+  "RECOVERY_CONTACT",
+  "PASSKEY",
+  "PASSWORD",
+];
 
 export function SecurityOverview() {
   const { tasks, refresh } = useSecurityTasks();
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [contactsOpen, setContactsOpen] = useState(false);
+  const [passkeyOpen, setPasskeyOpen] = useState(false);
+  const [passkeyManageOpen, setPasskeyManageOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
-  /** Whatever the dialog did, the list is refetched when it closes. */
   function closeAndRefresh(open: boolean, setOpen: (open: boolean) => void) {
     setOpen(open);
     if (!open) refresh();
   }
 
-  /** Setup for a task that is not done yet. */
   function configure(key: SecurityTaskKey) {
     if (key === "TWO_FACTOR") setTwoFactorOpen(true);
     else if (key === "RECOVERY_CONTACT") setContactsOpen(true);
+    else if (key === "PASSKEY") setPasskeyOpen(true);
+    else if (key === "PASSWORD") setPasswordOpen(true);
     else configureSecurityTask(key);
   }
 
-  /** Settings for a task that is already done. */
   function manage(key: SecurityTaskKey) {
     if (key === "TWO_FACTOR") setManageOpen(true);
     else if (key === "RECOVERY_CONTACT") setContactsOpen(true);
+    else if (key === "PASSKEY") setPasskeyManageOpen(true);
+    else if (key === "PASSWORD") setPasswordOpen(true);
   }
 
   if (!tasks) {
@@ -143,6 +154,24 @@ export function SecurityOverview() {
       <RecoveryContactsDialog
         open={contactsOpen}
         onOpenChange={(open) => closeAndRefresh(open, setContactsOpen)}
+      />
+
+      <PasswordDialog
+        open={passwordOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setPasswordOpen)}
+        hasPassword={tasks.some((task) => task.key === "PASSWORD" && task.done)}
+      />
+      <PasskeyManageDialog
+        open={passkeyManageOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setPasskeyManageOpen)}
+        onAdd={() => {
+          setPasskeyManageOpen(false);
+          setPasskeyOpen(true);
+        }}
+      />
+      <PasskeySetupDialog
+        open={passkeyOpen}
+        onOpenChange={(open) => closeAndRefresh(open, setPasskeyOpen)}
       />
     </div>
   );

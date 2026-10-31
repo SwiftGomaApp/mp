@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight, type LucideIcon } from "lucide-react";
@@ -25,6 +26,8 @@ export interface NavMainItem {
 
 export function NavMain({ items }: { items: NavMainItem[] }) {
   const pathname = usePathname();
+  // What the user opened or closed by hand. Until then a group is open while its page is shown.
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
 
   return (
     <SidebarGroup>
@@ -33,7 +36,8 @@ export function NavMain({ items }: { items: NavMainItem[] }) {
         {items.map(({ title, url, icon: Icon, items: subItems }) => (
           <Collapsible
             key={url}
-            defaultOpen={pathname === url || pathname.startsWith(`${url}/`)}
+            open={toggled[url] ?? (pathname === url || pathname.startsWith(`${url}/`))}
+            onOpenChange={(open) => setToggled((current) => ({ ...current, [url]: open }))}
             className="group/collapsible"
             render={<SidebarMenuItem />}
           >

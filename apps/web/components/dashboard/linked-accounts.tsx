@@ -9,6 +9,7 @@ import {
   LinkSocialDialog,
   type SocialProviderName,
 } from "@/components/security/link-social-dialog";
+import { UnlinkSocialDialog } from "@/components/security/unlink-social-dialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { account } from "@/lib/account";
@@ -23,6 +24,7 @@ const PROVIDERS: { key: SocialProviderName; label: string; icon: React.ReactNode
 export function LinkedAccounts() {
   const [methods, setMethods] = useState<SignInMethods | null>(null);
   const [linking, setLinking] = useState<SocialProviderName | null>(null);
+  const [unlinking, setUnlinking] = useState<SocialProviderName | null>(null);
 
   const load = useCallback(() => {
     account.methods
@@ -65,10 +67,15 @@ export function LinkedAccounts() {
               {!methods ? (
                 <Skeleton className="h-8 w-16 rounded-lg" />
               ) : linked ? (
-                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                  <Check className="size-4" />
-                  Lié
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                    <Check className="size-4" />
+                    Lié
+                  </span>
+                  <Button variant="outline" size="sm" onClick={() => setUnlinking(key)}>
+                    Délier
+                  </Button>
+                </div>
               ) : (
                 <Button size="sm" onClick={() => setLinking(key)}>
                   Lier
@@ -79,6 +86,11 @@ export function LinkedAccounts() {
         })}
       </ul>
 
+      <UnlinkSocialDialog
+        provider={unlinking}
+        onOpenChange={(open) => !open && setUnlinking(null)}
+        onUnlinked={setMethods}
+      />
       <LinkSocialDialog
         provider={linking}
         onOpenChange={(open) => !open && setLinking(null)}

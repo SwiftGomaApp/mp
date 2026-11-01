@@ -1,7 +1,13 @@
 const { getPrisma } = require("../../../core/db/prisma");
 const { AppError } = require("../../../core/errors/AppError");
-const { uploadFile, destroyFile } = require("../../../core/storage/cloudinary");
+const { uploadFile, destroyFile, folderPath } = require("../../../core/storage/cloudinary");
 const { logActivity } = require("../../auth/services/activity.service");
+const { usersConfig } = require("../config/users.config");
+const { getRedis } = require("../../../core/cache/redis");
+const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
+const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
+const { consumeStepUp } = require("../../auth/services/stepUp.service");
+const { notifySecurityChange } = require("../../auth/services/securityNotice.service");
 
 const PROFILE_SELECT = {
   id: true,
@@ -15,6 +21,23 @@ const PROFILE_SELECT = {
   status: true,
   verificationStatus: true,
   createdAt: true,
+};
+
+const ADDRESS_SELECT = {
+  id: true,
+  label: true,
+  recipientName: true,
+  recipientPhone: true,
+  line1: true,
+  quartier: true,
+  commune: true,
+  city: true,
+  landmark: true,
+  latitude: true,
+  longitude: true,
+  isDefault: true,
+  createdAt: true,
+  updatedAt: true,
 };
 
 const AVATAR_SIZE = 512;
@@ -36,7 +59,7 @@ function toProfile(user) {
 async function loadActiveUser(userId) {
   const user = await getPrisma().user.findUnique({ where: { id: userId }, select: PROFILE_SELECT });
 
-  if (!user || !user.status !== "ACTIVE") {
+  if (!user || user.status !== "ACTIVE") {
     throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
   }
 
@@ -131,4 +154,373 @@ async function removeAvatar({ userId }, meta = {}) {
   return toProfile(updated);
 }
 
-module.exports = { getProfile, updateProfile, loadActiveUser, toProfile, setAvatar, removeAvatar };
+async function loadBuyer(userId) {
+  const user = await loadActiveUser(userId);
+
+  if (!usersConfig.addresses.allowedRoles.includes(user.role)) {
+    throw AppError.forbidden(
+      "Seuls les acheteurs peuvent enregistrer des adresses de livraison",
+      "ADDRESSES_BUYER_ONLY",
+    );
+  }
+
+  return user;
+}
+
+async function findOwned(db, userId, id) {
+  const address = await db.address.findFirst({ where: { id, userId }, select: ADDRESS_SELECT });
+
+  if (!address) throw AppError.notFound("Adresse introuvable", "ADDRESS_NOT_FOUND");
+
+  return address;
+}
+
+function logChange(userId, event, addressId, meta = {}) {
+  return logActivity({
+    userId,
+    event,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    target: addressId,
+  });
+}
+
+async function listAddresses(userId) {
+  await loadBuyer(userId);
+
+  const addresses = await getPrisma().address.findMany({
+    where: { userId },
+    select: ADDRESS_SELECT,
+    orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
+  });
+
+  return { addresses };
+}
+
+async function createAddress({ userId, data }, meta = {}) {
+  await loadBuyer(userId);
+
+  const address = await getPrisma().$transaction(async (tx) => {
+    const count = await tx.address.count({ where: { userId } });
+
+    if (count >= usersConfig.addresses.maxPerUser) {
+      throw AppError.conflict(
+        `Vous ne pouvez pas enregistrer plus de ${usersConfig.addresses.maxPerUser} adresses`,
+        "ADDRESS_LIMIT_REACHED",
+      );
+    }
+
+    const makeDefault = count === 0 || data.isDefault === true;
+
+    if (makeDefault) {
+      await tx.address.updateMany({
+        where: { userId, isDefault: true },
+        data: { isDefault: false },
+      });
+    }
+
+    return tx.address.create({
+      data: {
+        ...data,
+        city: data.city ?? usersConfig.addresses.defaultCity,
+        isDefault: makeDefault,
+        userId,
+      },
+      select: ADDRESS_SELECT,
+    });
+  });
+
+  await logChange(userId, "ADDRESS_ADDED", address.id, meta);
+
+  return { address };
+}
+
+async function updateAddress({ userId, id, data }, meta = {}) {
+  await loadBuyer(userId);
+
+  const address = await getPrisma().$transaction(async (tx) => {
+    const current = await findOwned(tx, userId, id);
+
+    if (data.isDefault === false && current.isDefault) {
+      throw AppError.badRequest(
+        "Choisissez une autre adresse comme adresse par défaut",
+        undefined,
+        "DEFAULT_ADDRESS_REQUIRED",
+      );
+    }
+
+    if (data.isDefault === true && !current.isDefault) {
+      await tx.address.updateMany({
+        where: { userId, isDefault: true },
+        data: { isDefault: false },
+      });
+    }
+
+    return tx.address.update({ where: { id }, data, select: ADDRESS_SELECT });
+  });
+
+  await logChange(userId, "ADDRESS_UPDATED", id, meta);
+
+  return { address };
+}
+
+async function removeAddress({ userId, id }, meta = {}) {
+  await loadBuyer(userId);
+
+  await getPrisma().$transaction(async (tx) => {
+    const current = await findOwned(tx, userId, id);
+
+    await tx.address.delete({ where: { id } });
+
+    if (current.isDefault) {
+      const next = await tx.address.findFirst({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: { id: true },
+      });
+
+      if (next) await tx.address.update({ where: { id: next.id }, data: { isDefault: true } });
+    }
+  });
+
+  await logChange(userId, "ADDRESS_REMOVED", id, meta);
+}
+
+const PENDING_TTL_SECONDS = 10 * 60;
+
+const PRIMARY_CONTACTS = {
+  EMAIL: { field: "email", verifiedField: "emailVerifiedAt", event: "EMAIL_CHANGED" },
+  PHONE: { field: "phone", verifiedField: "phoneVerifiedAt", event: "PHONE_CHANGED" },
+};
+
+function pendingKey(userId, kind) {
+  return `primary-contact:pending:${userId}:${kind.toLowerCase()}`;
+}
+
+function otpPurpose(userId, kind) {
+  return `${OTP_PURPOSES.STEP_UP}:primary-contact:${kind.toLowerCase()}:${userId}`;
+}
+
+function normalizeContact(kind, value) {
+  const contact = String(value).trim();
+
+  return kind === "EMAIL" ? contact.toLowerCase() : contact;
+}
+
+function metaFields(meta = {}) {
+  return { ipAddress: meta.ipAddress, userAgent: meta.userAgent };
+}
+
+async function assertPrimaryContactAvailable(contact, userId) {
+  const existing = await getPrisma().user.findFirst({
+    where: {
+      OR: [
+        { email: contact },
+        { phone: contact },
+        { secondaryEmail: contact },
+        { secondaryPhone: contact },
+      ],
+    },
+    select: { id: true },
+  });
+
+  if (!existing) return;
+
+  if (existing.id === userId) {
+    throw AppError.conflict(
+      "Ce contact est déjà enregistré sur votre compte",
+      "CONTACT_ALREADY_ON_ACCOUNT",
+    );
+  }
+
+  throw AppError.conflict(
+    "Cet e-mail ou ce numéro est déjà associé à un autre compte",
+    "CONTACT_ALREADY_IN_USE",
+  );
+}
+
+async function requestContactChange({ userId, kind, value, stepUpCode }, meta = {}) {
+  const config = PRIMARY_CONTACTS[kind];
+  const user = await loadActiveUser(userId);
+  const contact = normalizeContact(kind, value);
+
+  if (user[config.field] === contact) {
+    throw AppError.conflict("Ce contact est déjà votre contact principal", "CONTACT_UNCHANGED");
+  }
+
+  await consumeStepUp(user, stepUpCode, meta, `primary_contact.${kind.toLowerCase()}`);
+
+  await assertPrimaryContactAvailable(contact, userId);
+
+  const { code, expiresMinutes } = await issueOtp({
+    purpose: otpPurpose(userId, kind),
+    target: contact,
+  });
+
+  await getRedis().set(pendingKey(userId, kind), contact, "EX", PENDING_TTL_SECONDS);
+
+  if (kind === "EMAIL") {
+    await queueOtpEmail({
+      to: contact,
+      name: user.name,
+      code,
+      expiresMinutes,
+      purpose: "contact-verification",
+    });
+  } else {
+    await queueOtpSms({ to: contact, code, expiresMinutes });
+  }
+
+  await logActivity({
+    userId,
+    event: "OTP_REQUESTED",
+    method: kind === "EMAIL" ? "EMAIL_OTP" : "PHONE_OTP",
+    ...metaFields(meta),
+    metadata: {
+      purpose: OTP_PURPOSES.STEP_UP,
+      action: `primary_contact.${kind.toLowerCase()}.request`,
+    },
+  });
+
+  return { message: "Un code de vérification a été envoyé", kind, contact, expiresMinutes };
+}
+
+async function verifyContactChange({ userId, kind, value, code }, meta = {}) {
+  const config = PRIMARY_CONTACTS[kind];
+  const contact = normalizeContact(kind, value);
+  const redis = getRedis();
+
+  const user = await loadActiveUser(userId);
+  const previous = user[config.field];
+
+  const storedContact = await redis.get(pendingKey(userId, kind));
+
+  if (!storedContact || storedContact !== contact) {
+    throw AppError.badRequest(
+      "Demande de vérification invalide ou expirée",
+      undefined,
+      "CONTACT_REQUEST_EXPIRED",
+    );
+  }
+
+  await assertPrimaryContactAvailable(contact, userId);
+
+  await verifyOtp({ purpose: otpPurpose(userId, kind), target: contact, code });
+
+  try {
+    const result = await getPrisma().user.updateMany({
+      where: { id: userId, status: "ACTIVE" },
+      data: { [config.field]: contact, [config.verifiedField]: new Date() },
+    });
+
+    if (result.count !== 1) {
+      throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+    }
+  } catch (err) {
+    if (err.code === "P2002") {
+      throw AppError.conflict(
+        "Cet e-mail ou ce numéro est déjà associé à un compte",
+        "CONTACT_ALREADY_IN_USE",
+      );
+    }
+
+    throw err;
+  }
+
+  await redis.del(pendingKey(userId, kind));
+
+  await logActivity({
+    userId,
+    event: config.event,
+    method: kind === "EMAIL" ? "EMAIL_OTP" : "PHONE_OTP",
+    ...metaFields(meta),
+    target: contact,
+    metadata: { action: `primary_contact.${kind.toLowerCase()}.verified`, added: !previous },
+  });
+
+  await notifySecurityChange(
+    userId,
+    previous ? "PRIMARY_CONTACT_CHANGED" : "PRIMARY_CONTACT_ADDED",
+  );
+
+  return { message: "Contact mis à jour avec succès", user: await getProfile(userId) };
+}
+
+const PREFERENCE_DEFAULTS = Object.freeze({
+  theme: "SYSTEM",
+  dataSaver: false,
+  preferredMomoNumber: null,
+  reviewNameDisplay: "FIRST_NAME_INITIAL",
+  newOrderSound: "default",
+});
+
+function preferenceKeysFor(role) {
+  const { buyerOnlyKeys, sellerOnlyKeys } = usersConfig.preferences;
+  const keys = ["theme", "dataSaver"];
+
+  if (role === "BUYER") keys.push(...buyerOnlyKeys);
+  if (role === "SELLER") keys.push(...sellerOnlyKeys);
+
+  return keys;
+}
+
+function pickPreferences(row, keys) {
+  const source = row ?? PREFERENCE_DEFAULTS;
+
+  return Object.fromEntries(keys.map((key) => [key, source[key] ?? PREFERENCE_DEFAULTS[key]]));
+}
+
+async function getPreferences(userId) {
+  const user = await loadActiveUser(userId);
+  const row = await getPrisma().userPreferences.findUnique({ where: { userId } });
+
+  return { preferences: pickPreferences(row, preferenceKeysFor(user.role)) };
+}
+
+async function updatePreferences({ userId, data }, meta = {}) {
+  const user = await loadActiveUser(userId);
+  const allowed = preferenceKeysFor(user.role);
+  const forbidden = Object.keys(data).filter((key) => !allowed.includes(key));
+
+  if (forbidden.length) {
+    throw AppError.badRequest(
+      "Ces préférences ne sont pas disponibles pour votre rôle",
+      forbidden.map((field) => ({ field })),
+      "PREFERENCE_NOT_ALLOWED",
+    );
+  }
+
+  const row = await getPrisma().userPreferences.upsert({
+    where: { userId },
+    create: { userId, ...data },
+    update: data,
+  });
+
+  await logActivity({
+    userId,
+    event: "PREFERENCES_UPDATED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    target: "preferences",
+    metadata: { keys: Object.keys(data) },
+  });
+
+  return { preferences: pickPreferences(row, allowed) };
+}
+
+module.exports = {
+  getPreferences,
+  updatePreferences,
+  getProfile,
+  updateProfile,
+  loadActiveUser,
+  toProfile,
+  setAvatar,
+  removeAvatar,
+  listAddresses,
+  createAddress,
+  updateAddress,
+  removeAddress,
+  requestContactChange,
+  verifyContactChange,
+};

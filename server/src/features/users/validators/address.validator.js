@@ -13,7 +13,7 @@ const shape = {
   line1: z.string().trim().min(a.line1.minLength).max(a.line1.maxLength),
   quartier: optionalText(a.quartier.maxLength),
   commune: optionalText(a.commune.maxLength),
-  city: z.string().trim().min(2).max(80).default(a.defaultCity),
+  city: z.string().trim().min(2).max(80).optional(),
   landmark: optionalText(a.landmark.maxLength),
   latitude: z.number().min(-90).max(90).nullable().optional(),
   longitude: z.number().min(-180).max(180).nullable().optional(),

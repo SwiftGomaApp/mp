@@ -80,6 +80,16 @@ const ALERTS = {
     title: "Le mot de passe a été retiré de votre compte",
     sms: "le mot de passe a été retiré de votre compte",
   },
+  PRIMARY_CONTACT_ADDED: {
+    subject: "Un contact principal a été ajouté à votre compte SwiftGoma",
+    title: "Un contact principal a été ajouté à votre compte",
+    sms: "un contact principal a été ajouté à votre compte",
+  },
+  PRIMARY_CONTACT_CHANGED: {
+    subject: "Votre contact principal SwiftGoma a été modifié",
+    title: "Votre e-mail ou numéro principal a été modifié",
+    sms: "votre e-mail ou numéro principal a été modifié",
+  },
 };
 
 const FALLBACK = {

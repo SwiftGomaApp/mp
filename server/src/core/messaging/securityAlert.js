@@ -90,6 +90,17 @@ const ALERTS = {
     title: "Votre e-mail ou numéro principal a été modifié",
     sms: "votre e-mail ou numéro principal a été modifié",
   },
+  ACCOUNT_DELETION_REQUESTED: {
+    subject: "La suppression de votre compte SwiftGoma a été demandée",
+    title:
+      "La suppression de votre compte a été demandée. Reconnectez-vous dans les 30 jours pour l'annuler",
+    sms: "la suppression de votre compte a été demandée, annulable en vous reconnectant pendant 30 jours",
+  },
+  ACCOUNT_DELETION_CANCELLED: {
+    subject: "La suppression de votre compte SwiftGoma a été annulée",
+    title: "La suppression de votre compte a été annulée",
+    sms: "la suppression de votre compte a été annulée",
+  },
 };
 
 const FALLBACK = {

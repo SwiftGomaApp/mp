@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+provider = "postgresql"
 }
 
 // ======================================================= ENUMS ===========================================
@@ -23,6 +23,7 @@ enum UserStatus {
   SUSPENDED
   BANNED
   DELETED
+  PENDING_DELETION
 }
 
 enum VerificationStatus {
@@ -170,6 +171,34 @@ enum ReviewNameDisplay {
   FULL_NAME
   FIRST_NAME_INITIAL
   ANONYMOUS
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+  FAILED
+}
+
+enum CampaignRecipientStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum TrackingEventType {
+  OPEN
+  CLICK
+  UNSUBSCRIBE
+}
+
+enum SuppressionReason {
+  UNSUBSCRIBED
+  BOUNCED
+  COMPLAINED
 }
 
 // ======================================================= MODELS ===========================================
@@ -582,34 +611,6 @@ model DeviceRegistration {
 }
 
 // ======================================================= MARKETING ===========================================
-
-enum CampaignStatus {
-  DRAFT
-  SCHEDULED
-  SENDING
-  SENT
-  CANCELLED
-  FAILED
-}
-
-enum CampaignRecipientStatus {
-  PENDING
-  SENT
-  FAILED
-  SKIPPED
-}
-
-enum TrackingEventType {
-  OPEN
-  CLICK
-  UNSUBSCRIBE
-}
-
-enum SuppressionReason {
-  UNSUBSCRIBED
-  BOUNCED
-  COMPLAINED
-}
 
 // ---------------------- email template models -------------------------
 

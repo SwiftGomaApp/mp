@@ -4,8 +4,10 @@ const { getQueue, QUEUES } = require("../core/queue/queues");
 const { logger } = require("../core/logger/logger");
 const { authConfig } = require("../features/auth/config/auth.config");
 const { cleanNotifications } = require("../features/notifications/services/cleanup.service");
+const { purgeDueAccounts } = require("../features/users/services/user.service");
 
 const MAINTENANCE_JOBS = {
+  PURGE_DELETED_ACCOUNTS: "cleanup.deleted-accounts",
   CLEAN_UNCONFIRMED_SIGNUPS: "cleanup.unconfirmed-signups",
   CLEAN_EXPIRED_DATA: "cleanup.expired-data",
   CLEAN_NOTIFICATIONS: "cleanup.notifications",
@@ -58,7 +60,15 @@ async function cleanExpiredData() {
   );
 }
 
+async function purgeDeletedAccounts() {
+  const count = await purgeDueAccounts();
+
+  if (count) logger.info({ count }, "Purged deleted accounts");
+  return count;
+}
+
 const handlers = {
+  [MAINTENANCE_JOBS.PURGE_DELETED_ACCOUNTS]: purgeDeletedAccounts,
   [MAINTENANCE_JOBS.CLEAN_UNCONFIRMED_SIGNUPS]: cleanUnconfirmedSignups,
   [MAINTENANCE_JOBS.CLEAN_EXPIRED_DATA]: cleanExpiredData,
   [MAINTENANCE_JOBS.CLEAN_NOTIFICATIONS]: cleanNotifications,
@@ -77,6 +87,11 @@ async function scheduleMaintenance() {
     "cleanup-unconfirmed-signups",
     { every: HOUR },
     { name: MAINTENANCE_JOBS.CLEAN_UNCONFIRMED_SIGNUPS },
+  );
+  await queue.upsertJobScheduler(
+    "purge-deleted-accounts",
+    { every: HOUR },
+    { name: MAINTENANCE_JOBS.PURGE_DELETED_ACCOUNTS },
   );
   await queue.upsertJobScheduler(
     "cleanup-expired-data",

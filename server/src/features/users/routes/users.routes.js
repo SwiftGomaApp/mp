@@ -17,6 +17,7 @@ const {
   primaryContactVerifyBody,
 } = require("../validators/contact.validator");
 const { updatePreferencesBody } = require("../validators/preferences.validator");
+const { requestDeletionBody } = require("../validators/deletion.validator");
 
 const writeLimiter = createLimiter({
   name: "users-write",
@@ -97,6 +98,15 @@ router.patch(
   validate({ body: updatePreferencesBody }),
   writeLimiter,
   controller.updatePreferences,
+);
+
+// ===================================== ACCOUNT DELETION =====================================
+router.get("/me/deletion", controller.getDeletionOverview);
+router.post(
+  "/me/deletion",
+  validate({ body: requestDeletionBody }),
+  authLimiter,
+  controller.requestAccountDeletion,
 );
 
 module.exports = router;

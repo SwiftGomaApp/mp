@@ -122,7 +122,30 @@ async function updatePreferences(req, res, next) {
   }
 }
 
+async function getDeletionOverview(req, res, next) {
+  try {
+    res.json(await service.getDeletionOverview(req.auth.userId));
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function requestAccountDeletion(req, res, next) {
+  try {
+    res.json(
+      await service.requestAccountDeletion(
+        { userId: req.auth.userId, stepUpCode: req.body.stepUpCode },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
+  getDeletionOverview,
+  requestAccountDeletion,
   getPreferences,
   updatePreferences,
   getProfile,

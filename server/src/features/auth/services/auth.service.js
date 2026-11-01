@@ -154,8 +154,7 @@ async function sendSignupOtp(user) {
       expiresMinutes,
       purpose: OTP_PURPOSES.SIGNUP,
     });
-  }
-  else await queueOtpSms({ to: target, code, expiresMinutes });
+  } else await queueOtpSms({ to: target, code, expiresMinutes });
 
   return { target, expiresMinutes };
 }
@@ -674,6 +673,25 @@ async function completeLogin({ user, method, device, meta }) {
   const now = new Date();
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: now } });
 
+  const deletionCancelled = user.status === "PENDING_DELETION";
+
+  if (deletionCancelled) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { status: "ACTIVE", deletionRequestedAt: null, deletionScheduledAt: null },
+    });
+    user.status = "ACTIVE";
+
+    await logActivity({
+      userId: user.id,
+      event: "ACCOUNT_DELETION_CANCELLED",
+      method,
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+    });
+    await notifySecurityChange(user.id, "ACCOUNT_DELETION_CANCELLED");
+  }
+
   const geo = await lookupIp(meta.ipAddress);
 
   const tokens = await createSession({
@@ -711,7 +729,7 @@ async function completeLogin({ user, method, device, meta }) {
   }
 
   return {
-    user: publicUser(user),
+    user: { ...publicUser(user), ...(deletionCancelled && { deletionCancelled: true }) },
     accessToken: tokens.accessToken,
     refreshToken: tokens.refreshToken,
     isNewDevice,

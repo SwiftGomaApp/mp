@@ -22,6 +22,8 @@ const ALERT_TYPES = [
   "PASSWORD_CHANGED",
   "PASSWORD_RESET",
   "PASSWORD_REMOVED",
+  "ACCOUNT_DELETION_REQUESTED",
+  "ACCOUNT_DELETION_CANCELLED",
 ];
 
 describe("security alert texts", () => {

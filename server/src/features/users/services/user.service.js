@@ -8,6 +8,8 @@ const { issueOtp, verifyOtp, OTP_PURPOSES } = require("../../../core/auth/otp");
 const { queueOtpEmail, queueOtpSms } = require("../../../core/queue/notifications");
 const { consumeStepUp } = require("../../auth/services/stepUp.service");
 const { notifySecurityChange } = require("../../auth/services/securityNotice.service");
+const { logger } = require("../../../core/logger/logger");
+const { revokeUserSessions } = require("../../auth/services/session.service");
 
 const PROFILE_SELECT = {
   id: true,
@@ -508,7 +510,172 @@ async function updatePreferences({ userId, data }, meta = {}) {
   return { preferences: pickPreferences(row, allowed) };
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function assertDeletable(user) {
+  if (usersConfig.deletion.staffRolesExcluded.includes(user.role)) {
+    throw AppError.forbidden(
+      "Les comptes de l'équipe SwiftGoma sont supprimés par l'équipe",
+      "STAFF_DELETION_NOT_ALLOWED",
+    );
+  }
+}
+
+async function findDeletionBlockers() {
+  return [];
+}
+
+async function getDeletionOverview(userId) {
+  const user = await loadActiveUser(userId);
+  assertDeletable(user);
+
+  const [blockers, addresses] = await Promise.all([
+    findDeletionBlockers(user),
+    getPrisma().address.count({ where: { userId } }),
+  ]);
+
+  return {
+    canDelete: blockers.length === 0,
+    blockers,
+    gracePeriodDays: Math.round(usersConfig.deletion.gracePeriodMs / DAY_MS),
+    erased: { addresses },
+    kept: ["ORDERS", "PAYMENTS", "REVIEWS"],
+  };
+}
+
+async function requestAccountDeletion({ userId, stepUpCode }, meta = {}) {
+  const user = await loadActiveUser(userId);
+  assertDeletable(user);
+
+  await consumeStepUp(user, stepUpCode, meta, "account.deletion");
+
+  const blockers = await findDeletionBlockers(user);
+
+  if (blockers.length) {
+    throw new AppError(
+      409,
+      "DELETION_BLOCKED",
+      "Votre compte ne peut pas être supprimé pour le moment",
+      blockers,
+    );
+  }
+
+  const now = new Date();
+  const scheduledAt = new Date(now.getTime() + usersConfig.deletion.gracePeriodMs);
+  const prisma = getPrisma();
+
+  const result = await prisma.user.updateMany({
+    where: { id: userId, status: "ACTIVE" },
+    data: {
+      status: "PENDING_DELETION",
+      deletionRequestedAt: now,
+      deletionScheduledAt: scheduledAt,
+    },
+  });
+
+  if (result.count !== 1) {
+    throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_REVOKED");
+  }
+
+  await revokeUserSessions(userId, { reason: "ACCOUNT_DELETION" });
+  await prisma.deviceRegistration.updateMany({
+    where: { userId, disabledAt: null },
+    data: { disabledAt: now },
+  });
+
+  await logActivity({
+    userId,
+    event: "ACCOUNT_DELETION_REQUESTED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    metadata: { scheduledAt: scheduledAt.toISOString() },
+  });
+  await notifySecurityChange(userId, "ACCOUNT_DELETION_REQUESTED");
+
+  return { message: "La suppression de votre compte est programmée", scheduledAt };
+}
+
+async function purgeAccount(userId) {
+  const prisma = getPrisma();
+
+  const pending = await prisma.user.findFirst({
+    where: { id: userId, status: "PENDING_DELETION" },
+    select: { id: true },
+  });
+
+  if (!pending) return false;
+
+  await destroyFile({ publicId: avatarPublicId(userId) });
+
+  await prisma.$transaction([
+    prisma.session.deleteMany({ where: { userId } }),
+    prisma.passkey.deleteMany({ where: { userId } }),
+    prisma.totpCredential.deleteMany({ where: { userId } }),
+    prisma.backupCode.deleteMany({ where: { userId } }),
+    prisma.oAuthAccount.deleteMany({ where: { userId } }),
+    prisma.accountRecoveryRequest.deleteMany({ where: { userId } }),
+    prisma.supportRequest.deleteMany({ where: { userId } }),
+    prisma.address.deleteMany({ where: { userId } }),
+    prisma.userPreferences.deleteMany({ where: { userId } }),
+    prisma.notification.deleteMany({ where: { userId } }),
+    prisma.notificationPreference.deleteMany({ where: { userId } }),
+    prisma.notificationSettings.deleteMany({ where: { userId } }),
+    prisma.deviceRegistration.deleteMany({ where: { userId } }),
+    prisma.campaignRecipient.updateMany({
+      where: { userId },
+      data: { name: null, email: "supprimé" },
+    }),
+    prisma.user.update({
+      where: { id: userId, status: "PENDING_DELETION" },
+      data: {
+        status: "DELETED",
+        name: null,
+        email: null,
+        phone: null,
+        emailVerifiedAt: null,
+        phoneVerifiedAt: null,
+        secondaryEmail: null,
+        secondaryEmailVerifiedAt: null,
+        secondaryPhone: null,
+        secondaryPhoneVerifiedAt: null,
+        passwordHash: null,
+        avatarUrl: null,
+        deletionScheduledAt: null,
+        deletedAt: new Date(),
+      },
+    }),
+  ]);
+
+  await logActivity({ userId, event: "ACCOUNT_DELETED" });
+
+  return true;
+}
+
+async function purgeDueAccounts(batchSize = 50) {
+  const due = await getPrisma().user.findMany({
+    where: { status: "PENDING_DELETION", deletionScheduledAt: { lte: new Date() } },
+    select: { id: true },
+    take: batchSize,
+  });
+
+  let purged = 0;
+
+  for (const { id } of due) {
+    try {
+      if (await purgeAccount(id)) purged += 1;
+    } catch (err) {
+      logger.error({ err, userId: id }, "Failed to purge account");
+    }
+  }
+
+  return purged;
+}
+
 module.exports = {
+  getDeletionOverview,
+  requestAccountDeletion,
+  purgeAccount,
+  purgeDueAccounts,
   getPreferences,
   updatePreferences,
   getProfile,

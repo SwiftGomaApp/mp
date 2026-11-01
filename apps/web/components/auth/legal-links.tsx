@@ -21,7 +21,6 @@ export function LegalLink({ href, children }: { href: string; children: React.Re
   );
 }
 
-/** "By continuing…" line with the legal links; adds the role's terms when the role is known. */
 export function LegalNotice({ role }: { role?: SignUpRole }) {
   return (
     <p className="text-center text-xs leading-5 text-muted-foreground">
@@ -37,7 +36,6 @@ export function LegalNotice({ role }: { role?: SignUpRole }) {
   );
 }
 
-/** The two legal links over the sign-in image, in white. */
 export function LegalImageLinks() {
   const className =
     "text-[0.65rem] font-medium text-white/70 underline-offset-4 transition-colors outline-none hover:text-white hover:underline focus-visible:text-white focus-visible:underline";

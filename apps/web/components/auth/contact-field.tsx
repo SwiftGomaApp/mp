@@ -57,7 +57,6 @@ interface ContactFieldProps {
   disabled?: boolean;
   webauthn?: boolean;
   switcher?: "link" | "tabs";
-  /** The "Ou continuer avec" line above the field. */
   showSeparator?: boolean;
 }
 

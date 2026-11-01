@@ -16,7 +16,6 @@ const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
 
 export const formatDateTime = (iso: string) => dateTime.format(new Date(iso));
 
-/** "il y a 3 heures", "hier"… */
 export function formatRelative(iso: string): string {
   const seconds = Math.round((new Date(iso).getTime() - Date.now()) / 1000);
   for (const [unit, size] of UNITS) {
@@ -25,7 +24,6 @@ export function formatRelative(iso: string): string {
   return "à l’instant";
 }
 
-/** "Goma, République démocratique du Congo", from a city and an ISO country code or a name. */
 export function formatPlace(city: string | null, country: string | null): string | null {
   let countryName = country;
   if (country && /^[A-Za-z]{2}$/.test(country)) {

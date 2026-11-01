@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 
+import { Reveal } from "@/components/global/reveal";
 import { HelpFaq, type HelpFilter } from "@/components/help/help-faq";
+import { cn } from "@/lib/utils";
 
 const POPULAR = [
   { label: "Code de vérification", query: "code" },
@@ -12,7 +14,9 @@ const POPULAR = [
   { label: "Remboursement", query: "rembours" },
 ];
 
-/** The search and the FAQ share one state. */
+const FADE =
+  "animate-in fade-in slide-in-from-bottom-3 duration-700 fill-mode-both motion-reduce:animate-none";
+
 export function HelpCenter() {
   const [filter, setFilter] = useState<HelpFilter>("all");
   const [query, setQuery] = useState("");
@@ -25,8 +29,14 @@ export function HelpCenter() {
   return (
     <>
       <section className="mx-auto w-full max-w-6xl px-4 pt-16 pb-14 sm:px-6 sm:pt-24">
-        <p className="mb-4 text-sm font-medium text-primary">Centre d’aide</p>
-        <h1 className="max-w-2xl text-4xl font-bold tracking-tight text-balance sm:text-5xl">
+        <p className={cn("mb-4 text-sm font-medium text-primary", FADE)}>Centre d’aide</p>
+        <h1
+          style={{ animationDelay: "100ms" }}
+          className={cn(
+            "max-w-2xl text-4xl font-bold tracking-tight text-balance sm:text-5xl",
+            FADE,
+          )}
+        >
           Comment pouvons-nous vous aider ?
         </h1>
 
@@ -36,7 +46,8 @@ export function HelpCenter() {
             event.preventDefault();
             document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
           }}
-          className="relative mt-8 max-w-xl"
+          style={{ animationDelay: "200ms" }}
+          className={cn("relative mt-8 max-w-xl", FADE)}
         >
           <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -49,7 +60,13 @@ export function HelpCenter() {
           />
         </form>
 
-        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+        <p
+          style={{ animationDelay: "300ms" }}
+          className={cn(
+            "mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground",
+            FADE,
+          )}
+        >
           <span>Souvent recherché :</span>
           {POPULAR.map(({ label, query: value }) => (
             <button
@@ -72,18 +89,20 @@ export function HelpCenter() {
         className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 pb-20 sm:px-6"
         aria-labelledby="faq-title"
       >
-        <h2 id="faq-title" className="mb-8 text-2xl font-bold tracking-tight">
-          Questions fréquentes
-        </h2>
-        <HelpFaq
-          filter={filter}
-          onFilterChange={setFilter}
-          query={query}
-          onReset={() => {
-            setQuery("");
-            setFilter("all");
-          }}
-        />
+        <Reveal>
+          <h2 id="faq-title" className="mb-8 text-2xl font-bold tracking-tight">
+            Questions fréquentes
+          </h2>
+          <HelpFaq
+            filter={filter}
+            onFilterChange={setFilter}
+            query={query}
+            onReset={() => {
+              setQuery("");
+              setFilter("all");
+            }}
+          />
+        </Reveal>
       </section>
     </>
   );

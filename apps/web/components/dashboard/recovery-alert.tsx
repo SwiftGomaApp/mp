@@ -9,10 +9,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { account } from "@/lib/account";
 import { authErrorMessage } from "@/lib/auth-errors";
 
-/**
- * Someone asked to recover this account. The owner has until the end of the security delay to say
- * it was not them; the banner shows on every dashboard page until then.
- */
 export function RecoveryAlert() {
   const [availableAt, setAvailableAt] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
@@ -25,9 +21,7 @@ export function RecoveryAlert() {
       .then(({ pendingRecovery }) => {
         if (!cancelled) setAvailableAt(pendingRecovery?.availableAt ?? null);
       })
-      .catch(() => {
-        // The banner is a safety net: without the answer nothing is shown.
-      });
+      .catch(() => {});
     return () => {
       cancelled = true;
     };

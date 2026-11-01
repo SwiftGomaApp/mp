@@ -22,7 +22,6 @@ const TOPICS = [
 const MIN_MESSAGE_LENGTH = 10;
 const MAX_MESSAGE_LENGTH = 1000;
 
-/** UI only for now: submitting shows the confirmation without sending anything. */
 export function HelpContactForm() {
   const [topic, setTopic] = useState(TOPICS[0]);
   const [contact, setContact] = useState("");

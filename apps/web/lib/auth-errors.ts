@@ -17,7 +17,6 @@ function isCancelled(error: unknown): boolean {
   );
 }
 
-/** Shown when the account is suspended; the sign-in screens also offer the way to the Support. */
 export const SUSPENDED_MESSAGE =
   "Ce compte est suspendu. Contactez le Support pour en savoir plus.";
 

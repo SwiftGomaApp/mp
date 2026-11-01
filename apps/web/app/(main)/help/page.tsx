@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Reveal } from "@/components/global/reveal";
 import { HelpContactForm } from "@/components/help/help-contact-form";
 import { HelpCenter } from "@/components/help/help-center";
 import { helpGuides, safetyTips } from "@/lib/help";
@@ -23,36 +24,40 @@ export default function HelpPage() {
 
       <section className="border-t" aria-labelledby="guides">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-          <h2 id="guides" className="text-2xl font-bold tracking-tight">
-            Bien démarrer
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Selon votre rôle, l’essentiel en quatre étapes.
-          </p>
+          <Reveal>
+            <h2 id="guides" className="text-2xl font-bold tracking-tight">
+              Bien démarrer
+            </h2>
+            <p className="mt-2 text-muted-foreground">
+              Selon votre rôle, l’essentiel en quatre étapes.
+            </p>
+          </Reveal>
 
           <div className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
-            {helpGuides.map(({ title, description, steps }) => (
-              <article key={title}>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-                <ol className="mt-5 grid border-t">
-                  {steps.map((step, index) => (
-                    <li key={step} className="flex gap-4 border-b py-3 text-sm">
-                      <span className="w-4 shrink-0 text-muted-foreground tabular-nums">
-                        {index + 1}
-                      </span>
-                      <span>{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </article>
+            {helpGuides.map(({ title, description, steps }, index) => (
+              <Reveal key={title} delay={index * 120}>
+                <article>
+                  <h3 className="text-lg font-semibold">{title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+                  <ol className="mt-5 grid border-t">
+                    {steps.map((step, index) => (
+                      <li key={step} className="flex gap-4 border-b py-3 text-sm">
+                        <span className="w-4 shrink-0 text-muted-foreground tabular-nums">
+                          {index + 1}
+                        </span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       <section className="border-t" aria-labelledby="safety">
-        <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[14rem_1fr] lg:gap-16">
+        <Reveal className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-[14rem_1fr] lg:gap-16">
           <h2 id="safety" className="text-2xl font-bold tracking-tight">
             Restez en sécurité
           </h2>
@@ -63,11 +68,11 @@ export default function HelpPage() {
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
       </section>
 
       <section id="contact" className="scroll-mt-14 border-t" aria-labelledby="contact-title">
-        <div className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
+        <Reveal className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_1.3fr] lg:gap-16">
           <div className="grid content-start gap-8">
             <div>
               <h2 id="contact-title" className="text-2xl font-bold tracking-tight">
@@ -120,7 +125,7 @@ export default function HelpPage() {
           </div>
 
           <HelpContactForm />
-        </div>
+        </Reveal>
       </section>
     </>
   );

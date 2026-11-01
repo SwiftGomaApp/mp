@@ -1,6 +1,5 @@
 import type { PasskeyJson, PasskeyProvider, SocialProvider } from "swiftgoma-mp-auth";
 
-/** The user closed the Google or passkey prompt, or no prompt could be shown. */
 export class ProviderCancelledError extends Error {
   override name = "ProviderCancelledError";
 }
@@ -52,11 +51,6 @@ function loadGoogleScript(): Promise<void> {
   return googleScript;
 }
 
-/**
- * Shows a small dialog holding Google's own "Continue with Google" button. A click on it opens
- * Google's account-chooser popup, which hands back the ID token. The page cannot start that popup
- * itself: only a click on Google's button can.
- */
 function askGoogleIdToken(clientId: string, nonce: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const google = window.google;
@@ -99,8 +93,7 @@ function askGoogleIdToken(clientId: string, nonce: string): Promise<string> {
     }
 
     const cancelPrompt = () => close(() => reject(new ProviderCancelledError()));
-
-    // Captured first so Escape closes only this dialog, not the one the user opened it from.
+    
     function onKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       event.preventDefault();

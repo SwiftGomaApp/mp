@@ -63,7 +63,6 @@ export function RecoverAccountView() {
   const stored = parseRecovery(
     useSyncExternalStore(subscribeRecovery, readRecoverySnapshot, getServerSnapshot),
   );
-  // Kept in memory too, for browsers that cannot store it.
   const [memory, setMemory] = useState<StoredRecovery | null>(null);
   const recovery = stored ?? memory;
 
@@ -74,19 +73,16 @@ export function RecoverAccountView() {
   const [backupCode, setBackupCode] = useState("");
   const [needsBackupCode, setNeedsBackupCode] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(0);
-  // Unknown until the browser has read the clock, so nothing time-based is rendered on the server.
   const [now, setNow] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // The resend countdown of the first code.
   useEffect(() => {
     if (secondsLeft <= 0) return;
     const timer = setTimeout(() => setSecondsLeft((current) => current - 1), 1000);
     return () => clearTimeout(timer);
   }, [secondsLeft]);
 
-  // Lets the waiting screen turn into the next step by itself when the delay ends.
   useEffect(() => {
     const tick = () => setNow(Date.now());
     const first = setTimeout(tick, 0);
@@ -127,7 +123,6 @@ export function RecoverAccountView() {
 
   const requestCode = () =>
     run(async () => {
-      // The answer is the same whether or not the account has a recovery contact.
       await account.recovery.request(target);
       setCode("");
       setSecondsLeft(RESEND_DELAY_SECONDS);
@@ -179,7 +174,7 @@ export function RecoverAccountView() {
   return (
     <div className="flex min-h-svh items-center justify-center p-6">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
-        {/* 1. Which account */}
+
         {!recovery && step === "identify" && (
           <form
             className="flex w-full flex-col items-center gap-6"
@@ -217,7 +212,6 @@ export function RecoverAccountView() {
           </form>
         )}
 
-        {/* 2. Code sent to the recovery contact */}
         {!recovery && step === "verify" && (
           <form
             className="flex w-full flex-col items-center gap-6"
@@ -265,7 +259,6 @@ export function RecoverAccountView() {
           </form>
         )}
 
-        {/* 3. Security delay */}
         {recovery && waiting && (
           <div className="flex w-full flex-col items-center gap-6 text-center">
             <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary ring-8 ring-primary/5">
@@ -296,7 +289,6 @@ export function RecoverAccountView() {
           </div>
         )}
 
-        {/* 4. New primary contact */}
         {recovery && clockReady && !waiting && !codeSent && (
           <form
             className="flex w-full flex-col items-center gap-6"
@@ -340,7 +332,6 @@ export function RecoverAccountView() {
           </form>
         )}
 
-        {/* 5. Confirm the new contact */}
         {recovery && clockReady && !waiting && codeSent && (
           <form
             className="flex w-full flex-col items-center gap-6"
@@ -419,7 +410,6 @@ export function RecoverAccountView() {
           </form>
         )}
 
-        {/* 6. Done */}
         {!recovery && step === "done" && (
           <div className="flex w-full flex-col items-center gap-6 text-center">
             <span className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 ring-8 ring-emerald-500/5 dark:text-emerald-400">

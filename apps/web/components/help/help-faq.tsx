@@ -38,7 +38,7 @@ export function HelpFaq({ filter, onFilterChange, query, onReset }: HelpFaqProps
   ];
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[14rem_1fr] lg:gap-16">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-[14rem_1fr] lg:gap-16">
       <nav aria-label="Thèmes" className="lg:sticky lg:top-24 lg:self-start">
         <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:mx-0 lg:grid lg:overflow-visible lg:px-0">
           {filters.map(({ id, label }) => (

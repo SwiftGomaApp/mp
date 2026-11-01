@@ -31,7 +31,6 @@ interface Setup {
 interface TwoFactorSetupDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called once the user has saved the recovery codes and closed the dialog. */
   onDone: () => void;
 }
 
@@ -51,7 +50,6 @@ function TwoFactorSetupFlow({ open, onOpenChange, onDone }: TwoFactorSetupDialog
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // The flow is mounted only while open, so every opening starts fresh and sends the code.
   useEffect(() => {
     let cancelled = false;
 
@@ -74,9 +72,7 @@ function TwoFactorSetupFlow({ open, onOpenChange, onDone }: TwoFactorSetupDialog
       await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // Clipboard access can be denied; the text stays visible to copy by hand.
-    }
+    } catch {}
   }
 
   async function handleVerify() {
@@ -110,7 +106,6 @@ function TwoFactorSetupFlow({ open, onOpenChange, onDone }: TwoFactorSetupDialog
   }
 
   function handleOpenChange(next: boolean) {
-    // The codes are shown once: do not let a stray click close the dialog before they are saved.
     if (isLoading || (step === "recovery" && !saved)) return;
     onOpenChange(next);
   }

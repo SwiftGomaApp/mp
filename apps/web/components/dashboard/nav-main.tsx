@@ -26,7 +26,6 @@ export interface NavMainItem {
 
 export function NavMain({ items }: { items: NavMainItem[] }) {
   const pathname = usePathname();
-  // What the user opened or closed by hand. Until then a group is open while its page is shown.
   const [toggled, setToggled] = useState<Record<string, boolean>>({});
 
   return (

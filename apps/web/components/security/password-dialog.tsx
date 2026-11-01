@@ -25,13 +25,10 @@ const MIN_PASSWORD_LENGTH = 8;
 type View = "menu" | "create" | "change" | "remove";
 
 interface StepUp {
-  /** True when the code to give is the one from the authenticator app. */
   authenticator: boolean;
-  /** Where the code was sent, when it was sent. */
   sentTo: string | null;
 }
 
-/** With two-step verification on, the app code is the step-up code; otherwise one is sent. */
 async function loadStepUp(): Promise<StepUp> {
   const { enabled } = await account.twoFactor.status();
   if (enabled) return { authenticator: true, sentTo: null };
@@ -64,7 +61,6 @@ const FORM_COPY: Record<
 interface PasswordDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Whether the account already has a password: it decides between adding and managing it. */
   hasPassword: boolean;
 }
 
@@ -82,7 +78,6 @@ function PasswordFlow({ open, onOpenChange, hasPassword }: PasswordDialogProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Adding a password starts on the form, so its code is sent as soon as the dialog opens.
   useEffect(() => {
     if (hasPassword) return;
     let cancelled = false;
@@ -98,7 +93,6 @@ function PasswordFlow({ open, onOpenChange, hasPassword }: PasswordDialogProps) 
     };
   }, [hasPassword]);
 
-  /** Opens a form and sends the code it needs. */
   function openForm(next: Exclude<View, "menu">) {
     setView(next);
     setStepUp(null);

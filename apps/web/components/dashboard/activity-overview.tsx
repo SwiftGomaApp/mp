@@ -72,7 +72,6 @@ const METHOD_LABELS: Record<string, string> = {
   BACKUP_CODE: "Code de récupération",
 };
 
-/** "SOME_EVENT" becomes "Some event" for events this screen does not know yet. */
 const humanize = (value: string) => {
   const text = value.toLowerCase().replace(/_/g, " ");
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -94,7 +93,6 @@ export function ActivityOverview() {
     });
   }, []);
 
-  // A new filter starts over from the first page.
   useEffect(() => {
     let cancelled = false;
     load(filter, 1)

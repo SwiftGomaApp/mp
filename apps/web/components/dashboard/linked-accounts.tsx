@@ -20,7 +20,6 @@ const PROVIDERS: { key: SocialProviderName; label: string; icon: React.ReactNode
   { key: "apple", label: "Apple", icon: <AppleIcon /> },
 ];
 
-/** Google and Apple sign-in for the account. A provider the app did not enable is not shown. */
 export function LinkedAccounts() {
   const [methods, setMethods] = useState<SignInMethods | null>(null);
   const [linking, setLinking] = useState<SocialProviderName | null>(null);
@@ -30,9 +29,7 @@ export function LinkedAccounts() {
     account.methods
       .list()
       .then(setMethods)
-      .catch(() => {
-        // Without the list the buttons stay in their loading state.
-      });
+      .catch(() => {});
   }, []);
 
   useEffect(load, [load]);

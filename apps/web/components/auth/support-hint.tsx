@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { SUSPENDED_MESSAGE } from "@/lib/auth-errors";
 
-/** Under a sign-in error: when the account is suspended, the way to reach the Support. */
 export function SupportHint({ error }: { error: string | null }) {
   if (error !== SUSPENDED_MESSAGE) return null;
 

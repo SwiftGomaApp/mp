@@ -29,7 +29,6 @@ const PROVIDER_LABELS: Record<SocialProviderName, string> = {
 interface LinkSocialDialogProps {
   provider: SocialProviderName | null;
   onOpenChange: (open: boolean) => void;
-  /** Called once the account is linked. */
   onLinked: () => void;
 }
 
@@ -48,8 +47,6 @@ function LinkSocialFlow({
   onOpenChange: (open: boolean) => void;
   onLinked: () => void;
 }) {
-  // With two-step verification on, the code to give is the one from the authenticator app.
-  // `null` while the account is still being checked.
   const [usesAuthenticator, setUsesAuthenticator] = useState<boolean | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [code, setCode] = useState("");

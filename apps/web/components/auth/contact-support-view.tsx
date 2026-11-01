@@ -25,7 +25,6 @@ const SignInLink = () => (
   </Link>
 );
 
-/** A suspended or banned account cannot sign in: this is how its owner reaches the Support. */
 export function ContactSupportView() {
   const contact = useContactField();
   const [message, setMessage] = useState("");
@@ -42,7 +41,6 @@ export function ContactSupportView() {
     setIsLoading(true);
     setError(null);
     try {
-      // The answer is the same whatever the state of the account.
       await account.supportRequest({
         ...(contact.method === "email" ? { email: contact.contact } : { phone: contact.contact }),
         message: trimmed,

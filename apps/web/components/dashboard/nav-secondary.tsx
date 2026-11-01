@@ -26,7 +26,6 @@ const THEME_OPTIONS = [
   { value: "system", label: "Système", icon: Monitor },
 ] as const;
 
-/** Help and the theme picker, side by side in the sidebar. */
 export function NavSecondary() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();

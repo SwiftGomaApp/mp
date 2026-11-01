@@ -38,7 +38,6 @@ export function ForgotPasswordView() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // The resend countdown only exists while the code step is shown.
   useEffect(() => {
     if (secondsLeft <= 0) return;
     const timer = setTimeout(() => setSecondsLeft((current) => current - 1), 1000);
@@ -65,7 +64,6 @@ export function ForgotPasswordView() {
 
   const sendCode = () =>
     run(async () => {
-      // The answer is the same whether or not the account exists.
       await auth.password.forgot({ email: trimmedEmail });
       setCode("");
       setSecondsLeft(RESEND_DELAY_SECONDS);

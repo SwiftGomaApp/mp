@@ -77,7 +77,6 @@ export function TwoFactorDialog({ open, onOpenChange, onVerified }: TwoFactorDia
       setCode("");
       setBackupCode("");
       if (isTwoFactorExpired(err)) {
-        // The challenge is gone: the user has to start the sign-in again.
         window.setTimeout(() => handleOpenChange(false), 2500);
       }
     } finally {

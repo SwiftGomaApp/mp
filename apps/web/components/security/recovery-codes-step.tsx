@@ -23,7 +23,6 @@ interface RecoveryCodesStepProps {
   onFinish: () => void;
 }
 
-/** The backup codes, shown once. The user must confirm they saved them before moving on. */
 export function RecoveryCodesStep({
   codes,
   saved,
@@ -37,9 +36,7 @@ export function RecoveryCodesStep({
       await navigator.clipboard.writeText(codes.join("\n"));
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // Clipboard access can be denied; the codes stay visible to copy by hand.
-    }
+    } catch {}
   }
 
   function download() {

@@ -1,6 +1,5 @@
 import { account } from "@/lib/account";
 
-/** What the sign-in prompt asks the user to set up, from most to least important. */
 export const SECURITY_TASK_KEYS = [
   "TWO_FACTOR",
   "RECOVERY_CONTACT",
@@ -29,7 +28,6 @@ export async function fetchSecurityTasks(): Promise<SecurityTask[]> {
   return SECURITY_TASK_KEYS.map((key) => ({ key, done: doneByKey[key] }));
 }
 
-/** Opens the setup for one task. */
 export function configureSecurityTask(key: SecurityTaskKey) {
   // TODO: open the setup flow for this task (not built yet).
   console.info("Configure security task:", key);

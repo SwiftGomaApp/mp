@@ -30,7 +30,6 @@ const formatDate = (iso: string) =>
 interface PasskeyManageDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Asks the parent to close this dialog and open the creation one. */
   onAdd: () => void;
 }
 

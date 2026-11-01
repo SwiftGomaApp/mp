@@ -142,3 +142,65 @@
     @apply font-sans;
   }
 }
+
+@keyframes qr-flicker {
+  0%,
+  35%,
+  100% {
+    filter: invert(0);
+  }
+  45%,
+  85% {
+    filter: invert(1);
+  }
+}
+
+@keyframes qr-scan {
+  from {
+    top: 0;
+  }
+  to {
+    top: calc(100% - 2px);
+  }
+}
+
+@keyframes bell-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: rotate(14deg);
+  }
+  30%,
+  60%,
+  90% {
+    transform: rotate(-14deg);
+  }
+}
+
+@keyframes card-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-2px);
+  }
+  40%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}

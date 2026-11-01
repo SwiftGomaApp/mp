@@ -1,6 +1,5 @@
 import { parseDrcPhone } from "@/lib/phone";
 
-/** Where the user lands after every successful sign-in or sign-up. */
 export const POST_LOGIN_PATH = "/dashboard";
 
 export type VerificationMethod = "email" | "phone";
@@ -31,7 +30,6 @@ const RESEND_AT_KEY = "swiftgoma:resend-at";
 
 export const RESEND_DELAY_SECONDS = 60;
 
-/** Starts the resend cooldown; it is stored so a page refresh does not restart it. */
 export function startResendCooldown() {
   try {
     sessionStorage.setItem(RESEND_AT_KEY, String(Date.now() + RESEND_DELAY_SECONDS * 1000));
@@ -48,7 +46,6 @@ export function readResendSecondsLeft(): number {
   }
 }
 
-/** Call right after a code was sent: stores the target and starts the cooldown. */
 export function saveVerificationTarget(target: VerificationTarget) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(target));

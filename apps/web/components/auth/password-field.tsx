@@ -21,7 +21,6 @@ interface PasswordFieldProps {
   autoFocus?: boolean;
 }
 
-/** A labelled password input with a show/hide button. */
 export function PasswordField({
   id,
   label,

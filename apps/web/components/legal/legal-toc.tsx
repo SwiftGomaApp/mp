@@ -54,7 +54,6 @@ function useActiveSection(items: TocItem[]) {
   return [activeId, setActiveId] as const;
 }
 
-/** The sticky "Sur cette page" list shown next to the document on large screens. */
 export function LegalToc({ items }: { items: TocItem[] }) {
   const [activeId, setActiveId] = useActiveSection(items);
 
@@ -89,7 +88,6 @@ export function LegalToc({ items }: { items: TocItem[] }) {
   );
 }
 
-/** A collapsible version of the list for phones and tablets. */
 export function LegalTocMobile({ items }: { items: TocItem[] }) {
   return (
     <details className="group rounded-lg border bg-card lg:hidden">

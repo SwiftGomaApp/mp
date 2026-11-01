@@ -34,7 +34,6 @@ const slides = [
 ] as const;
 
 interface AuthShowcaseProps {
-  /** Shown on the right of the tab row, level with it. */
   legal?: React.ReactNode;
 }
 

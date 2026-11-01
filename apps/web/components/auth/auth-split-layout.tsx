@@ -5,9 +5,7 @@ import { AuthShowcase } from "@/components/auth/auth-showcase";
 interface AuthSplitLayoutProps {
   children: React.ReactNode;
   topRight?: React.ReactNode;
-  /** On the image, right of the tab row. */
   imageFooter?: React.ReactNode;
-  /** Pinned to the bottom of the form side, level with the text over the image. */
   footer?: React.ReactNode;
 }
 

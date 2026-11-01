@@ -29,7 +29,6 @@ const PROVIDER_LABELS: Record<SocialProviderName, string> = {
 interface UnlinkSocialDialogProps {
   provider: SocialProviderName | null;
   onOpenChange: (open: boolean) => void;
-  /** Called with the sign-in methods the account has left. */
   onUnlinked: (methods: SignInMethods) => void;
 }
 

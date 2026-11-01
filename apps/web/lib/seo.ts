@@ -8,7 +8,6 @@ interface PageSeo {
   index?: boolean;
 }
 
-// A page's openGraph/twitter replace the root ones instead of merging, so they are rebuilt here.
 export function pageMetadata({ title, description, path, index = true }: PageSeo): Metadata {
   return {
     title,

@@ -24,4 +24,21 @@ export const siteConfig = {
   ],
   logo: "/logo-icon.png",
   themeColor: "#c2410c",
+  launchYear: 2026,
 } as const;
+
+export const contactConfig = {
+  phone: "+243 855 078 387",
+  phoneHref: "tel:+243855078387",
+  whatsappHref: "https://wa.me/243855078387",
+} as const;
+
+export const socialLinks = [
+  { id: "instagram", label: "Instagram", href: "https://www.instagram.com/swift__goma__/" },
+  {
+    id: "facebook",
+    label: "Facebook",
+    href: "https://web.facebook.com/profile.php?id=61593895566555",
+  },
+  { id: "tiktok", label: "TikTok", href: "https://www.tiktok.com/@sweeftgoma5" },
+] as const;

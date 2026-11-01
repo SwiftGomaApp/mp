@@ -68,7 +68,6 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
     if (readVerificationTarget()?.flow !== flow) router.replace(copy.startPath);
   }, [router, flow, copy.startPath]);
 
-  // The deadline lives in sessionStorage, so the countdown survives a refresh.
   useEffect(() => {
     const tick = () => setSecondsLeft(readResendSecondsLeft());
     tick();

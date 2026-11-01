@@ -10,7 +10,6 @@ interface Loaded {
   tasks: SecurityTask[];
 }
 
-/** Checks the account's security once the user is signed in. `tasks` is null until it is known. */
 export function useSecurityTasks() {
   const { status, user } = useSession();
   const userId = status === "authenticated" ? (user?.id ?? null) : null;
@@ -25,9 +24,7 @@ export function useSecurityTasks() {
       .then((tasks) => {
         if (!cancelled) setLoaded({ userId, tasks });
       })
-      .catch(() => {
-        // The prompt is a convenience: if the check fails, nothing is shown.
-      });
+      .catch(() => {});
 
     return () => {
       cancelled = true;

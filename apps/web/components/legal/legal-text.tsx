@@ -9,7 +9,6 @@ const LINK_LABEL_PATTERN = /^\[([^\]]+)\]\(([^)]+)\)$/;
 const linkClassName =
   "font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80";
 
-/** Renders `**bold**`, `` `code` `` and `[label](href)` inside a legal text. */
 export function LegalInline({ text }: { text: string }) {
   return text.split(INLINE_PATTERN).map((part, index) => {
     if (!part) return null;

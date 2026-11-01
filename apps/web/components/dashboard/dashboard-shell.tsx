@@ -9,7 +9,6 @@ import { RecoveryAlert } from "@/components/dashboard/recovery-alert";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 
-/** The signed-in area: a sidebar and the page. Anonymous visitors are sent to the sign-in page. */
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status } = useSession();

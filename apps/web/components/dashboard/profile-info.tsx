@@ -32,7 +32,7 @@ function Field({
   return (
     <div className={`grid gap-1 rounded-lg border bg-card px-3.5 py-2.5 ${className ?? ""}`}>
       <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
-      <dd className="flex min-h-6 items-center gap-2 text-sm font-medium break-words">
+      <dd className="flex min-h-6 items-center gap-2 text-sm font-medium wrap-break-word">
         {children}
       </dd>
     </div>

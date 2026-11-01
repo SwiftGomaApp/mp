@@ -31,7 +31,6 @@ interface Status {
 interface TwoFactorManageDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Called after the two-step verification was turned off. */
   onDisabled: () => void;
 }
 
@@ -89,7 +88,6 @@ function TwoFactorManageFlow({ open, onOpenChange, onDisabled }: TwoFactorManage
   }
 
   function handleOpenChange(next: boolean) {
-    // The new codes are shown once: do not let a stray click close the dialog before they are saved.
     if (isLoading || (view === "codes" && !saved)) return;
     onOpenChange(next);
   }

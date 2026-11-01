@@ -1,0 +1,442 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-progress-fill: progress-fill var(--slide-duration, 6s) linear forwards;
+
+  @keyframes progress-fill {
+    from {
+      width: 0;
+    }
+    to {
+      width: 100%;
+    }
+  }
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.64 0.24 41);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.837 0.128 66.29);
+  --chart-2: oklch(0.705 0.213 47.604);
+  --chart-3: oklch(0.646 0.222 41.116);
+  --chart-4: oklch(0.553 0.195 38.402);
+  --chart-5: oklch(0.47 0.157 37.304);
+  --radius: 0.45rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.646 0.222 41.116);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.64 0.24 41);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.274 0.006 286.033);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.837 0.128 66.29);
+  --chart-2: oklch(0.705 0.213 47.604);
+  --chart-3: oklch(0.646 0.222 41.116);
+  --chart-4: oklch(0.553 0.195 38.402);
+  --chart-5: oklch(0.47 0.157 37.304);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.705 0.213 47.604);
+  --sidebar-primary-foreground: oklch(0.98 0.016 73.684);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@keyframes qr-flicker {
+  0%,
+  35%,
+  100% {
+    filter: invert(0);
+  }
+  45%,
+  85% {
+    filter: invert(1);
+  }
+}
+
+@keyframes qr-scan {
+  from {
+    top: 0;
+  }
+  to {
+    top: calc(100% - 2px);
+  }
+}
+
+@keyframes bell-ring {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: rotate(14deg);
+  }
+  30%,
+  60%,
+  90% {
+    transform: rotate(-14deg);
+  }
+}
+
+@keyframes card-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-2px);
+  }
+  40%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes marquee-y {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* Hero map: a rider takes an order from the shop to the buyer */
+@media (prefers-reduced-motion: no-preference) {
+  .hm-trail {
+    stroke-dasharray: 100;
+    animation: hm-trail 12s ease-in-out infinite;
+  }
+  .hm-card-a {
+    animation: hm-card-a 12s ease-out infinite;
+  }
+  .hm-card-b {
+    animation: hm-card-b 12s ease-out infinite;
+  }
+  .hm-done {
+    animation: hm-done 12s ease-out infinite;
+  }
+  .hm-ping {
+    animation: hm-ping 12s ease-out infinite;
+  }
+  .hm-ping-end {
+    animation: hm-ping-end 12s ease-out infinite;
+  }
+}
+
+/* Browsers without motion path never show the rider (it is hidden by default). */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (offset-path: path("M0 0")) {
+    .hm-rider {
+      offset-path: path("M135 375V289Q135 275 149 275H481Q495 275 495 261V189Q495 175 509 175H735");
+      offset-rotate: 0deg;
+      animation: hm-rider 12s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes hm-trail {
+  0%,
+  10% {
+    stroke-dashoffset: 100;
+    opacity: 1;
+  }
+  62% {
+    stroke-dashoffset: 0;
+  }
+  94% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  98%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes hm-rider {
+  0%,
+  10% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  11% {
+    opacity: 1;
+  }
+  62% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  64%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+@keyframes hm-card-a {
+  0%,
+  2% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  6%,
+  56% {
+    opacity: 1;
+    transform: none;
+  }
+  60%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes hm-card-b {
+  0%,
+  63% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.94);
+  }
+  68%,
+  93% {
+    opacity: 1;
+    transform: none;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes hm-done {
+  0%,
+  61% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  65%,
+  95% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes hm-ping {
+  0%,
+  3% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  4% {
+    opacity: 0.7;
+  }
+  11%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+@keyframes hm-ping-end {
+  0%,
+  61% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  62% {
+    opacity: 0.7;
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
+
+/* Final call-to-action scene: a scooter rides in */
+@media (prefers-reduced-motion: no-preference) {
+  .ow-bob {
+    animation: ow-bob 0.55s ease-in-out infinite alternate;
+  }
+  .ow-wheel {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ow-spin 0.5s linear infinite;
+  }
+  .ow-hair {
+    transform-box: fill-box;
+    transform-origin: 100% 40%;
+    animation: ow-hair 0.9s ease-in-out infinite alternate;
+  }
+  .ow-plant {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: ow-sway 4s ease-in-out infinite alternate;
+  }
+  .ow-plant-sm {
+    animation-duration: 3s;
+    animation-delay: -1s;
+  }
+  .ow-speed rect {
+    animation: ow-streak 1.2s linear infinite;
+  }
+  [data-in="false"] .ow-ride {
+    transform: translateX(-520px);
+  }
+  [data-in="true"] .ow-ride {
+    animation: ow-arrive 1.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes ow-bob {
+  to {
+    transform: translateY(-2px);
+  }
+}
+@keyframes ow-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes ow-hair {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(5deg);
+  }
+}
+@keyframes ow-sway {
+  from {
+    transform: rotate(-1.2deg);
+  }
+  to {
+    transform: rotate(1.2deg);
+  }
+}
+@keyframes ow-streak {
+  0% {
+    transform: translateX(14px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(-46px);
+    opacity: 0;
+  }
+}
+@keyframes ow-arrive {
+  from {
+    transform: translateX(-520px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

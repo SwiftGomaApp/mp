@@ -1,14 +1,16 @@
-name: CI - Web apps
+name: CI - Web app
 
 on:
   pull_request:
     branches: [dev, main]
+    paths:
+      - "apps/web/**"
+      - ".github/workflows/ci-web.yml"
   push:
     branches: [dev, main]
     paths:
-      - "apps/web-buyer/**"
-      - "apps/admin/**"
-      - "apps/docs/**"
+      - "apps/web/**"
+      - ".github/workflows/ci-web.yml"
 
 concurrency:
   group: ci-web-${{ github.ref }}
@@ -17,34 +19,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [web-buyer, admin, docs]
     defaults:
       run:
-        working-directory: apps/${{ matrix.app }}
+        working-directory: apps/web
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Skip notice
-        if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) == ''
-        run: echo "apps/${{ matrix.app }}/package-lock.json not found yet, skipping."
-        working-directory: .
-
       - uses: actions/setup-node@v4
-        if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+          cache-dependency-path: apps/web/package-lock.json
 
-      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
-        run: npm ci
-      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
-        run: npm run lint
-      - if: hashFiles(format('apps/{0}/package-lock.json', matrix.app)) != ''
-        run: npm run build
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
         env:
-          NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+          NEXT_PUBLIC_API_ORIGIN: http://localhost:4000

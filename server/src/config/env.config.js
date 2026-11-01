@@ -134,6 +134,11 @@ const schema = z.object({
     .enum(["true", "false"])
     .default("false")
     .transform((v) => v === "true"),
+
+  CLOUDINARY_CLOUD_NAME: optional,
+  CLOUDINARY_API_KEY: optional,
+  CLOUDINARY_API_SECRET: optional,
+  CLOUDINARY_FOLDER: z.string().trim().min(1).default("swiftgoma"),
 });
 
 let config = null;
@@ -153,6 +158,11 @@ function productionProblems(env) {
   if (env.PUSH_DRY_RUN) problems.push("PUSH_DRY_RUN must be false in production");
   if (!env.ONESIGNAL_APP_ID || !env.ONESIGNAL_API_KEY) {
     problems.push("ONESIGNAL_APP_ID and ONESIGNAL_API_KEY are required in production");
+  }
+  if (!env.CLOUDINARY_CLOUD_NAME || !env.CLOUDINARY_API_KEY || !env.CLOUDINARY_API_SECRET) {
+    problems.push(
+      "CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET are required in production",
+    );
   }
   return problems;
 }
@@ -322,6 +332,13 @@ async function loadConfig() {
       timeoutMs: env.ONESIGNAL_TIMEOUT_MS,
       dryRun: env.PUSH_DRY_RUN,
       baseUrl: "https://api.onesignal.com",
+    },
+
+    media: {
+      cloudName: env.CLOUDINARY_CLOUD_NAME,
+      apiKey: env.CLOUDINARY_API_KEY,
+      apiSecret: env.CLOUDINARY_API_SECRET,
+      folder: env.CLOUDINARY_FOLDER,
     },
   });
 

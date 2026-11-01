@@ -16,6 +16,13 @@ function normalizeError(err) {
     return new AppError(422, "VALIDATION_ERROR", "Données invalides", details);
   }
 
+  if (err?.name === "MulterError") {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return new AppError(413, "FILE_TOO_LARGE", "L'image est trop volumineuse");
+    }
+    return new AppError(400, "INVALID_UPLOAD", "Fichier invalide");
+  }
+
   if (err?.type === "entity.parse.failed") {
     return new AppError(400, "INVALID_JSON", "Le corps de la requête n'est pas un JSON valide");
   }

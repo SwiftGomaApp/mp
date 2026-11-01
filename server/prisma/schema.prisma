@@ -97,6 +97,15 @@ enum ActivityEvent {
   ACCOUNT_RECOVERY_CANCELLED
   ACCOUNT_RECOVERY_COMPLETED
   SECONDARY_PHONE_REMOVED
+  PROFILE_UPDATED
+  AVATAR_CHANGED
+  ADDRESS_ADDED
+  ADDRESS_UPDATED
+  ADDRESS_REMOVED
+  PREFERENCES_UPDATED
+  ACCOUNT_DELETION_REQUESTED
+  ACCOUNT_DELETION_CANCELLED
+  ACCOUNT_DELETED
 }
 
 enum RecoveryStatus {
@@ -151,6 +160,18 @@ enum DeliveryStatus {
   SKIPPED
 }
 
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum ReviewNameDisplay {
+  FULL_NAME
+  FIRST_NAME_INITIAL
+  ANONYMOUS
+}
+
 // ======================================================= MODELS ===========================================
 
 // ---------------------- user model -------------------------
@@ -168,17 +189,22 @@ model User {
   secondaryPhone           String?   @unique
   secondaryPhoneVerifiedAt DateTime?
 
-  passwordHash       String?
-  role               Role
-  status             UserStatus         @default(PENDING)
-  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
-  termsVersion       String?
-  privacyVersion     String?
-  termsAcceptedAt    DateTime?
-  ageConfirmedAt     DateTime?
-  lastLoginAt        DateTime?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  passwordHash         String?
+  role                 Role
+  status               UserStatus         @default(PENDING)
+  verificationStatus   VerificationStatus @default(NOT_SUBMITTED)
+  termsVersion         String?
+  privacyVersion       String?
+  termsAcceptedAt      DateTime?
+  ageConfirmedAt       DateTime?
+  avatarUrl            String?
+  deletionRequestedAt  DateTime?
+  deletionScheduledAt  DateTime?
+  statusBeforeDeletion UserStatus?
+  deletedAt            DateTime?
+  lastLoginAt          DateTime?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
   sessions                Session[]
   passkeys                Passkey[]
@@ -192,9 +218,63 @@ model User {
   notificationPreferences NotificationPreference[]
   notificationSettings    NotificationSettings?
   deviceRegistrations     DeviceRegistration[]
+  addresses               Address[]
+  userPreferences         UserPreferences[]
 
   @@index([status, createdAt])
+  @@index([status, deletionScheduledAt])
   @@map("users")
+}
+
+// ---------------------- user address mode -------------------------
+
+model Address {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  label          String
+  recipientName  String?
+  recipientPhone String?
+
+  line1    String
+  quartier String?
+  comune   String?
+  city     String  @default("Goma")
+  landmark String?
+
+  latitude  Float?
+  longitude Float?
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, isDefault])
+  @@map("addresses")
+}
+
+// ---------------------- user preferences model -------------------------
+
+model UserPreferences {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme     ThemePreference @default(SYSTEM)
+  dataSaver Boolean         @default(false)
+
+  // buyer
+  preferredMomoNumber String?
+  reviewNameDisplay   ReviewNameDisplay @default(FIRST_NAME_INITIAL)
+
+  // seller
+  newOrderSound String @default("default")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preferences")
 }
 
 // ---------------------- oauth account model -------------------------

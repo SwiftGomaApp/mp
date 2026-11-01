@@ -18,6 +18,7 @@ import { useTheme } from "next-themes";
 import { useSession } from "swiftgoma-mp-auth/react";
 
 import { Logo } from "@/components/global/logo";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useLogout } from "@/components/auth/logout-screen";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -96,6 +97,7 @@ function AccountMenu() {
 
   return (
     <>
+      <NotificationBell />
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label="Menu du compte"

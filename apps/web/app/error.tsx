@@ -102,7 +102,7 @@ export default function Error({ error, retry }: { error: unknown; retry: () => v
         ref={glow}
         aria-hidden
         style={{ opacity: 0 }}
-        className="pointer-events-none absolute top-0 left-0 size-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl transition-[opacity,transform] duration-500 ease-out"
+        className="pointer-events-none absolute top-0 left-0 size-112 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl transition-[opacity,transform] duration-500 ease-out"
       />
       <div
         ref={rings}
@@ -125,7 +125,7 @@ export default function Error({ error, retry }: { error: unknown; retry: () => v
       <div className="relative flex flex-1 items-center justify-center px-6 py-12">
         <p
           aria-hidden
-          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[min(55vw,60vh)] leading-none font-bold tracking-tighter text-foreground/[0.06] select-none"
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[min(55vw,60vh)] leading-none font-bold tracking-tighter text-foreground/6 select-none"
         >
           500
         </p>

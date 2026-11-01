@@ -76,15 +76,16 @@ function RecoveryContactsFlow({ open, onOpenChange }: RecoveryContactsDialogProp
   const isContactValid = kind === "EMAIL" ? isValidEmail(normalized) : isValidPhone(normalized);
 
   function goTo(next: View) {
-    (setView(next), setError(null));
+    setView(next);
+    setError(null);
   }
 
   async function beginIdentity(next: Pending) {
-    (setPending(next),
-      setStepUpCode(""),
-      setSentTo(null),
-      setUsesAuthenticator(null),
-      goTo("identity"));
+    setPending(next);
+    setStepUpCode("");
+    setSentTo(null);
+    setUsesAuthenticator(null);
+    goTo("identity");
     try {
       const { enabled } = await account.twoFactor.status();
       setUsesAuthenticator(enabled);

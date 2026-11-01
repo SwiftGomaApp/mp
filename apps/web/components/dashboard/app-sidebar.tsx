@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { User } from "lucide-react";
+import { Bell, User } from "lucide-react";
 
 import { NavMain, type NavMainItem } from "@/components/dashboard/nav-main";
 import { NavSecondary } from "@/components/dashboard/nav-secondary";
@@ -28,6 +28,15 @@ const NAV_MAIN: NavMainItem[] = [
       { title: "Sécurité", url: "/profile/security" },
       { title: "Appareils", url: "/profile/devices" },
       { title: "Activité", url: "/profile/activity" },
+    ],
+  },
+  {
+    title: "Notifications",
+    url: "/notifications",
+    icon: Bell,
+    items: [
+      { title: "Boîte de réception", url: "/notifications" },
+      { title: "Préférences", url: "/notifications/settings" },
     ],
   },
 ];

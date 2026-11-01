@@ -6,6 +6,7 @@ import { useSession } from "swiftgoma-mp-auth/react";
 
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { RecoveryAlert } from "@/components/dashboard/recovery-alert";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -31,6 +32,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <SidebarInset>
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <RecoveryAlert />
         <div className="flex-1 overflow-y-auto">{children}</div>

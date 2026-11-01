@@ -6,6 +6,7 @@ import { siteConfig } from "@/lib/site";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { RestoreSession } from "@/components/auth/restore-session";
 import { AuthProvider } from "@/providers/auth-provider";
+import { NotificationsProvider } from "@/providers/notifications-provider";
 import { LogoutScreen } from "@/components/auth/logout-screen";
 import { SecurityCheck } from "@/components/security/security-check";
 
@@ -120,7 +121,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <RestoreSession />
             <SecurityCheck />
             <LogoutScreen />
-            <TooltipProvider>{children}</TooltipProvider>
+            <NotificationsProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+            </NotificationsProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

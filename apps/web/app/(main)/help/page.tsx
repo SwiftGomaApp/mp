@@ -100,6 +100,14 @@ export default function HelpPage() {
                 </dd>
               </div>
               <div>
+                <dt className="font-semibold">Autres moyens</dt>
+                <dd className="mt-1">
+                  <Link href="/contact" className={linkClassName}>
+                    Téléphone, WhatsApp et e-mail
+                  </Link>
+                </dd>
+              </div>
+              <div>
                 <dt className="font-semibold">Compte suspendu</dt>
                 <dd className="mt-1">
                   <Link href="/auth/support" className={linkClassName}>

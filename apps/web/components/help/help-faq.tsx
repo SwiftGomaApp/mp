@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { helpCategories, helpQuestions, type HelpCategoryId } from "@/lib/help";
@@ -138,9 +139,9 @@ export function HelpFaq({ filter, onFilterChange, query, onReset }: HelpFaqProps
           <p className="font-medium">Aucune question ne correspond à votre recherche.</p>
           <p className="mt-1 text-sm text-muted-foreground">
             Essayez d’autres mots, ou{" "}
-            <a href="#contact" className="text-foreground underline underline-offset-4">
+            <Link href="/contact" className="text-foreground underline underline-offset-4">
               écrivez-nous
-            </a>
+            </Link>
             .{" "}
             <button
               type="button"

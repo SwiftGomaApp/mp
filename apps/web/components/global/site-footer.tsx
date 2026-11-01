@@ -111,6 +111,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/contact" className={linkClassName}>
+                Contacter le Support
+              </Link>
+            </li>
+            <li>
               <a
                 href={contactConfig.phoneHref}
                 className={cn(linkClassName, "flex items-center gap-2 whitespace-nowrap")}

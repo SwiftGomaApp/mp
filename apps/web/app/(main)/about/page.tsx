@@ -178,7 +178,7 @@ export default function AboutPage() {
             </p>
           </div>
           <Link
-            href="/help#contact"
+            href="/contact"
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity outline-none hover:opacity-90 focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             Nous écrire

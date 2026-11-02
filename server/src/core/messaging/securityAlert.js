@@ -112,6 +112,53 @@ const ALERTS = {
     title: "Une copie de vos données a été téléchargée",
     sms: "une copie de vos données a été téléchargée",
   },
+  ADMIN_SESSIONS_REVOKED: {
+    subject: "Vos appareils ont été déconnectés de votre compte SwiftGoma",
+    title: "Vos appareils ont été déconnectés par l'équipe SwiftGoma",
+    sms: "vos appareils ont été déconnectés par l'équipe SwiftGoma",
+  },
+  ADMIN_ROLE_CHANGED: {
+    subject: "Le type de votre compte SwiftGoma a été modifié",
+    title: "Le type de votre compte a été modifié par l'équipe SwiftGoma",
+    sms: "le type de votre compte a été modifié par l'équipe SwiftGoma",
+  },
+  ACCOUNT_UNLOCKED: {
+    subject: "Votre compte SwiftGoma a été débloqué",
+    title: "Votre compte a été débloqué par l'équipe SwiftGoma, vous pouvez vous reconnecter",
+    sms: "votre compte a été débloqué par l'équipe SwiftGoma",
+  },
+  ADMIN_PASSWORD_RESET: {
+    subject: "Votre mot de passe SwiftGoma a été supprimé par l'équipe",
+    title:
+      "Votre mot de passe a été supprimé par l'équipe SwiftGoma. Utilisez « Mot de passe oublié » pour en choisir un nouveau",
+    sms: "votre mot de passe a été supprimé par l'équipe SwiftGoma, choisissez-en un nouveau",
+  },
+  ADMIN_TWO_FACTOR_RESET: {
+    subject: "La double vérification de votre compte SwiftGoma a été réinitialisée",
+    title:
+      "La double vérification, les codes de secours et les empreintes ont été réinitialisés par l'équipe SwiftGoma",
+    sms: "la double vérification de votre compte a été réinitialisée par l'équipe SwiftGoma",
+  },
+  ADMIN_PROFILE_MODERATED: {
+    subject: "Votre profil SwiftGoma a été modifié par l'équipe",
+    title: "Votre profil a été modifié par l'équipe SwiftGoma",
+    sms: "votre profil a été modifié par l'équipe SwiftGoma",
+  },
+  ADMIN_CONTACT_UPDATED: {
+    subject: "Votre contact principal SwiftGoma a été modifié par l'équipe",
+    title: "Votre e-mail ou numéro principal a été modifié par l'équipe SwiftGoma",
+    sms: "votre e-mail ou numéro principal a été modifié par l'équipe SwiftGoma",
+  },
+  ADMIN_DATA_EXPORTED: {
+    subject: "Une copie de vos données SwiftGoma a été générée",
+    title: "Une copie de vos données a été générée par l'équipe SwiftGoma sur demande",
+    sms: "une copie de vos données a été générée par l'équipe SwiftGoma sur demande",
+  },
+  ADMIN_DELETION_FORCED: {
+    subject: "Votre compte SwiftGoma a été supprimé",
+    title: "Votre compte a été supprimé définitivement par l'équipe SwiftGoma",
+    sms: "votre compte a été supprimé définitivement par l'équipe SwiftGoma",
+  },
 };
 
 const FALLBACK = {

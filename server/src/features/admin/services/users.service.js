@@ -15,7 +15,16 @@ const {
   buildUserExport,
 } = require("../../users/services/user.service");
 
+const { loadActiveUser, consumeStepUp } = require("../../auth/services/stepUp.service");
+const { notifySecurityChange } = require("../../auth/services/securityNotice.service");
+
 const STAFF = ["SUPPORT", "ADMIN"];
+
+// The acting admin proves it is really them before a destructive action.
+async function requireStepUp(actorId, code, meta, action) {
+  const actor = await loadActiveUser(actorId);
+  await consumeStepUp(actor, code, meta, action);
+}
 
 const listSelect = {
   id: true,
@@ -117,6 +126,7 @@ async function forceLogout({ userId, actorId, reason }, meta) {
     userAgent: meta?.userAgent,
     metadata: { actorId, reason },
   });
+  await notifySecurityChange(userId, "ADMIN_SESSIONS_REVOKED");
 }
 
 async function changeRole({ userId, actorId, role, reason }, meta) {
@@ -149,6 +159,7 @@ async function changeRole({ userId, actorId, role, reason }, meta) {
     userAgent: meta?.userAgent,
     metadata: { actorId, reason, previousRole: user.role, newRole: role },
   });
+  await notifySecurityChange(userId, "ADMIN_ROLE_CHANGED");
 }
 
 function logAdmin(userId, event, meta, metadata) {
@@ -198,6 +209,7 @@ async function unlockAccount({ userId, actorId, reason }, meta) {
 
   await redis.del(...keys);
   await logAdmin(userId, "ACCOUNT_UNLOCKED", meta, { actorId, reason });
+  await notifySecurityChange(userId, "ACCOUNT_UNLOCKED");
 }
 
 async function cancelDeletion({ userId, actorId, reason }, meta) {
@@ -215,13 +227,16 @@ async function cancelDeletion({ userId, actorId, reason }, meta) {
     },
   });
   await logAdmin(userId, "ACCOUNT_DELETION_CANCELLED", meta, { actorId, reason });
+  await notifySecurityChange(userId, "ACCOUNT_DELETION_CANCELLED");
 }
 
-async function forceDeletion({ userId, actorId, reason }, meta) {
+async function forceDeletion({ userId, actorId, reason, stepUpCode }, meta) {
   const user = await loadTarget(userId, actorId);
   if (user.status === "BANNED") {
     throw AppError.conflict("Un compte banni ne peut pas être supprimé", "BANNED_ACCOUNT");
   }
+
+  await requireStepUp(actorId, stepUpCode, meta, "admin.deletion.force");
   const prisma = getPrisma();
   const now = new Date();
 
@@ -238,18 +253,25 @@ async function forceDeletion({ userId, actorId, reason }, meta) {
   }
   await revokeUserSessions(userId, { reason: "ADMIN_DELETION" });
   await logAdmin(userId, "ACCOUNT_DELETION_FORCED", meta, { actorId, reason });
+  // The purge erases the contacts, so they are passed explicitly before it runs.
+  await notifySecurityChange(userId, "ADMIN_DELETION_FORCED", {
+    contacts: { email: user.email, phone: user.phone },
+  });
   await purgeAccount(userId);
 }
 
-async function resetPassword({ userId, actorId, reason }, meta) {
+async function resetPassword({ userId, actorId, reason, stepUpCode }, meta) {
   await loadTarget(userId, actorId);
+  await requireStepUp(actorId, stepUpCode, meta, "admin.password.reset");
   await getPrisma().user.update({ where: { id: userId }, data: { passwordHash: null } });
   await revokeUserSessions(userId, { reason: "PASSWORD_RESET_BY_ADMIN" });
   await logAdmin(userId, "PASSWORD_RESET_BY_ADMIN", meta, { actorId, reason });
+  await notifySecurityChange(userId, "ADMIN_PASSWORD_RESET");
 }
 
-async function resetTwoFactor({ userId, actorId, reason }, meta) {
+async function resetTwoFactor({ userId, actorId, reason, stepUpCode }, meta) {
   await loadTarget(userId, actorId);
+  await requireStepUp(actorId, stepUpCode, meta, "admin.2fa.reset");
   const prisma = getPrisma();
   await prisma.$transaction([
     prisma.totpCredential.deleteMany({ where: { userId } }),
@@ -261,6 +283,7 @@ async function resetTwoFactor({ userId, actorId, reason }, meta) {
   ]);
   await revokeUserSessions(userId, { reason: "TWO_FACTOR_RESET_BY_ADMIN" });
   await logAdmin(userId, "TWO_FACTOR_RESET_BY_ADMIN", meta, { actorId, reason });
+  await notifySecurityChange(userId, "ADMIN_TWO_FACTOR_RESET");
 }
 
 async function moderateProfile({ userId, actorId, reason, removeAvatar, clearName }, meta) {
@@ -279,6 +302,7 @@ async function moderateProfile({ userId, actorId, reason, removeAvatar, clearNam
     removedAvatar: "avatarUrl" in data,
     clearedName: "name" in data,
   });
+  await notifySecurityChange(userId, "ADMIN_PROFILE_MODERATED");
 }
 
 async function updateContact({ userId, actorId, reason, field, value }, meta) {
@@ -302,6 +326,10 @@ async function updateContact({ userId, actorId, reason, field, value }, meta) {
     field,
     replaced: Boolean(value),
     previous: user[field],
+  });
+  // Warn the contacts the account had before the change.
+  await notifySecurityChange(userId, "ADMIN_CONTACT_UPDATED", {
+    contacts: { email: user.email, phone: user.phone },
   });
 }
 
@@ -330,6 +358,7 @@ async function exportUserData({ userId, actorId, reason }, meta) {
   await loadTarget(userId, actorId);
   const data = await buildUserExport(userId);
   await logAdmin(userId, "DATA_EXPORTED_BY_ADMIN", meta, { actorId, reason });
+  await notifySecurityChange(userId, "ADMIN_DATA_EXPORTED");
   return data;
 }
 

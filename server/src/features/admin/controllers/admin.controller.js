@@ -91,9 +91,10 @@ const act =
 
 const unlockAccount = act("unlockAccount");
 const cancelDeletion = act("cancelDeletion");
-const forceDeletion = act("forceDeletion");
-const resetPassword = act("resetPassword");
-const resetTwoFactor = act("resetTwoFactor");
+const stepUp = (req) => ({ stepUpCode: req.body.stepUpCode });
+const forceDeletion = act("forceDeletion", stepUp);
+const resetPassword = act("resetPassword", stepUp);
+const resetTwoFactor = act("resetTwoFactor", stepUp);
 const moderateProfile = act("moderateProfile", (req) => req.body);
 const updateContact = act("updateContact", (req) => req.body);
 

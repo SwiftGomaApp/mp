@@ -1,10 +1,15 @@
 const { z } = require("zod");
 const { ActivityEvent } = require("@prisma/client");
 const { pagination, email, drcPhone } = require("../../../core/validation/common");
+const { stepUpCode } = require("../../auth/validators/stepUp.validator");
 
 const reasonBody = z.object({
   reason: z.string().trim().min(5, "Indiquez la raison").max(500),
 });
+
+// Destructive actions also need the admin's own step-up code (authenticator code, or an OTP
+// requested with POST /auth/step-up/otp).
+const stepUpReasonBody = reasonBody.extend({ stepUpCode });
 
 const ROLES = ["BUYER", "SELLER", "RIDER", "SUPPORT", "ADMIN"];
 const STATUSES = [
@@ -55,6 +60,7 @@ const updateContactBody = reasonBody.extend({
 
 module.exports = {
   reasonBody,
+  stepUpReasonBody,
   listUsersQuery,
   activityQuery,
   auditQuery,

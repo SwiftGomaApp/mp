@@ -4922,7 +4922,7 @@
                     }
                   ]
                 },
-                "description": "Search with q (name, email, phone or id) and filter by role or status. Enable the disabled params to use them."
+                "description": "Search with q (name, email, phone or id) and filter by role or status. Enable the disabled params to use them. Open to SUPPORT and ADMIN."
               }
             },
             {
@@ -4959,7 +4959,8 @@
                     "users",
                     "{{targetUserId}}"
                   ]
-                }
+                },
+                "description": "Open to SUPPORT and ADMIN."
               }
             },
             {
@@ -5005,7 +5006,8 @@
                       "value": "20"
                     }
                   ]
-                }
+                },
+                "description": "Open to SUPPORT and ADMIN."
               }
             },
             {
@@ -5080,7 +5082,7 @@
                     }
                   ]
                 },
-                "description": "Admin actions are stored under the target user, with the acting admin in metadata.actorId. Filter by actorId to see what one admin did."
+                "description": "Admin actions are stored under the target user, with the acting admin in metadata.actorId. Filter by actorId to see what one admin did. ADMIN only."
               }
             }
           ]
@@ -5304,9 +5306,53 @@
                 },
                 "body": {
                   "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Compte compromis, mot de passe invalidé\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Clears the password and logs the user out. They set a new one with Auth / Password / Forgot password. Needs your own step-up code in {{otpCode}}: your authenticator code, or an OTP from Auth / Step-up code. Limited to 10 sensitive actions per hour."
+              }
+            },
+            {
+              "name": "Reset password - without step-up code (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "reset-password"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
                   "raw": "{\n  \"reason\": \"Compte compromis, mot de passe invalidé\"\n}"
                 },
-                "description": "Clears the password and logs the user out. They set a new one with Auth / Password / Forgot password."
+                "description": "The step-up code is required, so this is refused."
               }
             },
             {
@@ -5349,9 +5395,9 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"reason\": \"Le client a perdu son téléphone\"\n}"
+                  "raw": "{\n  \"reason\": \"Le client a perdu son téléphone\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
-                "description": "Removes TOTP, backup codes and passkeys, and logs the user out."
+                "description": "Removes TOTP, backup codes and passkeys, and logs the user out. Needs your own step-up code in {{otpCode}}: your authenticator code, or an OTP from Auth / Step-up code. Limited to 10 sensitive actions per hour."
               }
             },
             {
@@ -5671,9 +5717,9 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"reason\": \"Demande légale de suppression immédiate\"\n}"
+                  "raw": "{\n  \"reason\": \"Demande légale de suppression immédiate\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
                 },
-                "description": "Skips the 30-day grace period and erases the account now."
+                "description": "Skips the 30-day grace period and erases the account now. Needs your own step-up code in {{otpCode}}: your authenticator code, or an OTP from Auth / Step-up code. Limited to 10 sensitive actions per hour."
               }
             }
           ]

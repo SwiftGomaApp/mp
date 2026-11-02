@@ -266,4 +266,7 @@ module.exports = {
   resetPassword,
   loginWithPassword,
   removePassword,
+  loginFailKey,
+  loginIpFailKey,
+  userFailKey,
 };

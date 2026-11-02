@@ -4849,6 +4849,834 @@
               "raw": "{\n  \"reason\": \"Vérification terminée, compte rétabli\"\n}"
             }
           }
+        },
+        {
+          "name": "Users - read",
+          "item": [
+            {
+              "name": "List users",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Paginated list', () => { pm.expect(b.items).to.be.an('array'); pm.expect(b).to.have.property('total'); });",
+                      "pm.test('No secrets leaked', () => pm.expect(JSON.stringify(b)).to.not.include('passwordHash'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "q",
+                      "value": "gael",
+                      "disabled": true
+                    },
+                    {
+                      "key": "role",
+                      "value": "BUYER",
+                      "disabled": true
+                    },
+                    {
+                      "key": "status",
+                      "value": "ACTIVE",
+                      "disabled": true
+                    },
+                    {
+                      "key": "sort",
+                      "value": "createdAt",
+                      "disabled": true
+                    },
+                    {
+                      "key": "order",
+                      "value": "desc",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Search with q (name, email, phone or id) and filter by role or status. Enable the disabled params to use them."
+              }
+            },
+            {
+              "name": "Get a user",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const u = pm.response.json().user;",
+                      "pm.test('User detail', () => { pm.expect(u).to.have.property('id'); pm.expect(u.addresses).to.be.an('array'); });",
+                      "pm.test('No secrets leaked', () => pm.expect(u).to.not.have.property('passwordHash'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get a user's activity",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Activity list', () => pm.expect(pm.response.json().items).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/activity?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "activity"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Audit log (all users)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Audit list', () => pm.expect(pm.response.json().items).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/activity?page=1&limit=20",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "activity"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "20"
+                    },
+                    {
+                      "key": "event",
+                      "value": "ACCOUNT_BANNED",
+                      "disabled": true
+                    },
+                    {
+                      "key": "userId",
+                      "value": "{{targetUserId}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "actorId",
+                      "value": "{{adminUserId}}",
+                      "disabled": true
+                    },
+                    {
+                      "key": "success",
+                      "value": "true",
+                      "disabled": true
+                    },
+                    {
+                      "key": "from",
+                      "value": "2026-01-01",
+                      "disabled": true
+                    },
+                    {
+                      "key": "to",
+                      "value": "2026-12-31",
+                      "disabled": true
+                    }
+                  ]
+                },
+                "description": "Admin actions are stored under the target user, with the acting admin in metadata.actorId. Filter by actorId to see what one admin did."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users - actions",
+          "item": [
+            {
+              "name": "Force logout (revoke all sessions)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Sessions revoked', () => pm.expect(pm.response.json().sessionsRevoked).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/revoke-sessions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "revoke-sessions"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Appareil perdu signalé par le client\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Change role",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Role changed', () => pm.expect(pm.response.json().role).to.eql('SELLER'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "role"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": \"SELLER\",\n  \"reason\": \"Le client a demandé à devenir vendeur\"\n}"
+                },
+                "description": "Only BUYER, SELLER or RIDER. Staff roles are managed under Auth / Staff accounts. Sessions are revoked so the new role applies at next login."
+              }
+            },
+            {
+              "name": "Change role to a staff role (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/role",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "role"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": \"ADMIN\",\n  \"reason\": \"Tentative de promotion non autorisée\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Unlock account (clear failed logins)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/unlock",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "unlock"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Le client est bloqué après trop de tentatives\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Reset password",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "reset-password"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Compte compromis, mot de passe invalidé\"\n}"
+                },
+                "description": "Clears the password and logs the user out. They set a new one with Auth / Password / Forgot password."
+              }
+            },
+            {
+              "name": "Reset 2FA and passkeys",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/reset-2fa",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "reset-2fa"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Le client a perdu son téléphone\"\n}"
+                },
+                "description": "Removes TOTP, backup codes and passkeys, and logs the user out."
+              }
+            },
+            {
+              "name": "Moderate profile (remove avatar)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "profile"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"removeAvatar\": true,\n  \"clearName\": false,\n  \"reason\": \"Photo de profil inappropriée\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Moderate profile - no action (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "profile"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"removeAvatar\": false,\n  \"clearName\": false,\n  \"reason\": \"Rien à modifier\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Mark a contact as unverified",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/contact",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "contact"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"field\": \"phone\",\n  \"reason\": \"Numéro perdu par le client\"\n}"
+                },
+                "description": "Without a value, the contact is only marked unverified."
+              }
+            },
+            {
+              "name": "Replace a contact",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/contact",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "contact"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"field\": \"email\",\n  \"value\": \"nouveau.contact@example.com\",\n  \"reason\": \"Le client a changé d'adresse e-mail\"\n}"
+                },
+                "description": "Replaces the contact and marks it unverified. Returns 409 CONTACT_TAKEN if another account already uses it."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Users - deletion and export",
+          "description": "Run 'Force deletion' last: it erases the target account immediately and cannot be undone. Banned and staff accounts are refused.",
+          "item": [
+            {
+              "name": "Cancel a pending deletion",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/deletion/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "deletion",
+                    "cancel"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Le client a demandé l'annulation\"\n}"
+                },
+                "description": "Only works while the account is PENDING_DELETION (30-day grace period). The worker purges it hourly once the date has passed."
+              }
+            },
+            {
+              "name": "Export a user's data",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Export returned', () => { pm.expect(b.account).to.have.property('id'); pm.expect(b.addresses).to.be.an('array'); });",
+                      "pm.test('Sent as a download', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/export",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "export"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Demande légale d'accès aux données\"\n}"
+                },
+                "description": "Same file the user gets from Users / Data export, generated for them without a step-up code. Logged as DATA_EXPORTED_BY_ADMIN."
+              }
+            },
+            {
+              "name": "Force deletion (irreversible)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Action done', () => pm.expect(pm.response.json().ok).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users/{{targetUserId}}/deletion/force",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{targetUserId}}",
+                    "deletion",
+                    "force"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reason\": \"Demande légale de suppression immédiate\"\n}"
+                },
+                "description": "Skips the 30-day grace period and erases the account now."
+              }
+            }
+          ]
         }
       ]
     },

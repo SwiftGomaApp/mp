@@ -14,6 +14,17 @@ async function setStatus({ userId, actorId, status, reason, event, sessionReason
     throw AppError.notFound("Compte introuvable", "ACCOUNT_NOT_FOUND");
   }
 
+  if (user.status === "PENDING_DELETION") {
+    throw AppError.conflict("Une suppression est en cours, annulez-la d'abord", "DELETION_PENDING");
+  }
+
+  if (["SUPPORT", "ADMIN"].includes(user.role)) {
+    throw AppError.forbidden(
+      "Les comptes du personnel ne peuvent pas être suspendus ici",
+      "STAFF_PROTECTED",
+    );
+  }
+
   await prisma.user.update({ where: { id: userId }, data: { status } });
   if (sessionReason) await revokeUserSessions(userId, { reason: sessionReason });
 

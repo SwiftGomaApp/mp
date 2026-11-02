@@ -770,6 +770,20 @@ async function exportMyData({ userId, stepUpCode }, meta = {}) {
 
   await consumeStepUp(user, stepUpCode, meta, "account.export");
 
+  const data = await buildUserExport(userId);
+
+  await logActivity({
+    userId,
+    event: "DATA_EXPORT_REQUESTED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+  await notifySecurityChange(userId, "DATA_EXPORT_REQUESTED");
+
+  return data;
+}
+
+async function buildUserExport(userId) {
   const prisma = getPrisma();
   const now = new Date();
   const since = new Date(now.getTime() - usersConfig.activity.windowMs);
@@ -854,14 +868,6 @@ async function exportMyData({ userId, stepUpCode }, meta = {}) {
     }),
   ]);
 
-  await logActivity({
-    userId,
-    event: "DATA_EXPORT_REQUESTED",
-    ipAddress: meta.ipAddress,
-    userAgent: meta.userAgent,
-  });
-  await notifySecurityChange(userId, "DATA_EXPORT_REQUESTED");
-
   return {
     generatedAt: now.toISOString(),
     account,
@@ -876,6 +882,8 @@ async function exportMyData({ userId, stepUpCode }, meta = {}) {
 module.exports = {
   reportSuspiciousActivity,
   exportMyData,
+  buildUserExport,
+  avatarPublicId,
   getDeletionOverview,
   requestAccountDeletion,
   purgeAccount,

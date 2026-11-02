@@ -3630,6 +3630,1092 @@
       ]
     },
     {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get my profile",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const u = pm.response.json().user;",
+                      "pm.test('Returns the profile', () => { pm.expect(u).to.have.property('id'); pm.expect(u.emailVerified).to.be.a('boolean'); pm.expect(u.phoneVerified).to.be.a('boolean'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update my name",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Name returned', () => pm.expect(pm.response.json().user.name).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"{{name}}\"\n}"
+                },
+                "description": "Only the name can be changed here. Email and phone go through 'Primary contact'."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Avatar",
+          "item": [
+            {
+              "name": "Upload my avatar",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Avatar url returned', () => pm.expect(pm.response.json().user.avatarUrl).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/avatar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "avatar"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "avatar",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file under 2 MB in the 'avatar' field. Needs Cloudinary keys in the server .env. A text file renamed to .jpg is rejected with 415, a larger file with 413."
+              }
+            },
+            {
+              "name": "Remove my avatar",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Avatar cleared', () => pm.expect(pm.response.json().user.avatarUrl).to.eql(null));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/avatar",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "avatar"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Addresses (buyer)",
+          "item": [
+            {
+              "name": "List my addresses",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Addresses returned', () => pm.expect(pm.response.json().addresses).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses"
+                  ]
+                },
+                "description": "Buyer accounts only. Other roles get 403 ADDRESSES_BUYER_ONLY."
+              }
+            },
+            {
+              "name": "Add an address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "const a = pm.response.json().address;",
+                      "pm.environment.set('addressId', a.id);",
+                      "pm.test('Address created', () => { pm.expect(a.id).to.be.a('string'); pm.expect(a.isDefault).to.eql(true); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"label\": \"Maison\",\n  \"recipientName\": \"{{name}}\",\n  \"recipientPhone\": \"{{phone}}\",\n  \"line1\": \"Avenue du Rond-point 12\",\n  \"quartier\": \"Himbi\",\n  \"commune\": \"Goma\",\n  \"city\": \"Goma\",\n  \"landmark\": \"Près de la station\",\n  \"latitude\": -1.6585,\n  \"longitude\": 29.2205,\n  \"isDefault\": true\n}"
+                },
+                "description": "The first address is always the default. Saves its id in {{addressId}}."
+              }
+            },
+            {
+              "name": "Add an address - latitude without longitude (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"label\": \"Bureau\",\n  \"line1\": \"Boulevard Kanyamuhanga 4\",\n  \"latitude\": -1.67\n}"
+                }
+              }
+            },
+            {
+              "name": "Update an address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Label updated', () => pm.expect(pm.response.json().address.label).to.eql('Bureau'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses/{{addressId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses",
+                    "{{addressId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"label\": \"Bureau\",\n  \"landmark\": \"Face à la banque\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Make an address the default",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Now the default', () => pm.expect(pm.response.json().address.isDefault).to.eql(true));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses/{{addressId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses",
+                    "{{addressId}}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isDefault\": true\n}"
+                },
+                "description": "Unsetting the default directly (isDefault: false) returns 400 DEFAULT_ADDRESS_REQUIRED. Make another address the default instead."
+              }
+            },
+            {
+              "name": "Delete an address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/addresses/{{addressId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "addresses",
+                    "{{addressId}}"
+                  ]
+                },
+                "description": "If it was the default, the most recent remaining address becomes the default."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Primary contact",
+          "item": [
+            {
+              "name": "Change email - request code",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Code sent to the new email', () => { const b = pm.response.json(); pm.expect(b.kind).to.eql('EMAIL'); pm.expect(b.expiresMinutes).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/contact/otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "contact",
+                    "otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{newEmail}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}. The code for step 2 is sent to the NEW email: paste it into {{otpCode}} before 'Change email - verify'."
+              }
+            },
+            {
+              "name": "Change email - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Email changed', () => pm.expect(pm.response.json().user.email).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/contact/verify",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "contact",
+                    "verify"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"EMAIL\",\n  \"value\": \"{{newEmail}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Change phone - request code",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Code sent to the new phone', () => { const b = pm.response.json(); pm.expect(b.kind).to.eql('PHONE'); pm.expect(b.expiresMinutes).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/contact/otp",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "contact",
+                    "otp"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{newPhone}}\",\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}. The code for step 2 is sent by SMS to the NEW number (+243 only): paste it into {{otpCode}} before 'Change phone - verify'."
+              }
+            },
+            {
+              "name": "Change phone - verify",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Phone changed', () => pm.expect(pm.response.json().user.phone).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/contact/verify",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "contact",
+                    "verify"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"kind\": \"PHONE\",\n  \"value\": \"{{newPhone}}\",\n  \"code\": \"{{otpCode}}\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Preferences",
+          "item": [
+            {
+              "name": "Get my preferences",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Theme returned', () => pm.expect(pm.response.json().preferences).to.have.property('theme'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "preferences"
+                  ]
+                },
+                "description": "Everyone gets theme and dataSaver. Buyers also get preferredMomoNumber and reviewNameDisplay, sellers get newOrderSound."
+              }
+            },
+            {
+              "name": "Update theme and data saver",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const p = pm.response.json().preferences;",
+                      "pm.test('Saved', () => { pm.expect(p.theme).to.eql('DARK'); pm.expect(p.dataSaver).to.eql(true); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"theme\": \"DARK\",\n  \"dataSaver\": true\n}"
+                }
+              }
+            },
+            {
+              "name": "Update buyer preferences",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Saved', () => pm.expect(pm.response.json().preferences.reviewNameDisplay).to.eql('ANONYMOUS'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"reviewNameDisplay\": \"ANONYMOUS\",\n  \"preferredMomoNumber\": \"{{phone}}\"\n}"
+                },
+                "description": "Buyer accounts only."
+              }
+            },
+            {
+              "name": "Update seller preference",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Saved', () => pm.expect(pm.response.json().preferences.newOrderSound).to.eql('bell'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newOrderSound\": \"bell\"\n}"
+                },
+                "description": "Seller accounts only."
+              }
+            },
+            {
+              "name": "Seller-only preference as a buyer (expect 400 PREFERENCE_NOT_ALLOWED)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('Rejected for this role', () => pm.expect(pm.response.json().error.code).to.eql('PREFERENCE_NOT_ALLOWED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/preferences",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "preferences"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newOrderSound\": \"bell\"\n}"
+                },
+                "description": "Run it signed in as a buyer."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Account deletion",
+          "item": [
+            {
+              "name": "Deletion overview",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Overview returned', () => { pm.expect(b.canDelete).to.be.a('boolean'); pm.expect(b.gracePeriodDays).to.eql(30); pm.expect(b.blockers).to.be.an('array'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/deletion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "deletion"
+                  ]
+                },
+                "description": "Shows what blocks the deletion and what will be erased or kept. Support and Admin accounts get 403."
+              }
+            },
+            {
+              "name": "Request deletion - wrong confirmation word (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/deletion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "deletion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"stepUpCode\": \"{{otpCode}}\",\n  \"confirmation\": \"supprimer\"\n}"
+                },
+                "description": "The word must be exactly SUPPRIMER."
+              }
+            },
+            {
+              "name": "Request deletion",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Deletion scheduled', () => pm.expect(pm.response.json().scheduledAt).to.be.a('string'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/deletion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "deletion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"stepUpCode\": \"{{otpCode}}\",\n  \"confirmation\": \"SUPPRIMER\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}. The account becomes PENDING_DELETION and every device is logged out. Logging in again within 30 days cancels it (the login response then has user.deletionCancelled: true)."
+              }
+            },
+            {
+              "name": "Get my profile after deletion request (expect 401)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('401', () => pm.response.to.have.status(401));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me"
+                  ]
+                },
+                "description": "The old access token is revoked together with the sessions."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activity",
+          "item": [
+            {
+              "name": "This wasn't me",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Account secured', () => { pm.expect(b.loggedOutDevices).to.be.a('number'); pm.expect(b.passwordCleared).to.be.a('boolean'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/activity/{{activityId}}/not-me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "activity",
+                    "{{activityId}}",
+                    "not-me"
+                  ]
+                },
+                "description": "Take an id from 'Auth / Activity and security / Account activity' and paste it into {{activityId}}. Logs out every device (this token stops working), removes the password so a new one must be chosen, and opens a request for Support. Sign in again afterwards."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Data export",
+          "item": [
+            {
+              "name": "Download my data",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Export returned', () => { pm.expect(b.account).to.have.property('id'); pm.expect(b.addresses).to.be.an('array'); pm.expect(b.activity.events).to.be.an('array'); });",
+                      "pm.test('Sent as a download', () => pm.expect(pm.response.headers.get('Content-Disposition')).to.include('attachment'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/export",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "export"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"stepUpCode\": \"{{otpCode}}\"\n}"
+                },
+                "description": "Needs a fresh step-up code. Run 'Auth / Step-up code / Request step-up code' first, then paste the code you receive into {{otpCode}}. Returns your profile, addresses, preferences, notification settings, devices and the last 90 days of activity as a JSON file (use 'Save Response' in Postman). Limited to 3 per hour."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Admin",
       "item": [
         {

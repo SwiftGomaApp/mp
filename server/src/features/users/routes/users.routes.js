@@ -18,6 +18,7 @@ const {
 } = require("../validators/contact.validator");
 const { updatePreferencesBody } = require("../validators/preferences.validator");
 const { requestDeletionBody } = require("../validators/deletion.validator");
+const { exportDataBody } = require("../validators/export.validator");
 
 const writeLimiter = createLimiter({
   name: "users-write",
@@ -32,6 +33,14 @@ const uploadLimiter = createLimiter({
   windowMs: 60 * 60 * 1000,
   limit: 10,
   message: "Trop de téléchargements, veuillez réessayer plus tard",
+  keyGenerator: (req) => req.auth.userId,
+});
+
+const exportLimiter = createLimiter({
+  name: "users-export",
+  windowMs: 60 * 60 * 1000,
+  limit: 3,
+  message: "Trop de demandes d'export, veuillez réessayer plus tard",
   keyGenerator: (req) => req.auth.userId,
 });
 
@@ -108,5 +117,14 @@ router.post(
   authLimiter,
   controller.requestAccountDeletion,
 );
+
+// ===================================== ACTIVITY AND DATA EXPORT =====================================
+router.post(
+  "/me/activity/:id/not-me",
+  validate({ params: idParams }),
+  writeLimiter,
+  controller.reportSuspiciousActivity,
+);
+router.post("/me/export", validate({ body: exportDataBody }), exportLimiter, controller.exportMyData);
 
 module.exports = router;

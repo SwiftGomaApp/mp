@@ -581,6 +581,7 @@ async function verifySecondFactor(userId, { code, backupCode }, meta, scope = "s
     if (count === 1) {
       await clearFailures(userId, scope);
       await logActivity({ ...base, event: "BACKUP_CODE_USED" });
+      await notifySecurityChange(userId, "BACKUP_CODE_USED");
       return { factor: "BACKUP_CODE" };
     }
   }
@@ -612,6 +613,8 @@ async function disable({ userId, role, code, backupCode }, meta) {
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
   });
+
+  await notifySecurityChange(userId, "TWO_FACTOR_DISABLED");
 }
 
 async function regenerateBackupCodes({ userId, code, backupCode }, meta) {
@@ -625,6 +628,8 @@ async function regenerateBackupCodes({ userId, code, backupCode }, meta) {
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
   });
+
+  await notifySecurityChange(userId, "BACKUP_CODES_REGENERATED");
 
   return { backupCodes };
 }

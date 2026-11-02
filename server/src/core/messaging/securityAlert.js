@@ -101,6 +101,17 @@ const ALERTS = {
     title: "La suppression de votre compte a été annulée",
     sms: "la suppression de votre compte a été annulée",
   },
+  SUSPICIOUS_ACTIVITY_REPORTED: {
+    subject: "Une activité suspecte a été signalée sur votre compte SwiftGoma",
+    title:
+      "Une activité suspecte a été signalée sur votre compte. Tous vos appareils ont été déconnectés et votre mot de passe a été supprimé",
+    sms: "une activité suspecte a été signalée, vos appareils sont déconnectés et votre mot de passe supprimé",
+  },
+  DATA_EXPORT_REQUESTED: {
+    subject: "Une copie de vos données SwiftGoma a été téléchargée",
+    title: "Une copie de vos données a été téléchargée",
+    sms: "une copie de vos données a été téléchargée",
+  },
 };
 
 const FALLBACK = {

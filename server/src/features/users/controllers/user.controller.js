@@ -143,7 +143,41 @@ async function requestAccountDeletion(req, res, next) {
   }
 }
 
+async function reportSuspiciousActivity(req, res, next) {
+  try {
+    res.json(
+      await service.reportSuspiciousActivity(
+        { userId: req.auth.userId, activityId: req.params.id },
+        clientMeta(req),
+      ),
+    );
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function exportMyData(req, res, next) {
+  try {
+    const data = await service.exportMyData(
+      { userId: req.auth.userId, stepUpCode: req.body.stepUpCode },
+      clientMeta(req),
+    );
+    const day = new Date().toISOString().slice(0, 10);
+
+    res.set({
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Disposition": `attachment; filename="swiftgoma-donnees-${day}.json"`,
+      "Cache-Control": "no-store",
+    });
+    res.send(JSON.stringify(data, null, 2));
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
+  reportSuspiciousActivity,
+  exportMyData,
   getDeletionOverview,
   requestAccountDeletion,
   getPreferences,

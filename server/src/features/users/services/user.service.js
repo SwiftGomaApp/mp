@@ -445,6 +445,12 @@ async function verifyContactChange({ userId, kind, value, code }, meta = {}) {
     previous ? "PRIMARY_CONTACT_CHANGED" : "PRIMARY_CONTACT_ADDED",
   );
 
+  if (previous) {
+    await notifySecurityChange(userId, "PRIMARY_CONTACT_CHANGED", {
+      contacts: kind === "EMAIL" ? { email: previous } : { phone: previous },
+    });
+  }
+
   return { message: "Contact mis à jour avec succès", user: await getProfile(userId) };
 }
 
@@ -671,7 +677,205 @@ async function purgeDueAccounts(batchSize = 50) {
   return purged;
 }
 
+const EXPORT_USER_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  phone: true,
+  emailVerifiedAt: true,
+  phoneVerifiedAt: true,
+  secondaryEmail: true,
+  secondaryEmailVerifiedAt: true,
+  secondaryPhone: true,
+  secondaryPhoneVerifiedAt: true,
+  avatarUrl: true,
+  role: true,
+  status: true,
+  verificationStatus: true,
+  termsVersion: true,
+  privacyVersion: true,
+  termsAcceptedAt: true,
+  ageConfirmedAt: true,
+  lastLoginAt: true,
+  createdAt: true,
+};
+
+const EXPORT_ACTIVITY_LIMIT = 5000;
+
+async function reportSuspiciousActivity({ userId, activityId }, meta = {}) {
+  await loadActiveUser(userId);
+  const prisma = getPrisma();
+
+  const entry = await prisma.activityLog.findFirst({
+    where: { id: activityId, userId },
+    select: { id: true, event: true, deviceName: true, city: true, country: true, createdAt: true },
+  });
+
+  if (!entry) throw AppError.notFound("Activité introuvable", "ACTIVITY_NOT_FOUND");
+
+  const now = new Date();
+
+  const revoked = await revokeUserSessions(userId, { reason: "SUSPICIOUS_ACTIVITY" });
+  await prisma.deviceRegistration.updateMany({
+    where: { userId, disabledAt: null },
+    data: { disabledAt: now },
+  });
+  const cleared = await prisma.user.updateMany({
+    where: { id: userId, passwordHash: { not: null } },
+    data: { passwordHash: null },
+  });
+
+  const recent = await prisma.supportRequest.findFirst({
+    where: {
+      userId,
+      status: "OPEN",
+      createdAt: { gt: new Date(now.getTime() - DAY_MS) },
+    },
+    select: { id: true },
+  });
+
+  if (!recent) {
+    const place = [entry.city, entry.country].filter(Boolean).join(", ") || "lieu inconnu";
+
+    await prisma.supportRequest.create({
+      data: {
+        userId,
+        ipAddress: meta.ipAddress,
+        message:
+          `Activité suspecte signalée par l'utilisateur : ${entry.event} du ` +
+          `${entry.createdAt.toISOString()} (${entry.deviceName ?? "appareil inconnu"}, ${place}). ` +
+          "Appareils déconnectés, mot de passe supprimé.",
+      },
+    });
+  }
+
+  await logActivity({
+    userId,
+    event: "SUSPICIOUS_ACTIVITY_REPORTED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+    metadata: { activityId, passwordCleared: cleared.count === 1, revokedSessions: revoked.length },
+  });
+  await notifySecurityChange(userId, "SUSPICIOUS_ACTIVITY_REPORTED");
+
+  return {
+    message: "Votre compte a été sécurisé. Reconnectez-vous et choisissez un nouveau mot de passe",
+    loggedOutDevices: revoked.length,
+    passwordCleared: cleared.count === 1,
+  };
+}
+
+async function exportMyData({ userId, stepUpCode }, meta = {}) {
+  const user = await loadActiveUser(userId);
+
+  await consumeStepUp(user, stepUpCode, meta, "account.export");
+
+  const prisma = getPrisma();
+  const now = new Date();
+  const since = new Date(now.getTime() - usersConfig.activity.windowMs);
+
+  const [
+    account,
+    addresses,
+    preferences,
+    notificationSettings,
+    notificationPreferences,
+    devices,
+    oauthAccounts,
+    passkeys,
+    activity,
+  ] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: EXPORT_USER_SELECT }),
+    prisma.address.findMany({
+      where: { userId },
+      select: ADDRESS_SELECT,
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.userPreferences.findUnique({
+      where: { userId },
+      select: {
+        theme: true,
+        dataSaver: true,
+        preferredMomoNumber: true,
+        reviewNameDisplay: true,
+        newOrderSound: true,
+      },
+    }),
+    prisma.notificationSettings.findUnique({
+      where: { userId },
+      select: {
+        timezone: true,
+        quietHoursEnabled: true,
+        quietHoursStart: true,
+        quietHoursEnd: true,
+        marketingEmailOptIn: true,
+        marketingEmailOptedAt: true,
+      },
+    }),
+    prisma.notificationPreference.findMany({
+      where: { userId },
+      select: { context: true, channel: true, enabled: true },
+    }),
+    prisma.session.findMany({
+      where: { userId, revokedAt: null, expiresAt: { gt: now } },
+      select: {
+        deviceName: true,
+        platform: true,
+        authMethod: true,
+        city: true,
+        country: true,
+        createdAt: true,
+        lastSeenAt: true,
+      },
+    }),
+    prisma.oAuthAccount.findMany({
+      where: { userId },
+      select: { provider: true, email: true, createdAt: true, lastUsedAt: true },
+    }),
+    prisma.passkey.findMany({
+      where: { userId, revokedAt: null },
+      select: { name: true, createdAt: true, lastUsedAt: true },
+    }),
+    prisma.activityLog.findMany({
+      where: { userId, createdAt: { gte: since } },
+      orderBy: { createdAt: "desc" },
+      take: EXPORT_ACTIVITY_LIMIT,
+      select: {
+        event: true,
+        success: true,
+        method: true,
+        deviceName: true,
+        platform: true,
+        ipAddress: true,
+        city: true,
+        country: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  await logActivity({
+    userId,
+    event: "DATA_EXPORT_REQUESTED",
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+  await notifySecurityChange(userId, "DATA_EXPORT_REQUESTED");
+
+  return {
+    generatedAt: now.toISOString(),
+    account,
+    addresses,
+    preferences: preferences ?? PREFERENCE_DEFAULTS,
+    notifications: { settings: notificationSettings, preferences: notificationPreferences },
+    security: { devices, oauthAccounts, passkeys },
+    activity: { windowDays: Math.round(usersConfig.activity.windowMs / DAY_MS), events: activity },
+  };
+}
+
 module.exports = {
+  reportSuspiciousActivity,
+  exportMyData,
   getDeletionOverview,
   requestAccountDeletion,
   purgeAccount,

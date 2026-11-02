@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { account } from "@/lib/account";
-import { auth } from "@/lib/auth";
+import { requestStepUpTarget } from "@/lib/step-up";
 import { authErrorMessage } from "@/lib/auth-errors";
 
 export type SocialProviderName = "google" | "apple";
@@ -63,8 +63,8 @@ function LinkSocialFlow({
         if (cancelled) return;
         setUsesAuthenticator(enabled);
         if (enabled) return;
-        const sent = await auth.stepUp.request();
-        if (!cancelled) setSentTo(sent.target);
+        const target = await requestStepUpTarget();
+        if (!cancelled) setSentTo(target);
       })
       .catch((err) => {
         if (!cancelled) setError(authErrorMessage(err));

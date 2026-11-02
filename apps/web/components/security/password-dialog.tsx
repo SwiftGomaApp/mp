@@ -16,25 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { account } from "@/lib/account";
 import { auth } from "@/lib/auth";
 import { authErrorMessage } from "@/lib/auth-errors";
+import { type StepUp, loadStepUp } from "@/lib/step-up";
 
 const MIN_PASSWORD_LENGTH = 8;
 
 type View = "menu" | "create" | "change" | "remove";
-
-interface StepUp {
-  authenticator: boolean;
-  sentTo: string | null;
-}
-
-async function loadStepUp(): Promise<StepUp> {
-  const { enabled } = await account.twoFactor.status();
-  if (enabled) return { authenticator: true, sentTo: null };
-  const sent = await auth.stepUp.request();
-  return { authenticator: false, sentTo: sent.target };
-}
 
 const FORM_COPY: Record<
   Exclude<View, "menu">,
@@ -239,7 +227,9 @@ function PasswordFlow({ open, onOpenChange, hasPassword }: PasswordDialogProps) 
                   ? "Code de votre application d’authentification"
                   : stepUp?.sentTo
                     ? `Code de vérification envoyé à ${stepUp.sentTo}`
-                    : "Nous vous envoyons un code de vérification…"}
+                    : stepUp?.alreadySent
+                      ? "Un code vous a déjà été envoyé. Saisissez-le ci-dessous."
+                      : "Nous vous envoyons un code de vérification…"}
               </p>
               <OtpCodeInput
                 value={code}

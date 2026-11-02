@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 
+import { DeleteAccountDialog } from "@/components/dashboard/delete-account-dialog";
 import { LinkedAccounts } from "@/components/dashboard/linked-accounts";
 import { RecoveryContactsDialog } from "@/components/security/recovery-contacts-dialog";
 import { getSecurityLevel, ProgressRing, TASK_COPY } from "@/components/security/security-prompt";
@@ -33,6 +34,7 @@ export function SecurityOverview() {
   const [passkeyOpen, setPasskeyOpen] = useState(false);
   const [passkeyManageOpen, setPasskeyManageOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   function closeAndRefresh(open: boolean, setOpen: (open: boolean) => void) {
     setOpen(open);
@@ -141,6 +143,19 @@ export function SecurityOverview() {
 
       <LinkedAccounts />
 
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+        <div className="grid gap-0.5">
+          <h2 className="font-semibold text-destructive">Supprimer mon compte</h2>
+          <p className="text-sm text-muted-foreground">
+            La suppression est programmée avec un délai pendant lequel vous pouvez changer d’avis.
+          </p>
+        </div>
+        <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+          <Trash2 />
+          Supprimer mon compte
+        </Button>
+      </section>
+
       <TwoFactorSetupDialog
         open={twoFactorOpen}
         onOpenChange={(open) => closeAndRefresh(open, setTwoFactorOpen)}
@@ -173,6 +188,7 @@ export function SecurityOverview() {
         open={passkeyOpen}
         onOpenChange={(open) => closeAndRefresh(open, setPasskeyOpen)}
       />
+      <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 }

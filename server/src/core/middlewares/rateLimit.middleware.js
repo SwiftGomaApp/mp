@@ -4,6 +4,19 @@ const { getRedis } = require("../cache/redis");
 const { AppError } = require("../errors/AppError");
 const { sha256 } = require("../crypto/crypto");
 const { REFRESH_COOKIE } = require("../auth/cookies");
+const { getConfig } = require("../../config/env.config");
+
+// Local development only: lets you click through flows without waiting out a limit.
+// Production and tests keep the real limits.
+const DEV_LIMIT_MULTIPLIER = 50;
+
+function effectiveLimit(limit) {
+  try {
+    return getConfig().env === "development" ? limit * DEV_LIMIT_MULTIPLIER : limit;
+  } catch {
+    return limit;
+  }
+}
 
 function createLimiter({
   name,
@@ -20,7 +33,7 @@ function createLimiter({
     if (!limiter) {
       limiter = rateLimit({
         windowMs,
-        limit,
+        limit: effectiveLimit(limit),
         standardHeaders: "draft-7",
         legacyHeaders: false,
         passOnStoreError: failOpen,

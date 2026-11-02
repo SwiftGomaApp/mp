@@ -1,5 +1,7 @@
-import { redirect } from "next/navigation";
+import { RoleHomeRedirect } from "@/components/dashboard/role-home-redirect";
+
+export const instant = false;
 
 export default function DashboardIndex() {
-  redirect("/profile");
+  return <RoleHomeRedirect />;
 }

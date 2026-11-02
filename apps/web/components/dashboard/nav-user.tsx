@@ -1,12 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ChevronsUpDown, LogOut, ShieldCheck, User } from "lucide-react";
 import { useSession } from "swiftgoma-mp-auth/react";
 
 import { useLogout } from "@/components/auth/logout-screen";
 import { initialsOf, ROLE_LABELS } from "@/components/dashboard/user-display";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,11 +25,21 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { loadAvatar, useAvatarUrl } from "@/lib/avatar-store";
 
-function UserSummary({ name, role }: { name: string; role: string }) {
+function UserSummary({
+  name,
+  role,
+  avatarUrl,
+}: {
+  name: string;
+  role: string;
+  avatarUrl?: string | null;
+}) {
   return (
     <>
       <Avatar>
+        {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
         <AvatarFallback className="bg-primary/10 font-semibold text-primary">
           {initialsOf(name)}
         </AvatarFallback>
@@ -45,6 +56,12 @@ export function NavUser() {
   const { user } = useSession();
   const { isMobile } = useSidebar();
   const { logout, isLoggingOut } = useLogout();
+  const avatarUrl = useAvatarUrl(user?.id);
+  const userId = user?.id;
+
+  useEffect(() => {
+    if (userId) void loadAvatar(userId);
+  }, [userId]);
 
   if (!user) {
     return (
@@ -69,7 +86,7 @@ export function NavUser() {
           <DropdownMenuTrigger
             render={<SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />}
           >
-            <UserSummary name={user.name} role={user.role} />
+            <UserSummary name={user.name} role={user.role} avatarUrl={avatarUrl} />
             <ChevronsUpDown className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -81,7 +98,7 @@ export function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-sm">
-                  <UserSummary name={user.name} role={user.role} />
+                  <UserSummary name={user.name} role={user.role} avatarUrl={avatarUrl} />
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>

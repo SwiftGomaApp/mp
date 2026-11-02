@@ -18,7 +18,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { account } from "@/lib/account";
-import { auth } from "@/lib/auth";
+import { requestStepUpTarget } from "@/lib/step-up";
 import { authErrorMessage } from "@/lib/auth-errors";
 
 type Step = "verify" | "scan" | "recovery";
@@ -53,10 +53,9 @@ function TwoFactorSetupFlow({ open, onOpenChange, onDone }: TwoFactorSetupDialog
   useEffect(() => {
     let cancelled = false;
 
-    auth.stepUp
-      .request()
-      .then((sent) => {
-        if (!cancelled) setSentTo(sent.target);
+    requestStepUpTarget()
+      .then((target) => {
+        if (!cancelled) setSentTo(target);
       })
       .catch((err) => {
         if (!cancelled) setError(authErrorMessage(err));

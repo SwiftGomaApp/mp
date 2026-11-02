@@ -327,7 +327,7 @@ model Address {
 
   line1    String
   quartier String?
-  comune   String?
+  commune  String? @map("comune")
   city     String  @default("Goma")
   landmark String?
 

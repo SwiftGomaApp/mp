@@ -5,6 +5,7 @@ import { Check, TriangleAlert } from "lucide-react";
 import type { ActivityCategory, ActivityItem } from "swiftgoma-mp-auth/account";
 
 import { formatDateTime, formatPlace } from "@/components/dashboard/format-date";
+import { NotMeDialog } from "@/components/dashboard/not-me-dialog";
 import { ErrorText } from "@/components/security/recovery-codes-step";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -59,7 +60,35 @@ const EVENT_LABELS: Record<string, string> = {
   ACCOUNT_REACTIVATED: "Compte réactivé",
   SUPPORT_REQUEST_CREATED: "Demande envoyée au Support",
   SUPPORT_REQUEST_CLOSED: "Demande au Support clôturée",
+  SUSPICIOUS_ACTIVITY_REPORTED: "Activité suspecte signalée",
+  EMAIL_CHANGED: "Adresse e-mail modifiée",
+  PHONE_CHANGED: "Numéro de téléphone modifié",
+  PROFILE_UPDATED: "Profil modifié",
+  AVATAR_CHANGED: "Photo de profil modifiée",
+  ADDRESS_ADDED: "Adresse ajoutée",
+  ADDRESS_UPDATED: "Adresse modifiée",
+  ADDRESS_REMOVED: "Adresse supprimée",
 };
+
+/** Events the user can disown with "ce n'était pas moi". */
+const REPORTABLE_EVENTS = new Set([
+  "LOGIN_SUCCESS",
+  "NEW_DEVICE",
+  "PASSWORD_SET",
+  "PASSWORD_CHANGED",
+  "PASSWORD_REMOVED",
+  "PASSWORD_RESET_COMPLETED",
+  "PASSKEY_ADDED",
+  "PASSKEY_REMOVED",
+  "TOTP_ENABLED",
+  "TOTP_DISABLED",
+  "BACKUP_CODES_GENERATED",
+  "OAUTH_ACCOUNT_LINKED",
+  "LOGIN_METHOD_REMOVED",
+  "ACCOUNT_RECOVERY_COMPLETED",
+  "EMAIL_CHANGED",
+  "PHONE_CHANGED",
+]);
 
 const METHOD_LABELS: Record<string, string> = {
   EMAIL: "E-mail",
@@ -84,6 +113,7 @@ export function ActivityOverview() {
   const [total, setTotal] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reporting, setReporting] = useState<ActivityItem | null>(null);
 
   const load = useCallback((category: ActivityCategory | "ALL", nextPage: number) => {
     return account.activity({
@@ -204,12 +234,23 @@ export function ActivityOverview() {
                   <p className="truncate text-xs text-muted-foreground">{details.join(" · ")}</p>
                 )}
               </div>
-              <time
-                dateTime={item.createdAt}
-                className="shrink-0 text-right text-xs text-muted-foreground"
-              >
-                {formatDateTime(item.createdAt)}
-              </time>
+              <div className="grid shrink-0 justify-items-end gap-1">
+                <time
+                  dateTime={item.createdAt}
+                  className="text-right text-xs text-muted-foreground"
+                >
+                  {formatDateTime(item.createdAt)}
+                </time>
+                {item.success && REPORTABLE_EVENTS.has(item.event) && (
+                  <button
+                    type="button"
+                    onClick={() => setReporting(item)}
+                    className="text-xs font-medium text-destructive underline-offset-4 outline-none hover:underline focus-visible:underline"
+                  >
+                    Ce n’était pas moi
+                  </button>
+                )}
+              </div>
             </li>
           );
         })}
@@ -226,6 +267,12 @@ export function ActivityOverview() {
           Voir plus
         </Button>
       )}
+
+      <NotMeDialog
+        item={reporting}
+        eventLabel={reporting ? (EVENT_LABELS[reporting.event] ?? humanize(reporting.event)) : ""}
+        onClose={() => setReporting(null)}
+      />
     </div>
   );
 }

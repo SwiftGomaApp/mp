@@ -101,7 +101,9 @@ function UnlinkSocialFlow({
               ? "Saisissez le code de votre application d’authentification."
               : stepUp?.sentTo
                 ? `Saisissez le code envoyé à ${stepUp.sentTo}.`
-                : "Nous vous envoyons un code de vérification…"}
+                : stepUp?.alreadySent
+                  ? "Un code vous a déjà été envoyé. Saisissez-le ci-dessous."
+                  : "Nous vous envoyons un code de vérification…"}
           </DialogDescription>
         </DialogHeader>
 

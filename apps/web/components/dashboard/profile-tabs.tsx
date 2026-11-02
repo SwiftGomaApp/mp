@@ -2,22 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "swiftgoma-mp-auth/react";
 
 import { cn } from "cn";
 
 const TABS = [
   { href: "/profile", label: "Informations du profil" },
+  { href: "/profile/addresses", label: "Adresses", buyerOnly: true },
   { href: "/profile/security", label: "Sécurité" },
+  { href: "/profile/preferences", label: "Préférences" },
   { href: "/profile/devices", label: "Appareils" },
   { href: "/profile/activity", label: "Activité" },
 ];
 
 export function ProfileTabs() {
   const pathname = usePathname();
+  const { user } = useSession();
+  const tabs = TABS.filter((tab) => !tab.buyerOnly || user?.role === "BUYER");
 
   return (
     <nav aria-label="Sections du profil" className="-mb-px flex gap-6 overflow-x-auto">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = pathname === tab.href;
 
         return (

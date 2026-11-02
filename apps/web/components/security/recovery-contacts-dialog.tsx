@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { account } from "@/lib/account";
-import { auth } from "@/lib/auth";
+import { requestStepUpTarget } from "@/lib/step-up";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { isValidEmail } from "@/lib/auth-flow";
 
@@ -89,7 +89,7 @@ function RecoveryContactsFlow({ open, onOpenChange }: RecoveryContactsDialogProp
     try {
       const { enabled } = await account.twoFactor.status();
       setUsesAuthenticator(enabled);
-      if (!enabled) setSentTo((await auth.stepUp.request()).target);
+      if (!enabled) setSentTo(await requestStepUpTarget());
     } catch (err) {
       setError(authErrorMessage(err));
     }

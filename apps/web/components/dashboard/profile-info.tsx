@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BadgeCheck, TriangleAlert } from "lucide-react";
-import { useAuth, useSession } from "swiftgoma-mp-auth/react";
+import { BadgeCheck, Download, Pencil, TriangleAlert } from "lucide-react";
+import { useSession } from "swiftgoma-mp-auth/react";
 
+import { AvatarEditor } from "@/components/dashboard/avatar-editor";
+import { ContactChangeDialog } from "@/components/dashboard/contact-change-dialog";
+import { DataExportDialog } from "@/components/dashboard/data-export-dialog";
+import { EditNameDialog } from "@/components/dashboard/edit-name-dialog";
 import { ROLE_LABELS } from "@/components/dashboard/user-display";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-type CurrentUser = Awaited<ReturnType<ReturnType<typeof useAuth>["me"]>>;
+import { auth } from "@/lib/auth";
+import { setAvatarUrl } from "@/lib/avatar-store";
+import { type ContactKind, type UserProfile, usersApi } from "@/lib/users-api";
 
 const VERIFICATION_LABELS: Record<string, string> = {
   NOT_SUBMITTED: "Documents non envoyés",
@@ -52,38 +58,77 @@ function VerifiedBadge({ verified }: { verified: boolean }) {
 }
 
 export function ProfileInfo() {
-  const auth = useAuth();
   const { user } = useSession();
-  const [profile, setProfile] = useState<CurrentUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [lastLoginAt, setLastLoginAt] = useState<string | null | undefined>(undefined);
+  const [nameOpen, setNameOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
+  const [contactKind, setContactKind] = useState<ContactKind | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    usersApi
+      .getProfile()
+      .then((current) => {
+        if (cancelled) return;
+        setProfile(current);
+        setAvatarUrl(current.id, current.avatarUrl);
+      })
+      .catch(() => {});
     auth
       .me()
       .then((current) => {
-        if (!cancelled) setProfile(current);
+        if (!cancelled) setLastLoginAt(current.lastLoginAt);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [auth]);
+  }, []);
 
   if (!user) return null;
 
+  const name = profile?.name ?? user.name;
+  const email = profile ? profile.email : user.email;
+  const phone = profile ? profile.phone : user.phone;
   const needsVerification = user.role === "SELLER" || user.role === "RIDER";
+
+  /** Keeps the sidebar and header in sync with the new profile. */
+  function applyProfile(next: UserProfile) {
+    setProfile(next);
+    setAvatarUrl(next.id, next.avatarUrl);
+    void auth.me().catch(() => {});
+  }
+
+  async function saveName(next: string) {
+    applyProfile(await usersApi.updateName(next));
+  }
 
   return (
     <div className="grid gap-6">
+      <section className="rounded-xl border bg-card p-4">
+        <AvatarEditor name={name} avatarUrl={profile?.avatarUrl ?? null} onChange={applyProfile} />
+      </section>
+
       <dl className="grid gap-3 sm:grid-cols-2">
         <Field label="Nom complet" className="sm:col-span-2">
-          {user.name}
+          <span className="min-w-0 flex-1 truncate">{name}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            disabled={!profile}
+            onClick={() => setNameOpen(true)}
+          >
+            <Pencil />
+            Modifier
+          </Button>
         </Field>
 
         <Field label="Adresse e-mail">
-          {user.email ? (
+          {email ? (
             <>
-              <span className="truncate">{user.email}</span>
+              <span className="truncate">{email}</span>
               {profile ? (
                 <VerifiedBadge verified={profile.emailVerified} />
               ) : (
@@ -93,12 +138,23 @@ export function ProfileInfo() {
           ) : (
             <span className="font-normal text-muted-foreground">Non renseignée</span>
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            disabled={!profile}
+            onClick={() => setContactKind("EMAIL")}
+          >
+            <Pencil />
+            {email ? "Modifier" : "Ajouter"}
+          </Button>
         </Field>
 
         <Field label="Téléphone">
-          {user.phone ? (
+          {phone ? (
             <>
-              <span>{user.phone}</span>
+              <span>{phone}</span>
               {profile ? (
                 <VerifiedBadge verified={profile.phoneVerified} />
               ) : (
@@ -108,6 +164,17 @@ export function ProfileInfo() {
           ) : (
             <span className="font-normal text-muted-foreground">Non renseigné</span>
           )}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            disabled={!profile}
+            onClick={() => setContactKind("PHONE")}
+          >
+            <Pencil />
+            {phone ? "Modifier" : "Ajouter"}
+          </Button>
         </Field>
 
         <Field label="Rôle">{ROLE_LABELS[user.role] ?? user.role}</Field>
@@ -127,13 +194,44 @@ export function ProfileInfo() {
         </Field>
 
         <Field label="Dernière connexion">
-          {profile ? formatDate(profile.lastLoginAt) : <Skeleton className="h-4 w-28" />}
+          {lastLoginAt !== undefined ? formatDate(lastLoginAt) : <Skeleton className="h-4 w-28" />}
         </Field>
       </dl>
 
       <p className="text-xs text-muted-foreground">
-        La modification de ces informations sera bientôt disponible.
+        Changer votre e-mail ou votre téléphone demande un code de sécurité et la confirmation du
+        nouveau contact.
       </p>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
+        <div className="grid gap-0.5">
+          <h2 className="font-semibold">Mes données</h2>
+          <p className="text-sm text-muted-foreground">
+            Téléchargez une copie des informations liées à votre compte.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setExportOpen(true)}>
+          <Download />
+          Télécharger mes données
+        </Button>
+      </div>
+
+      <DataExportDialog open={exportOpen} onOpenChange={setExportOpen} />
+
+      <ContactChangeDialog
+        open={contactKind !== null}
+        onOpenChange={(next) => !next && setContactKind(null)}
+        kind={contactKind ?? "EMAIL"}
+        current={contactKind === "PHONE" ? phone : email}
+        onChanged={applyProfile}
+      />
+
+      <EditNameDialog
+        open={nameOpen}
+        onOpenChange={setNameOpen}
+        currentName={name}
+        onSave={saveName}
+      />
     </div>
   );
 }

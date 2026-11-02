@@ -29,6 +29,49 @@ export function authErrorMessage(error: unknown): string {
     return "Les clés d’accès ne sont pas disponibles sur cet appareil.";
   }
   if (hasErrorCode(error, "ACCOUNT_SUSPENDED")) return SUSPENDED_MESSAGE;
+  if (hasErrorCode(error, ["CONTACT_UNCHANGED", "CONTACT_ALREADY_ON_ACCOUNT"])) {
+    return "C’est déjà votre contact principal. Saisissez-en un autre.";
+  }
+  if (hasErrorCode(error, ["CONTACT_ALREADY_IN_USE", "CONTACT_TAKEN"])) {
+    return "Cet e-mail ou ce numéro est déjà associé à un autre compte.";
+  }
+  if (hasErrorCode(error, "CONTACT_REQUEST_EXPIRED")) {
+    return "La demande a expiré. Recommencez avec votre nouveau contact.";
+  }
+  if (hasErrorCode(error, "ACTIVITY_NOT_FOUND")) {
+    return "Cette activité n’existe plus. Actualisez la page.";
+  }
+  if (hasErrorCode(error, "DELETION_BLOCKED")) {
+    return "Votre compte ne peut pas être supprimé pour le moment. Terminez vos opérations en cours.";
+  }
+  if (hasErrorCode(error, "STAFF_DELETION_NOT_ALLOWED")) {
+    return "Les comptes de l’équipe SwiftGoma sont supprimés par l’équipe.";
+  }
+  if (hasErrorCode(error, "PREFERENCE_NOT_ALLOWED")) {
+    return "Cette préférence n’est pas disponible pour votre type de compte.";
+  }
+  if (hasErrorCode(error, "ADDRESS_LIMIT_REACHED")) {
+    return "Vous avez atteint le nombre maximum d’adresses. Supprimez-en une pour en ajouter.";
+  }
+  if (hasErrorCode(error, "ADDRESS_NOT_FOUND")) {
+    return "Cette adresse n’existe plus. Actualisez la page.";
+  }
+  if (hasErrorCode(error, "DEFAULT_ADDRESS_REQUIRED")) {
+    return "Choisissez une autre adresse comme adresse par défaut avant de modifier celle-ci.";
+  }
+  if (hasErrorCode(error, "ADDRESSES_BUYER_ONLY")) {
+    return "Seuls les acheteurs peuvent enregistrer des adresses de livraison.";
+  }
+  if (hasErrorCode(error, ["STORAGE_NOT_CONFIGURED", "STORAGE_UPLOAD_FAILED"])) {
+    return "L’envoi de fichiers est indisponible pour le moment. Réessayez plus tard.";
+  }
+  if (hasErrorCode(error, "FILE_TOO_LARGE")) return "L’image est trop lourde (2 Mo maximum).";
+  if (hasErrorCode(error, ["INVALID_FILE_TYPE", "INVALID_UPLOAD", "FILE_REQUIRED"])) {
+    return "Choisissez une image JPEG, PNG ou WebP.";
+  }
+  if (hasErrorCode(error, "VALIDATION_ERROR")) {
+    return "Vérifiez les informations saisies et réessayez.";
+  }
   if (hasErrorCode(error, "ACCOUNT_NOT_FOUND")) {
     return "Aucun compte trouvé. Inscrivez-vous d’abord.";
   }

@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Bell, Store, User } from "lucide-react";
+import { useSession } from "swiftgoma-mp-auth/react";
 
 import { NavMain, type NavMainItem } from "@/components/dashboard/nav-main";
 import { NavSecondary } from "@/components/dashboard/nav-secondary";
@@ -11,6 +13,8 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -42,6 +46,9 @@ const NAV_MAIN: NavMainItem[] = [
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname();
+  const { user } = useSession();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -64,6 +71,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        {user?.role === "SELLER" && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Vendeur</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Espace vendeur"
+                  isActive={pathname === "/seller" || pathname.startsWith("/seller/")}
+                  render={<Link href="/seller" />}
+                >
+                  <Store />
+                  <span>Espace vendeur</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
         <NavMain items={NAV_MAIN} />
         <NavSecondary />
       </SidebarContent>

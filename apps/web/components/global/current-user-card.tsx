@@ -1,15 +1,17 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import { useSession } from "swiftgoma-mp-auth/react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { POST_LOGIN_PATH } from "@/lib/auth-flow";
+import { loadAvatar, useAvatarUrl } from "@/lib/avatar-store";
 
 const ROLE_LABELS: Record<string, string> = {
   BUYER: "Acheteur",
@@ -28,6 +30,12 @@ const initialsOf = (name: string) =>
 
 export function CurrentUserCard() {
   const { status, user } = useSession();
+  const userId = user?.id;
+  const avatarUrl = useAvatarUrl(userId);
+
+  useEffect(() => {
+    if (userId) void loadAvatar(userId);
+  }, [userId]);
 
   if (status === "unknown") {
     return (
@@ -71,6 +79,7 @@ export function CurrentUserCard() {
       <CardContent className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
           <Avatar size="lg" className="size-14">
+            {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
             <AvatarFallback className="bg-primary/10 text-base font-semibold text-primary">
               {initialsOf(user.name)}
             </AvatarFallback>

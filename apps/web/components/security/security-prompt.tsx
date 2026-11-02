@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Check,
@@ -16,7 +17,7 @@ import {
 
 import { cn } from "cn";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import type { SecurityTask, SecurityTaskKey } from "@/lib/security";
 
 const SNOOZE_KEY = "swiftgoma:security-prompt-snoozed-until";
@@ -129,10 +130,9 @@ export function ProgressRing({
 
 interface SecurityPromptProps {
   tasks: SecurityTask[];
-  onConfigure: (key: SecurityTaskKey) => void;
 }
 
-export function SecurityPrompt({ tasks, onConfigure }: SecurityPromptProps) {
+export function SecurityPrompt({ tasks }: SecurityPromptProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(readSnoozed);
 
@@ -205,7 +205,7 @@ export function SecurityPrompt({ tasks, onConfigure }: SecurityPromptProps) {
       </header>
 
       <ul className="grid gap-1 overflow-y-auto px-2 pb-2">
-        {missing.map((task, index) => {
+        {missing.map((task) => {
           const { title, description, icon: Icon } = TASK_COPY[task.key];
 
           return (
@@ -220,13 +220,6 @@ export function SecurityPrompt({ tasks, onConfigure }: SecurityPromptProps) {
                 <span className="text-sm font-medium">{title}</span>
                 <span className="text-xs leading-4.5 text-muted-foreground">{description}</span>
               </span>
-              <Button
-                size="sm"
-                variant={index === 0 ? "default" : "outline"}
-                onClick={() => onConfigure(task.key)}
-              >
-                Configurer
-              </Button>
             </li>
           );
         })}
@@ -253,9 +246,14 @@ export function SecurityPrompt({ tasks, onConfigure }: SecurityPromptProps) {
           )}
           Environ 2 minutes
         </p>
-        <Button size="sm" variant="ghost" onClick={collapse}>
-          Plus tard
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button size="sm" variant="ghost" onClick={collapse}>
+            Plus tard
+          </Button>
+          <Link href="/profile/security" className={buttonVariants({ size: "sm" })}>
+            Sécuriser mon compte
+          </Link>
+        </div>
       </footer>
     </section>
   );

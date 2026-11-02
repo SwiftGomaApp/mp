@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -20,7 +20,8 @@ import { useSession } from "swiftgoma-mp-auth/react";
 import { Logo } from "@/components/global/logo";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useLogout } from "@/components/auth/logout-screen";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { loadAvatar, useAvatarUrl } from "@/lib/avatar-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -73,6 +74,12 @@ function AccountMenu() {
   );
   const { theme, setTheme } = useTheme();
   const { logout, isLoggingOut } = useLogout();
+  const userId = user?.id;
+  const avatarUrl = useAvatarUrl(userId);
+
+  useEffect(() => {
+    if (userId) void loadAvatar(userId);
+  }, [userId]);
 
   if (!hydrated || status === "unknown") return <Skeleton className="h-8 w-28 rounded-lg" />;
 
@@ -104,6 +111,7 @@ function AccountMenu() {
           className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <Avatar>
+            {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
             <AvatarFallback className="bg-primary/10 font-semibold text-primary">
               {initialsOf(user.name)}
             </AvatarFallback>

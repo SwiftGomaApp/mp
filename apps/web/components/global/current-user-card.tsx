@@ -47,7 +47,7 @@ export function CurrentUserCard() {
     return (
       <Card className="w-full max-w-sm">
         <CardContent className="flex flex-col items-center gap-4 text-center">
-          <p className="text-sm text-muted-foreground">Vous n’êtes pas connecté.</p>
+          {/* <p className="text-sm text-muted-foreground">Vous n’êtes pas connecté.</p> */}
           <div className="flex w-full gap-2">
             <Button className="flex-1" nativeButton={false} render={<Link href="/auth/sign-in" />}>
               Se connecter

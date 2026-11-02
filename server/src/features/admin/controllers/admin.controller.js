@@ -3,7 +3,7 @@ const users = require("../services/users.service");
 
 async function listUsers(req, res, next) {
   try {
-    res.json(await users.listUsers(req.query));
+    res.json(await users.listUsers(req.validated.query));
   } catch (err) {
     next(err);
   }
@@ -19,7 +19,7 @@ async function getUser(req, res, next) {
 
 async function listActivity(req, res, next) {
   try {
-    res.json(await users.listActivity(req.params.id, req.query));
+    res.json(await users.listActivity(req.params.id, req.validated.query));
   } catch (err) {
     next(err);
   }
@@ -100,7 +100,7 @@ const updateContact = act("updateContact", (req) => req.body);
 
 async function listAudit(req, res, next) {
   try {
-    res.json(await users.listAudit(req.query));
+    res.json(await users.listAudit(req.validated.query));
   } catch (err) {
     next(err);
   }

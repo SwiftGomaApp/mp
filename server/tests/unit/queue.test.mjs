@@ -138,7 +138,7 @@ describe("maintenance schedule", () => {
     await maintenance.scheduleMaintenance();
 
     expect(queues.getQueue).toHaveBeenCalledWith("maintenance");
-    expect(upsertJobScheduler).toHaveBeenCalledTimes(3);
+    expect(upsertJobScheduler).toHaveBeenCalledTimes(5);
     expect(upsertJobScheduler).toHaveBeenCalledWith(
       "cleanup-notifications",
       { every: 24 * 60 * 60 * 1000 },

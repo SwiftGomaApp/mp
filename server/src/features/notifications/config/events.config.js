@@ -80,6 +80,60 @@ const EVENTS = Object.freeze(
       }),
     }),
 
+    // ---- seller / rider verification ----
+    define("verification.approved", {
+      context: "ANNOUNCEMENT",
+      priority: "HIGH",
+      mandatory: true,
+      roles: ["SELLER", "RIDER"],
+      required: ["caseId"],
+      dedupe: (d) => `verification.approved:${d.caseId}`,
+      render: () => ({
+        title: "Dossier approuvé",
+        body: "Votre dossier a été approuvé. Votre compte est maintenant vérifié.",
+      }),
+    }),
+    define("verification.rejected", {
+      context: "ANNOUNCEMENT",
+      priority: "HIGH",
+      mandatory: true,
+      roles: ["SELLER", "RIDER"],
+      required: ["caseId", "attemptsLeft"],
+      dedupe: (d) => `verification.rejected:${d.caseId}`,
+      render: (d) => ({
+        title: "Dossier refusé",
+        body:
+          d.attemptsLeft > 0
+            ? `Votre dossier a été refusé. Consultez le motif et renvoyez-le : il vous reste ${d.attemptsLeft} essai(s).`
+            : "Votre dossier a été refusé. Vous n'avez plus d'essai, contactez le support.",
+      }),
+    }),
+
+    define("verification.expiring", {
+      context: "ANNOUNCEMENT",
+      priority: "HIGH",
+      mandatory: true,
+      roles: ["SELLER", "RIDER"],
+      required: ["caseId", "type", "expiresAt"],
+      dedupe: (d) => `verification.expiring:${d.caseId}:${d.type}`,
+      render: () => ({
+        title: "Un document arrive à expiration",
+        body: "Un de vos documents expire dans moins de 30 jours. Renouvelez-le pour garder votre compte actif.",
+      }),
+    }),
+    define("verification.expired", {
+      context: "ANNOUNCEMENT",
+      priority: "HIGH",
+      mandatory: true,
+      roles: ["SELLER", "RIDER"],
+      required: ["caseId", "type"],
+      dedupe: (d) => `verification.expired:${d.caseId}`,
+      render: () => ({
+        title: "Compte en pause",
+        body: "Un de vos documents a expiré. Envoyez un nouveau dossier pour reprendre votre activité.",
+      }),
+    }),
+
     // ---- purchases (any role acting as a buyer) ----
     define("order.placed", {
       context: "PURCHASE",

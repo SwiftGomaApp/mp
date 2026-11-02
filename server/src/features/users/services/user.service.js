@@ -10,6 +10,8 @@ const { consumeStepUp } = require("../../auth/services/stepUp.service");
 const { notifySecurityChange } = require("../../auth/services/securityNotice.service");
 const { logger } = require("../../../core/logger/logger");
 const { revokeUserSessions } = require("../../auth/services/session.service");
+const { purgeVerification } = require("../../verification/services/purge.service");
+const { exportVerification } = require("../../verification/services/export.service");
 
 const PROFILE_SELECT = {
   id: true,
@@ -612,6 +614,7 @@ async function purgeAccount(userId) {
   if (!pending) return false;
 
   await destroyFile({ publicId: avatarPublicId(userId) });
+  await purgeVerification(userId);
 
   await prisma.$transaction([
     prisma.session.deleteMany({ where: { userId } }),
@@ -798,6 +801,7 @@ async function buildUserExport(userId) {
     oauthAccounts,
     passkeys,
     activity,
+    verification,
   ] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: EXPORT_USER_SELECT }),
     prisma.address.findMany({
@@ -866,6 +870,7 @@ async function buildUserExport(userId) {
         createdAt: true,
       },
     }),
+    exportVerification(userId),
   ]);
 
   return {
@@ -875,6 +880,7 @@ async function buildUserExport(userId) {
     preferences: preferences ?? PREFERENCE_DEFAULTS,
     notifications: { settings: notificationSettings, preferences: notificationPreferences },
     security: { devices, oauthAccounts, passkeys },
+    verification,
     activity: { windowDays: Math.round(usersConfig.activity.windowMs / DAY_MS), events: activity },
   };
 }

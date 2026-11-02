@@ -5,12 +5,14 @@ const { logger } = require("../core/logger/logger");
 const { authConfig } = require("../features/auth/config/auth.config");
 const { cleanNotifications } = require("../features/notifications/services/cleanup.service");
 const { purgeDueAccounts } = require("../features/users/services/user.service");
+const { runExpiryChecks } = require("../features/verification/services/maintenance.service");
 
 const MAINTENANCE_JOBS = {
   PURGE_DELETED_ACCOUNTS: "cleanup.deleted-accounts",
   CLEAN_UNCONFIRMED_SIGNUPS: "cleanup.unconfirmed-signups",
   CLEAN_EXPIRED_DATA: "cleanup.expired-data",
   CLEAN_NOTIFICATIONS: "cleanup.notifications",
+  CHECK_VERIFICATION_EXPIRY: "verification.expiry",
 };
 
 const HOUR = 60 * 60 * 1000;
@@ -72,6 +74,7 @@ const handlers = {
   [MAINTENANCE_JOBS.CLEAN_UNCONFIRMED_SIGNUPS]: cleanUnconfirmedSignups,
   [MAINTENANCE_JOBS.CLEAN_EXPIRED_DATA]: cleanExpiredData,
   [MAINTENANCE_JOBS.CLEAN_NOTIFICATIONS]: cleanNotifications,
+  [MAINTENANCE_JOBS.CHECK_VERIFICATION_EXPIRY]: runExpiryChecks,
 };
 
 async function processMaintenance(job) {
@@ -102,6 +105,11 @@ async function scheduleMaintenance() {
     "cleanup-notifications",
     { every: DAY },
     { name: MAINTENANCE_JOBS.CLEAN_NOTIFICATIONS },
+  );
+  await queue.upsertJobScheduler(
+    "check-verification-expiry",
+    { every: DAY },
+    { name: MAINTENANCE_JOBS.CHECK_VERIFICATION_EXPIRY },
   );
 }
 

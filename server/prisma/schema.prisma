@@ -32,6 +32,7 @@ enum VerificationStatus {
   IN_REVIEW
   APPROVED
   REJECTED
+  EXPIRED // approved, then a document ran out
 }
 
 enum AuthMethod {
@@ -117,6 +118,16 @@ enum ActivityEvent {
   CONTACT_UPDATED_BY_ADMIN
   ACCOUNT_DELETION_FORCED
   DATA_EXPORTED_BY_ADMIN
+  VERIFICATION_SUBMITTED
+  VERIFICATION_TAKEN
+  VERIFICATION_RELEASED
+  VERIFICATION_CALL_LOGGED
+  VERIFICATION_OPINION_GIVEN
+  VERIFICATION_APPROVED
+  VERIFICATION_REJECTED
+  VERIFICATION_DOCUMENT_VIEWED
+  VERIFICATION_EXPIRY_REMINDED
+  VERIFICATION_EXPIRED
 }
 
 enum RecoveryStatus {
@@ -211,7 +222,41 @@ enum SuppressionReason {
   COMPLAINED
 }
 
-// ======================================================= MODELS ===========================================
+enum VerificationType {
+  SELLER
+  RIDER
+}
+
+enum VerificationOpinion {
+  RECOMMEND_APPROVE
+  RECOMMEND_REJECT
+}
+
+enum VehicleType {
+  MOTO
+  CAR
+}
+
+enum CallOutcome {
+  REACHED
+  NO_ANSWER
+  WRONG_NUMBER
+  REFUSED
+}
+
+enum VerificationDocumentType {
+  ID_CARD
+  SELFIE
+  PROOF_OF_ADDRESS
+  RCCM
+  SHOP_PHOTO
+  DRIVING_LICENCE
+  VEHICLE_PHOTO
+  VEHICLE_DOCUMENT // rider, carte rose
+  VEHICLE_INSURANCE // rider
+}
+
+// ======================================================= GENERAL MODELS ===========================================
 
 // ---------------------- user model -------------------------
 
@@ -259,6 +304,10 @@ model User {
   deviceRegistrations     DeviceRegistration[]
   addresses               Address[]
   userPreferences         UserPreferences[]
+  verificationCases       VerificationCase[]       @relation("CaseOwner")
+  reviewedCases           VerificationCase[]       @relation("CaseReviewer")
+  decidedCases            VerificationCase[]       @relation("CaseDecider")
+  verificationCalls       VerificationCall[]       @relation("CaseCaller")
 
   @@index([status, createdAt])
   @@index([status, deletionScheduledAt])
@@ -620,9 +669,7 @@ model DeviceRegistration {
   @@map("device_registrations")
 }
 
-// ======================================================= MARKETING ===========================================
-
-// ---------------------- email template models -------------------------
+// ---------------------- email template model -------------------------
 
 model EmailTemplate {
   id          String  @id @default(uuid())
@@ -640,6 +687,8 @@ model EmailTemplate {
 
   @@map("email_templates")
 }
+
+// ---------------------- email template version model -------------------------
 
 model EmailTemplateVersion {
   id         String        @id @default(uuid())
@@ -677,7 +726,7 @@ model Segment {
   @@map("segments")
 }
 
-// ---------------------- campaign models -------------------------
+// ---------------------- campaign model -------------------------
 
 model Campaign {
   id     String         @id @default(uuid())
@@ -718,6 +767,8 @@ model Campaign {
   @@map("campaigns")
 }
 
+// ---------------------- campaign recipient model -------------------------
+
 model CampaignRecipient {
   id         String   @id @default(uuid())
   campaignId String
@@ -741,7 +792,7 @@ model CampaignRecipient {
   @@map("campaign_recipients")
 }
 
-// ---------------------- suppression and tracking models -------------------------
+// ---------------------- suppression models -------------------------
 
 model EmailSuppression {
   id        String            @id @default(uuid())
@@ -754,6 +805,8 @@ model EmailSuppression {
   @@index([reason, createdAt])
   @@map("email_suppressions")
 }
+
+// ----------------------  tracking models -------------------------
 
 model TrackingEvent {
   id          String             @id @default(uuid())
@@ -770,4 +823,82 @@ model TrackingEvent {
   @@index([campaignId, type, createdAt])
   @@index([recipientId, type])
   @@map("tracking_events")
+}
+
+// ======================================================= SELLERS AND RIDER DOCUMENTS MODELS ===========================================
+
+// ---------------------- verification case -------------------------
+
+model VerificationCase {
+  id      String             @id @default(uuid())
+  userId  String
+  user    User               @relation("CaseOwner", fields: [userId], references: [id])
+  type    VerificationType
+  status  VerificationStatus @default(NOT_SUBMITTED)
+  attempt Int                @default(1)
+
+  taxNumber String? // seller
+
+  vehicleType VehicleType? // rider
+  plateNumber String? // rider, stored uppercase without spaces
+
+  submittedAt DateTime @default(now())
+
+  reviewerId  String?
+  reviewer    User?                @relation("CaseReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  reviewedAt  DateTime?
+  opinion     VerificationOpinion?
+  opinionNote String?
+
+  decidedById  String?
+  decidedBy    User?     @relation("CaseDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt    DateTime?
+  decisionNote String?
+
+  documents VerificationDocument[]
+  calls     VerificationCall[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, submittedAt])
+  @@index([userId, createdAt])
+  @@index([plateNumber])
+  @@map("verification_cases")
+}
+
+// ---------------------- verification document -------------------------
+
+model VerificationDocument {
+  id        String                   @id @default(uuid())
+  caseId    String
+  case      VerificationCase         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  type      VerificationDocumentType
+  storageId String
+  mimeType  String
+  sizeBytes Int
+  expiresAt DateTime?
+  reminderSentAt DateTime?
+  createdAt DateTime                 @default(now())
+
+  @@unique([caseId, type])
+  @@index([expiresAt])
+  @@map("verification_documents")
+}
+
+// ---------------------- verification call -------------------------
+
+model VerificationCall {
+  id       String           @id @default(uuid())
+  caseId   String
+  case     VerificationCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  callerId String?
+  caller   User?            @relation("CaseCaller", fields: [callerId], references: [id], onDelete: SetNull)
+  phone    String
+  outcome  CallOutcome
+  notes    String?
+  calledAt DateTime         @default(now())
+
+  @@index([caseId, calledAt])
+  @@map("verification_calls")
 }

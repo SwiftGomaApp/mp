@@ -4716,6 +4716,2500 @@
       ]
     },
     {
+      "name": "Verification",
+      "description": "Dossier for SELLER and RIDER accounts. Order: Start, save details, upload the documents, then Submit. Run it as a seller or a rider (log in with that account first).",
+      "item": [
+        {
+          "name": "Dossier",
+          "item": [
+            {
+              "name": "Get my dossier",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Status and attempts', () => { pm.expect(b.verificationStatus).to.be.a('string'); pm.expect(b.attemptsLeft).to.be.a('number'); });",
+                      "pm.test('Checklist lists required documents', () => pm.expect(b.checklist.required).to.be.an('array'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "me"
+                  ]
+                },
+                "description": "Works for SELLER and RIDER accounts only (a buyer gets 403). Shows what is still missing, in 'checklist'. Support's opinion and call notes are never included."
+              }
+            },
+            {
+              "name": "Start my dossier",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Draft case', () => pm.expect(pm.response.json().case.status).to.eql('NOT_SUBMITTED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/start",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "start"
+                  ]
+                },
+                "description": "Creates the draft, or returns the open one. Refused once approved (409 ALREADY_APPROVED), while under review (409 CASE_IN_PROGRESS), or after 3 refusals (403 ATTEMPTS_EXHAUSTED)."
+              }
+            },
+            {
+              "name": "Save details - seller (tax number)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Tax number saved', () => pm.expect(pm.response.json().case.taxNumber).to.eql('A1234567B'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/details",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"taxNumber\": \"A1234567B\"\n}"
+                },
+                "description": "For a SELLER account. A seller sending vehicle fields gets 400 FIELD_NOT_ALLOWED."
+              }
+            },
+            {
+              "name": "Save details - rider (vehicle and plate)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const c = pm.response.json().case;",
+                      "pm.test('Vehicle saved', () => pm.expect(c.vehicleType).to.eql('MOTO'));",
+                      "pm.test('Plate is normalised', () => pm.expect(c.plateNumber).to.eql('AB1234CD'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/details",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehicleType\": \"MOTO\",\n  \"plateNumber\": \"ab 1234 cd\"\n}"
+                },
+                "description": "For a RIDER account. The plate is stored uppercase without spaces or dashes."
+              }
+            },
+            {
+              "name": "Save details - empty body (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/details",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "Save details - unknown field (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/details",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": \"ADMIN\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Save details - bad vehicle type (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/details",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "details"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"vehicleType\": \"PLANE\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Documents - seller and rider",
+          "item": [
+            {
+              "name": "Upload ID card",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('ID_CARD'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/ID_CARD",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "ID_CARD"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted."
+              }
+            },
+            {
+              "name": "Upload selfie",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('SELFIE'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/SELFIE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "SELFIE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. Photos only: a PDF is refused with 415."
+              }
+            },
+            {
+              "name": "Upload proof of address",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('PROOF_OF_ADDRESS'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/PROOF_OF_ADDRESS",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "PROOF_OF_ADDRESS"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Documents - seller",
+          "item": [
+            {
+              "name": "Upload shop photo",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('SHOP_PHOTO'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/SHOP_PHOTO",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "SHOP_PHOTO"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. Photos only: a PDF is refused with 415."
+              }
+            },
+            {
+              "name": "Upload RCCM (optional)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('RCCM'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/RCCM",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "RCCM"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted. Optional: the dossier can be submitted without it."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Documents - rider",
+          "item": [
+            {
+              "name": "Upload driving licence",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('DRIVING_LICENCE'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/DRIVING_LICENCE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "DRIVING_LICENCE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "expiresAt",
+                      "value": "2030-12-31",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted. Needs the document's end date in 'expiresAt' (a future date)."
+              }
+            },
+            {
+              "name": "Upload vehicle photo (plate visible)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('VEHICLE_PHOTO'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/VEHICLE_PHOTO",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "VEHICLE_PHOTO"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. Photos only: a PDF is refused with 415."
+              }
+            },
+            {
+              "name": "Upload vehicle papers (carte rose)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('VEHICLE_DOCUMENT'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/VEHICLE_DOCUMENT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "VEHICLE_DOCUMENT"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "expiresAt",
+                      "value": "2030-12-31",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted. Needs the document's end date in 'expiresAt' (a future date)."
+              }
+            },
+            {
+              "name": "Upload insurance certificate",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Document stored', () => pm.expect(pm.response.json().document.type).to.eql('VEHICLE_INSURANCE'));",
+                      "pm.test('No storage reference leaked', () => pm.expect(pm.response.json().document).to.not.have.property('storageId'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/VEHICLE_INSURANCE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "VEHICLE_INSURANCE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "expiresAt",
+                      "value": "2030-12-31",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "Pick a JPG, PNG or WebP file (or a PDF where allowed) under 5 MB in the 'file' field. A PDF scan is accepted. Needs the document's end date in 'expiresAt' (a future date)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Documents - checks",
+          "item": [
+            {
+              "name": "Upload - unknown document type (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/PASSPORT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "PASSPORT"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Rejected before the file is read."
+              }
+            },
+            {
+              "name": "Upload - no file (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('FILE_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('FILE_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/ID_CARD",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "ID_CARD"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": []
+                }
+              }
+            },
+            {
+              "name": "Upload - licence without an end date (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('EXPIRY_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('EXPIRY_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/DRIVING_LICENCE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "DRIVING_LICENCE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick any valid image and leave 'expiresAt' out. Use a RIDER account."
+              }
+            },
+            {
+              "name": "Upload - end date in the past (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('DOCUMENT_EXPIRED', () => pm.expect(pm.response.json().error.code).to.eql('DOCUMENT_EXPIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/DRIVING_LICENCE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "DRIVING_LICENCE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    },
+                    {
+                      "key": "expiresAt",
+                      "value": "2020-01-01",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "Use a RIDER account."
+              }
+            },
+            {
+              "name": "Upload - document not asked for this role (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('DOCUMENT_NOT_ALLOWED', () => pm.expect(pm.response.json().error.code).to.eql('DOCUMENT_NOT_ALLOWED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/SHOP_PHOTO",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "SHOP_PHOTO"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Run with a RIDER account: a shop photo is for sellers."
+              }
+            },
+            {
+              "name": "Upload - PDF as a selfie (expect 415)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('415', () => pm.response.to.have.status(415));",
+                      "pm.test('INVALID_FILE_TYPE', () => pm.expect(pm.response.json().error.code).to.eql('INVALID_FILE_TYPE'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/SELFIE",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "SELFIE"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                },
+                "description": "Pick a PDF file. Photos must be images."
+              }
+            },
+            {
+              "name": "Remove a document",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/ID_CARD",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "ID_CARD"
+                  ]
+                },
+                "description": "Only while the dossier is a draft. Deletes the stored file too."
+              }
+            },
+            {
+              "name": "Remove a document not sent (expect 404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('404', () => pm.response.to.have.status(404));",
+                      "pm.test('DOCUMENT_NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('DOCUMENT_NOT_FOUND'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/documents/RCCM",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "documents",
+                    "RCCM"
+                  ]
+                },
+                "description": "Run it when the RCCM was not uploaded."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit",
+          "item": [
+            {
+              "name": "Submit - incomplete dossier (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));",
+                      "pm.test('VERIFICATION_INCOMPLETE', () => pm.expect(pm.response.json().error.code).to.eql('VERIFICATION_INCOMPLETE'));",
+                      "pm.test('Lists what is missing', () => { const d = pm.response.json().error.details; pm.expect(d).to.be.an('array'); pm.expect(d[0]).to.have.property('field'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/submit",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "submit"
+                  ]
+                },
+                "description": "Run it before everything is uploaded. 'details' lists every missing item at once."
+              }
+            },
+            {
+              "name": "Submit my dossier",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Now pending', () => pm.expect(pm.response.json().verificationStatus).to.eql('PENDING'));",
+                      "pm.test('Case is pending', () => pm.expect(pm.response.json().case.status).to.eql('PENDING'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/submit",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "submit"
+                  ]
+                },
+                "description": "Needs every required document, plus the tax number (seller) or vehicle type and plate (rider). Support reviews it next: a call, then an opinion, then the Admin's decision."
+              }
+            },
+            {
+              "name": "Submit again (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('NO_DRAFT_CASE', () => pm.expect(pm.response.json().error.code).to.eql('NO_DRAFT_CASE'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/submit",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "submit"
+                  ]
+                },
+                "description": "Right after a successful submit there is no draft left."
+              }
+            },
+            {
+              "name": "Start again while in review (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('CASE_IN_PROGRESS', () => pm.expect(pm.response.json().error.code).to.eql('CASE_IN_PROGRESS'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/verification/start",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "verification",
+                    "start"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Verification review",
+      "description": "Staff side of seller and rider verification. SUPPORT takes a case, calls the applicant and gives an opinion. ADMIN decides. Log in as SUPPORT or ADMIN first. Run 'List cases' to fill {{caseId}}.",
+      "item": [
+        {
+          "name": "Queue",
+          "item": [
+            {
+              "name": "List cases (pending and in review)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Paged list', () => { pm.expect(b.items).to.be.an('array'); pm.expect(b.total).to.be.a('number'); });",
+                      "if (b.items.length) pm.environment.set('caseId', b.items[0].id);"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ]
+                },
+                "description": "Log in as SUPPORT or ADMIN. Oldest first. Saves the first case id in 'caseId'."
+              }
+            },
+            {
+              "name": "List my cases",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ],
+                  "query": [
+                    {
+                      "key": "mine",
+                      "value": "true"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List refused cases for sellers",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "REJECTED"
+                    },
+                    {
+                      "key": "type",
+                      "value": "SELLER"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Search by name, email or phone",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ],
+                  "query": [
+                    {
+                      "key": "q",
+                      "value": "+243"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List - bad status (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "NOPE"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get a case",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const c = pm.response.json().case;",
+                      "pm.test('Has documents and calls', () => { pm.expect(c.documents).to.be.an('array'); pm.expect(c.calls).to.be.an('array'); });",
+                      "pm.test('No storage reference leaked', () => c.documents.forEach((d) => pm.expect(d).to.not.have.property('storageId')));",
+                      "pm.test('Review hints', () => { pm.expect(c.previousRejections).to.be.a('number'); pm.expect(c.samePlate).to.be.an('array'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}"
+                  ]
+                },
+                "description": "Shows the same plate on other people's dossiers in 'samePlate'."
+              }
+            },
+            {
+              "name": "Get a case - bad id (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/abc",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "abc"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Review (Support)",
+          "item": [
+            {
+              "name": "Take the case",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/take",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "take"
+                  ]
+                },
+                "description": "Pending case becomes IN_REVIEW under you. Someone else got there first: 409 CASE_ALREADY_TAKEN."
+              }
+            },
+            {
+              "name": "Take again (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('CASE_NOT_PENDING', () => pm.expect(pm.response.json().error.code).to.eql('CASE_NOT_PENDING'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/take",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "take"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Log a call - no answer",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));",
+                      "pm.test('Call stored', () => pm.expect(pm.response.json().call.outcome).to.eql('NO_ANSWER'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/calls",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "calls"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"NO_ANSWER\"\n}"
+                },
+                "description": "Calls the applicant's phone by default. Add 'phone' (+243...) to log another number."
+              }
+            },
+            {
+              "name": "Log a call - reached",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('201', () => pm.response.to.have.status(201));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/calls",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "calls"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"REACHED\",\n  \"notes\": \"Identité confirmée, adresse et activité cohérentes.\"\n}"
+                },
+                "description": "A reached call needs notes. The applicant never sees them."
+              }
+            },
+            {
+              "name": "Log a call - reached without notes (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('NOTES_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('NOTES_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/calls",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "calls"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"REACHED\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Log a call - bad phone (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/calls",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "calls"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"NO_ANSWER\",\n  \"phone\": \"123\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Log a call - bad outcome (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/calls",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "calls"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"outcome\": \"MAYBE\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Give opinion - recommend approve",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Opinion saved', () => pm.expect(pm.response.json().case.opinion).to.eql('RECOMMEND_APPROVE'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/opinion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "opinion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"opinion\": \"RECOMMEND_APPROVE\",\n  \"note\": \"Dossier cohérent.\"\n}"
+                },
+                "description": "Needs a call that reached the person first: otherwise 409 CALL_REQUIRED. Can be changed until the Admin decides."
+              }
+            },
+            {
+              "name": "Give opinion - approve without a reached call (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('CALL_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('CALL_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/opinion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "opinion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"opinion\": \"RECOMMEND_APPROVE\"\n}"
+                },
+                "description": "Run on a case with no reached call."
+              }
+            },
+            {
+              "name": "Give opinion - recommend reject",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/opinion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "opinion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"opinion\": \"RECOMMEND_REJECT\",\n  \"note\": \"La photo de la pièce est illisible.\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Give opinion - reject without a note (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('NOTE_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('NOTE_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/opinion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "opinion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"opinion\": \"RECOMMEND_REJECT\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Give opinion - unknown field (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/opinion",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "opinion"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"opinion\": \"RECOMMEND_REJECT\",\n  \"note\": \"x\",\n  \"extra\": 1\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Documents",
+          "item": [
+            {
+              "name": "View a document (signed link)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "const b = pm.response.json();",
+                      "pm.test('Short-lived link', () => { pm.expect(b.url).to.be.a('string'); pm.expect(b.expiresInSeconds).to.be.a('number'); });"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/documents/ID_CARD/link",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "documents",
+                    "ID_CARD",
+                    "link"
+                  ]
+                },
+                "description": "Each call is logged as VERIFICATION_DOCUMENT_VIEWED. Open the link right away, it expires after 2 minutes."
+              }
+            },
+            {
+              "name": "View a document not sent (expect 404)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('404', () => pm.response.to.have.status(404));",
+                      "pm.test('DOCUMENT_NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('DOCUMENT_NOT_FOUND'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/documents/RCCM/link",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "documents",
+                    "RCCM",
+                    "link"
+                  ]
+                },
+                "description": "Run it on a case where the optional RCCM was not uploaded."
+              }
+            },
+            {
+              "name": "View a document - unknown type (expect 422)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('422', () => pm.response.to.have.status(422));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/documents/PASSPORT/link",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "documents",
+                    "PASSPORT",
+                    "link"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Decision (Admin)",
+          "item": [
+            {
+              "name": "Approve",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('204', () => pm.response.to.have.status(204));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "approve"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"note\": \"Dossier validé.\"\n}"
+                },
+                "description": "ADMIN only. The case must be IN_REVIEW with at least one call that reached the person. The applicant is notified."
+              }
+            },
+            {
+              "name": "Approve without a reached call (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('CALL_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('CALL_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "approve"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "Approve again (expect 409)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('409', () => pm.response.to.have.status(409));",
+                      "pm.test('CASE_NOT_IN_REVIEW', () => pm.expect(pm.response.json().error.code).to.eql('CASE_NOT_IN_REVIEW'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "approve"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "description": "Run right after a successful decision."
+              }
+            },
+            {
+              "name": "Reject",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('200', () => pm.response.to.have.status(200));",
+                      "pm.test('Attempts left', () => pm.expect(pm.response.json().attemptsLeft).to.be.a('number'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/reject",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "reject"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"note\": \"La photo de la pièce d'identité est illisible, merci de la renvoyer.\"\n}"
+                },
+                "description": "ADMIN only. The note is shown to the applicant, so write it for them."
+              }
+            },
+            {
+              "name": "Reject without a note (expect 400)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('400', () => pm.response.to.have.status(400));",
+                      "pm.test('NOTE_REQUIRED', () => pm.expect(pm.response.json().error.code).to.eql('NOTE_REQUIRED'));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/reject",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "reject"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "Approve as SUPPORT (expect 403)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('403', () => pm.response.to.have.status(403));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases/{{caseId}}/approve",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases",
+                    "{{caseId}}",
+                    "approve"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                },
+                "description": "Run with a SUPPORT account."
+              }
+            },
+            {
+              "name": "Queue as a seller (expect 403)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('403', () => pm.response.to.have.status(403));"
+                    ]
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/verification/cases",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "verification",
+                    "cases"
+                  ]
+                },
+                "description": "Run with a SELLER, RIDER or BUYER account."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Admin",
       "item": [
         {

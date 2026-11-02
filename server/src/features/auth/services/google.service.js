@@ -8,6 +8,7 @@ const { finishLogin, assertCanLogin } = require("./auth.service");
 const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
 const { consumeNonce } = require("../../../core/auth/nonce");
+const { assertRoleAllowedOnClient } = require("../../../core/auth/clientApp");
 const { linkToVerifiedAccount } = require("./oauthLink.service");
 
 const googleClient = new OAuth2Client();
@@ -124,6 +125,7 @@ async function loginWithGoogle({ idToken, nonce, device }, meta) {
 }
 
 async function signupWithGoogle({ idToken, role, acceptTerms, confirmAge, device, nonce }, meta) {
+  assertRoleAllowedOnClient(role);
   if (acceptTerms !== true || confirmAge !== true) {
     throw AppError.badRequest(
       "L'acceptation des conditions et la confirmation d'âge sont obligatoires",

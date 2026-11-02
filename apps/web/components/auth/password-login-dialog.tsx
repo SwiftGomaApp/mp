@@ -26,10 +26,10 @@ import {
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
 import { auth } from "@/lib/auth";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, isMobileOnlyError } from "@/lib/auth-errors";
 import { isValidEmail, POST_LOGIN_PATH } from "@/lib/auth-flow";
 
-export function PasswordLoginDialog() {
+export function PasswordLoginDialog({ onMobileOnly }: { onMobileOnly?: () => void }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -73,8 +73,13 @@ export function PasswordLoginDialog() {
         );
       }
     } catch (err) {
-      setError(authErrorMessage(err));
       setPassword("");
+      if (isMobileOnlyError(err)) {
+        setOpen(false);
+        onMobileOnly?.();
+      } else {
+        setError(authErrorMessage(err));
+      }
     } finally {
       setIsLoading(false);
     }

@@ -10,6 +10,7 @@ import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { ContactField, useContactField } from "@/components/auth/contact-field";
 import { LegalImageLinks } from "@/components/auth/legal-links";
 import { PasswordLoginDialog } from "@/components/auth/password-login-dialog";
+import { RiderMobileApp } from "@/components/auth/rider-mobile-app";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { TwoFactorDialog } from "@/components/auth/two-factor-dialog";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import {
   signInWithGoogle,
   signInWithPasskey,
 } from "@/lib/auth-actions";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, isMobileOnlyError } from "@/lib/auth-errors";
 
 export function SignInView() {
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +31,12 @@ export function SignInView() {
   const contact = useContactField();
   const [isLoading, setIsLoading] = useState(false);
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
+  const [mobileOnly, setMobileOnly] = useState(false);
+
+  function handleError(err: unknown) {
+    if (isMobileOnlyError(err)) setMobileOnly(true);
+    else setError(authErrorMessage(err));
+  }
 
   async function runProvider(action: () => Promise<SignInOutcome>) {
     if (isLoading) return;
@@ -45,7 +52,7 @@ export function SignInView() {
         );
       }
     } catch (err) {
-      setError(authErrorMessage(err));
+      handleError(err);
     } finally {
       setIsLoading(false);
     }
@@ -62,15 +69,19 @@ export function SignInView() {
       saveVerificationTarget({ flow: "sign-in", ...target });
       router.push("/auth/verify");
     } catch (err) {
-      setError(authErrorMessage(err));
+      handleError(err);
     } finally {
       setIsLoading(false);
     }
   }
 
+  if (mobileOnly) {
+    return <RiderMobileApp context="sign-in" onBack={() => setMobileOnly(false)} />;
+  }
+
   return (
     <AuthSplitLayout
-      topRight={<PasswordLoginDialog />}
+      topRight={<PasswordLoginDialog onMobileOnly={() => setMobileOnly(true)} />}
       imageFooter={<LegalImageLinks />}
       footer={
         <>

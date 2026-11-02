@@ -16,10 +16,13 @@ import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { type SignUpRole, requestSignUp, signUpWithGoogle } from "@/lib/auth-actions";
-import { authErrorMessage } from "@/lib/auth-errors";
 import { saveVerificationTarget, POST_LOGIN_PATH } from "@/lib/auth-flow";
+import { RiderMobileApp } from "@/components/auth/rider-mobile-app";
+import { authErrorMessage, isMobileOnlyError } from "@/lib/auth-errors";
 
 const MIN_NAME_LENGTH = 2;
+
+const MOBILE_ONLY_ROLES: readonly SignUpRole[] = ["RIDER"];
 
 type Step = 1 | 2 | 3;
 
@@ -95,9 +98,11 @@ export function SignUpView() {
   const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRiderApp, setShowRiderApp] = useState(false);
 
   const trimmedName = fullName.trim().replace(/\s+/g, " ");
   const isFormValid = trimmedName.length >= MIN_NAME_LENGTH && contact.isValid;
+  const isMobileOnly = role !== null && MOBILE_ONLY_ROLES.includes(role);
   const copy = STEPS[step];
 
   function goTo(next: Step) {
@@ -106,14 +111,15 @@ export function SignUpView() {
   }
 
   async function handleGoogle() {
-    if (isLoading || !role) return;
+    if (isLoading || !role || isMobileOnly) return;
     setIsLoading(true);
     setError(null);
     try {
       const outcome = await signUpWithGoogle(role);
       if (outcome === "authenticated") router.push(POST_LOGIN_PATH);
     } catch (err) {
-      setError(authErrorMessage(err));
+      if (isMobileOnlyError(err)) setShowRiderApp(true);
+      else setError(authErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +127,7 @@ export function SignUpView() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (isLoading || !isFormValid || !role) return;
+    if (isLoading || !isFormValid || !role || isMobileOnly) return;
     setIsLoading(true);
     setError(null);
     try {
@@ -140,10 +146,15 @@ export function SignUpView() {
       });
       router.push("/auth/sign-up/verify");
     } catch (err) {
-      setError(authErrorMessage(err));
+      if (isMobileOnlyError(err)) setShowRiderApp(true);
+      else setError(authErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (showRiderApp) {
+    return <RiderMobileApp context="sign-up" onBack={() => setShowRiderApp(false)} />;
   }
 
   return (
@@ -196,7 +207,7 @@ export function SignUpView() {
               size="lg"
               className="w-full"
               disabled={!role}
-              onClick={() => goTo(2)}
+              onClick={() => (isMobileOnly ? setShowRiderApp(true) : goTo(2))}
             >
               Continuer
             </Button>

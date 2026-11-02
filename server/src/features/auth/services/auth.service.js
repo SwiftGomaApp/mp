@@ -20,6 +20,7 @@ const { logger } = require("../../../core/logger/logger");
 const { lookupIp } = require("../../../core/geo/geo");
 const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
+const { assertRoleAllowedOnClient } = require("../../../core/auth/clientApp");
 
 const OTP_RESEND_MESSAGE = "Si un compte en attente existe, un nouveau code a été envoyé";
 const UNKNOWN = "Inconnu";
@@ -160,6 +161,7 @@ async function sendSignupOtp(user) {
 }
 
 async function startSignUp({ name, email, phone, role }, meta) {
+  assertRoleAllowedOnClient(role);
   const now = new Date();
   const identifier = identifierOf({ email, phone });
   const prisma = getPrisma();
@@ -335,6 +337,7 @@ async function notifyNewDevice({ user, device, now, geo }) {
 }
 
 async function finishLogin({ user, method, device, meta }) {
+  assertRoleAllowedOnClient(user.role);
   const state = twoFactorState(user);
 
   if (state === "ENROLL") {

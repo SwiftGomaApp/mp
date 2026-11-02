@@ -76,7 +76,7 @@ const appleController = require("../controllers/apple.controller");
 const { appleLoginBody, appleSignupBody, appleLinkBody } = require("../validators/apple.validator");
 
 const secondaryContactController = require("../controllers/secondary-contact.controller");
-
+const { bindClientApp } = require("../../../core/auth/clientApp");
 const {
   secondaryContactRemoveBody,
   secondaryContactRequestBody,
@@ -84,6 +84,7 @@ const {
 } = require("../validators/secondary-contact.validator");
 
 const router = Router();
+router.use(bindClientApp);
 
 // ===================================== SIGNUP =====================================
 router.post(

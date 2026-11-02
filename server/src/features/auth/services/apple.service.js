@@ -9,6 +9,7 @@ const { consumeStepUp } = require("./stepUp.service");
 const { notifySecurityChange } = require("./securityNotice.service");
 const { consumeNonce } = require("../../../core/auth/nonce");
 const { linkToVerifiedAccount } = require("./oauthLink.service");
+const { assertRoleAllowedOnClient } = require("../../../core/auth/clientApp");
 
 const APPLE_ISSUER = "https://appleid.apple.com";
 const APPLE_KEYS_URL = "https://appleid.apple.com/auth/keys";
@@ -259,6 +260,7 @@ async function signupWithApple(
   { idToken, nonce, role, acceptTerms, confirmAge, name, device },
   meta,
 ) {
+  assertRoleAllowedOnClient(role);
   if (acceptTerms !== true || confirmAge !== true) {
     throw AppError.badRequest(
       "L'acceptation des conditions et la confirmation d'âge sont obligatoires",

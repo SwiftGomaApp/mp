@@ -139,6 +139,25 @@ const schema = z.object({
   CLOUDINARY_API_KEY: optional,
   CLOUDINARY_API_SECRET: optional,
   CLOUDINARY_FOLDER: z.string().trim().min(1).default("swiftgoma"),
+
+  WEB_ORIGINS: z
+    .string()
+    .default("")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
+  ADMIN_ORIGINS: z
+    .string()
+    .default("")
+    .transform((v) =>
+      v
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean),
+    ),
 });
 
 let config = null;
@@ -239,6 +258,7 @@ async function loadConfig() {
     port: env.PORT,
     apiBaseUrl: env.API_BASE_URL,
     corsOrigins: env.CORS_ORIGINS,
+    clientApps: { webOrigins: env.WEB_ORIGINS, adminOrigins: env.ADMIN_ORIGINS },
     trustProxy: env.TRUST_PROXY,
     sentry: {
       dsn: env.SENTRY_DSN,

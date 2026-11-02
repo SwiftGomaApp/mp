@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
+import { RiderMobileApp } from "@/components/auth/rider-mobile-app";
 import { SupportHint } from "@/components/auth/support-hint";
 import { LegalNotice } from "@/components/auth/legal-links";
 import { OTP_CODE_LENGTH, OtpCodeInput } from "@/components/auth/otp-code-input";
@@ -30,7 +31,7 @@ import {
   verifySignInCode,
   verifySignUpCode,
 } from "@/lib/auth-actions";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, isMobileOnlyError } from "@/lib/auth-errors";
 
 const subscribe = () => () => {};
 const getServerTarget = () => null;
@@ -58,6 +59,7 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
   const [twoFactorOpen, setTwoFactorOpen] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RESEND_DELAY_SECONDS);
   const [error, setError] = useState<string | null>(null);
+  const [mobileOnly, setMobileOnly] = useState(false);
 
   const target = parseVerificationTarget(
     useSyncExternalStore(subscribe, readStoredVerificationTarget, getServerTarget),
@@ -96,8 +98,13 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
         "Votre compte doit activer la double vérification avant de continuer. Cette étape arrive bientôt.",
       );
     } catch (err) {
-      setError(authErrorMessage(err));
-      setCode("");
+      if (isMobileOnlyError(err)) {
+        clearVerificationTarget();
+        setMobileOnly(true);
+      } else {
+        setError(authErrorMessage(err));
+        setCode("");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -118,6 +125,10 @@ export function VerifyOtpView({ flow }: { flow: AuthFlow }) {
     } finally {
       setIsResending(false);
     }
+  }
+
+  if (mobileOnly) {
+    return <RiderMobileApp context={flow} onBack={() => router.replace(copy.startPath)} />;
   }
 
   return (

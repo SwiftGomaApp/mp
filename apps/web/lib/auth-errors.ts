@@ -97,8 +97,16 @@ export function authErrorMessage(error: unknown): string {
   if (isApiError(error) && (error.name === "NetworkError" || error.name === "TimeoutError")) {
     return "Connexion impossible. Vérifiez votre réseau et réessayez.";
   }
+  if (hasErrorCode(error, "RIDER_MOBILE_ONLY")) {
+    return "Les comptes livreur s’utilisent depuis l’application mobile SwiftGoma. Téléchargez-la pour continuer.";
+  }
+  if (hasErrorCode(error, "ROLE_NOT_ALLOWED_ON_CLIENT")) {
+    return "Ce rôle n’est pas autorisé sur cette URL. Utilisez l’espace dédié à votre équipe.";
+  }
   return "Une erreur est survenue. Réessayez.";
 }
 
 export const isTwoFactorExpired = (error: unknown) =>
   hasErrorCode(error, ["TWO_FACTOR_CHALLENGE_EXPIRED", "TWO_FACTOR_LOCKED"]);
+
+export const isMobileOnlyError = (error: unknown) => hasErrorCode(error, "RIDER_MOBILE_ONLY");

@@ -10,10 +10,12 @@ const { markSessionRevoked } = require("../../../core/auth/revocation");
 const { authConfig } = require("../config/auth.config");
 const { logActivity } = require("./activity.service");
 const { lookupIp } = require("../../../core/geo/geo");
+const { assertRoleAllowedOnClient } = require("../../../core/auth/clientApp");
 
 const ROTATION_GRACE_MS = 60 * 1000;
 
 async function createSession({ user, method, device, ipAddress, userAgent, city, country }) {
+  assertRoleAllowedOnClient(user.role);
   const prisma = getPrisma();
   const refresh = generateRefreshToken();
   const now = new Date();
@@ -147,6 +149,12 @@ async function refreshSession(refreshToken, meta) {
     throw AppError.unauthorized("Session expirée, veuillez vous reconnecter", "SESSION_EXPIRED");
   }
   const { user } = session;
+  try {
+    assertRoleAllowedOnClient(user.role);
+  } catch (err) {
+    await revokeSession(session, "USER_INACTIVE");
+    throw err;
+  }
   const idleMs = now - (session.lastSeenAt ?? session.createdAt);
   if (
     authConfig.staffRoles.includes(user.role) &&

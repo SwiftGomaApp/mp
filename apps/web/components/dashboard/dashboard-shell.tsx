@@ -11,6 +11,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { BUYER_HOME_PATH, isSellerArea, webAccessFor } from "@/lib/roles";
+import { SellerVerificationGate } from "@/components/dashboard/seller-verification-gate";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -40,7 +41,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     return <RoleBlocked role={user.role} kind={access} />;
   }
 
-  return (
+  const shell = (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -55,4 +56,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </SidebarInset>
     </SidebarProvider>
   );
+
+  if (user.role === "SELLER" && isSellerArea(pathname)) {
+    return <SellerVerificationGate>{shell}</SellerVerificationGate>;
+  }
+
+  return shell;
 }

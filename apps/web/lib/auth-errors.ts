@@ -50,6 +50,24 @@ export function authErrorMessage(error: unknown): string {
   if (hasErrorCode(error, "PREFERENCE_NOT_ALLOWED")) {
     return "Cette préférence n’est pas disponible pour votre type de compte.";
   }
+  if (hasErrorCode(error, "ATTEMPTS_EXHAUSTED")) {
+    return "Vous avez utilisé vos 3 essais. Contactez le Support.";
+  }
+  if (hasErrorCode(error, ["CASE_IN_PROGRESS", "ALREADY_APPROVED"])) {
+    return "Votre dossier est déjà en cours d’examen ou approuvé. Actualisez la page.";
+  }
+  if (hasErrorCode(error, "NO_DRAFT_CASE")) {
+    return "Commencez d’abord votre dossier de vérification.";
+  }
+  if (hasErrorCode(error, "VERIFICATION_INCOMPLETE")) {
+    return "Votre dossier est incomplet : ajoutez les documents et informations manquants.";
+  }
+  if (hasErrorCode(error, "DOCUMENT_NOT_FOUND")) {
+    return "Ce document n’existe plus. Actualisez la page.";
+  }
+  if (hasErrorCode(error, ["DOCUMENT_NOT_ALLOWED", "FIELD_NOT_ALLOWED", "NOT_VERIFIABLE"])) {
+    return "Cette information n’est pas demandée pour votre compte.";
+  }
   if (hasErrorCode(error, "ADDRESS_LIMIT_REACHED")) {
     return "Vous avez atteint le nombre maximum d’adresses. Supprimez-en une pour en ajouter.";
   }

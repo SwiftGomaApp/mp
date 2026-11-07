@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Mail, Phone } from "lucide-react";
 import { useSession } from "swiftgoma-mp-auth/react";
@@ -20,6 +20,8 @@ const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Administrateur",
 };
 
+const subscribeNothing = () => () => {};
+
 const initialsOf = (name: string) =>
   name
     .split(/\s+/)
@@ -30,6 +32,13 @@ const initialsOf = (name: string) =>
 
 export function CurrentUserCard() {
   const { status, user } = useSession();
+  // The session can already be known on the first client render while the server had none:
+  // keep the skeleton until hydration is done so both renders match.
+  const hydrated = useSyncExternalStore(
+    subscribeNothing,
+    () => true,
+    () => false,
+  );
   const userId = user?.id;
   const avatarUrl = useAvatarUrl(userId);
 
@@ -37,7 +46,7 @@ export function CurrentUserCard() {
     if (userId) void loadAvatar(userId);
   }, [userId]);
 
-  if (status === "unknown") {
+  if (!hydrated || status === "unknown") {
     return (
       <Card className="w-full max-w-sm">
         <CardContent className="flex items-center gap-4">

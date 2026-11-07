@@ -11,7 +11,7 @@ function allowedDocumentTypes(type) {
   return [...required, ...optional];
 }
 
-function checkSubmission({ type, documents, taxNumber, vehicleType, plateNumber }) {
+function checkSubmission({ type, documents, vehicleType, plateNumber }) {
   const problems = [];
   const given = new Map(documents.map((d) => [d.type, d]));
 
@@ -26,8 +26,7 @@ function checkSubmission({ type, documents, taxNumber, vehicleType, plateNumber 
     if (given.has(t) && !given.get(t).expiresAt)
       problems.push({ code: "EXPIRY_REQUIRED", field: t });
   }
-  if (type === "SELLER" && !taxNumber)
-    problems.push({ code: "TAX_NUMBER_REQUIRED", field: "taxNumber" });
+  // the tax number is optional for a seller: not everyone has one
   if (type === "RIDER") {
     if (!vehicleType) problems.push({ code: "VEHICLE_TYPE_REQUIRED", field: "vehicleType" });
     if (!plateNumber) problems.push({ code: "PLATE_REQUIRED", field: "plateNumber" });
